@@ -20,7 +20,7 @@ mkdir build && cd build
 cmake .. && make
 
 # Execute
-./ForkerRenderer obj/diablo_pose/diablo_pose.obj [RotateDegreeOnY = 0.0] [Scale = 1.0]
+./ForkerRenderer ../obj/diablo_pose/diablo_pose.obj [RotateDegreeOnY = 0.0] [Scale = 1.0]
 ```
 
 ## Features
