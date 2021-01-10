@@ -5,7 +5,7 @@ for logging though :)
 
 ![](https://bloggg-1254259681.cos.na-siliconvalley.myqcloud.com/7ecoa.jpg)
 
-## Building
+## Building & Usage
 
 ```sh
 # Logging
@@ -18,8 +18,9 @@ cd ForkerRenderer
 # Compile
 mkdir build && cd build
 cmake .. && make
+```
 
-# Execute
+```sh
 # Usage: <filename> <rotate degree on y-axis>(optional) <scale factor>(optional)
 ./ForkerRenderer ../obj/diablo_pose/diablo_pose.obj -10.0 1.0
 ```
@@ -53,19 +54,19 @@ cmake .. && make
 
 ## Gallery
 
-Apex Horizon (also [Dr. Mary Somers](https://www.ea.com/games/apex-legends/about/characters/horizon)), Author: Squral
+Apex Horizon (also [Dr. Mary Somers](https://www.ea.com/games/apex-legends/about/characters/horizon)), author: Squral
 
 <img src="https://bloggg-1254259681.cos.na-siliconvalley.myqcloud.com/9vm5c.jpg" width="600">
 
-Sci-Fi Welding Vehicle, Author: Berk Gedik
+Sci-Fi Welding Vehicle, author: Berk Gedik
 
 <img src="https://bloggg-1254259681.cos.na-siliconvalley.myqcloud.com/ftuc3.jpg" width="600">
 
-Backpack, Author: Berk Gedik
+Backpack, author: Berk Gedik
 
 <img src="https://bloggg-1254259681.cos.na-siliconvalley.myqcloud.com/1zcq0.jpg" width="400">
 
-African Head, Author: Vidar Rapp
+African Head, author: Vidar Rapp
 
 <img src="https://bloggg-1254259681.cos.na-siliconvalley.myqcloud.com/vkyah.jpg" width="400">
 
