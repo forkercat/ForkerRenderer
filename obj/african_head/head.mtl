@@ -1,0 +1,10 @@
+# Material Count: 1
+
+newmtl Head
+    Ka 0.300 0.300 0.300
+    Kd 0.712 0.712 0.712
+    Ks 0.300 0.300 0.300
+    illum 2
+    map_Kd head_diff.tga
+    map_Ks head_spec.tga
+    map_Bump head_nm.tga

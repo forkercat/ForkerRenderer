@@ -1,0 +1,10 @@
+# Material Count: 1
+
+newmtl Eye_Inner
+    Ka 0.300 0.300 0.300
+    Kd 0.900 0.900 0.900
+    Ks 0.900 0.900 0.900
+    illum 2
+    map_Kd eye_inner_diff.tga
+    map_Ks eye_inner_spec.tga
+    map_Bump eye_inner_nm.tga

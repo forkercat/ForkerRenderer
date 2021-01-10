@@ -1,0 +1,10 @@
+# Material Count: 1
+
+newmtl Diablo_Pose
+    Ka 0.300 0.300 0.300
+    Kd 0.812 0.812 0.812
+    Ks 0.200 0.200 0.200
+    illum 2
+    map_Kd diablo_pose_diff.tga
+    map_Ks diablo_pose_spec.tga
+    map_Bump diablo_pose_nm.tga
