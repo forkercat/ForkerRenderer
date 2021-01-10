@@ -52,7 +52,7 @@ cmake .. && make
 
 ## Gallery
 
-Apex Horizon, [Dr. Mary Somers](https://www.ea.com/games/apex-legends/about/characters/horizon) (Shadow Mapping: On), Author: Squral
+Apex Horizon (also [Dr. Mary Somers](https://www.ea.com/games/apex-legends/about/characters/horizon)), Author: Squral
 
 <img src="https://bloggg-1254259681.cos.na-siliconvalley.myqcloud.com/9vm5c.jpg" width="600">
 
