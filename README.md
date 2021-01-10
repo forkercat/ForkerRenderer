@@ -20,7 +20,8 @@ mkdir build && cd build
 cmake .. && make
 
 # Execute
-./ForkerRenderer ../obj/diablo_pose/diablo_pose.obj [RotateDegreeOnY = 0.0] [Scale = 1.0]
+# Usage: <filename> <rotate degree on y-axis>(optional) <scale factor>(optional)
+./ForkerRenderer ../obj/diablo_pose/diablo_pose.obj -10.0 1.0
 ```
 
 ## Features

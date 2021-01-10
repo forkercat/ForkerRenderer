@@ -26,6 +26,6 @@ my_main.cpp
 test.cpp
 
 # output
-output/*
+output/
 
 resources/objects/horizon/
