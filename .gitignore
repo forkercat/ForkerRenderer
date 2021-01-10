@@ -1,5 +1,6 @@
 # clion
 cmake-build-debug/
+build/
 CMakeFiles/
 .idea/
 CMakeCache.txt
@@ -25,6 +26,6 @@ my_main.cpp
 test.cpp
 
 # output
-output/
+output/*
 
 resources/objects/horizon/
