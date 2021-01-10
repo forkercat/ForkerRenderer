@@ -1,0 +1,30 @@
+# clion
+cmake-build-debug/
+CMakeFiles/
+.idea/
+CMakeCache.txt
+Makefile
+
+# cpp
+*.cbp
+
+# mac
+.DS_Store
+
+# config file
+*.ini
+
+# resources
+obj/horizon
+obj/cart
+obj/cyborg
+obj/backpack
+
+# specific sources
+my_main.cpp
+test.cpp
+
+# output
+output/
+
+resources/objects/horizon/
