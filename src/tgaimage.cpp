@@ -176,6 +176,7 @@ bool TGAImage::loadRleData(std::ifstream& in)
 
 bool TGAImage::WriteTgaFile(const std::string filename, bool vFlip, bool rle) const
 {
+    spdlog::info("Output TGA File: {}", filename);
     std::uint8_t  developer_area_ref[4] = { 0, 0, 0, 0 };
     std::uint8_t  extension_area_ref[4] = { 0, 0, 0, 0 };
     std::uint8_t  footer[18] = { 'T', 'R', 'U', 'E', 'V', 'I', 'S', 'I', 'O',
