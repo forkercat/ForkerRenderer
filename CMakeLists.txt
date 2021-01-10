@@ -16,3 +16,6 @@ add_executable(ForkerRenderer
     src/main.cpp)
 
 target_link_libraries(ForkerRenderer PRIVATE spdlog::spdlog)
+
+# Create output directory
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/output)
