@@ -18,9 +18,7 @@ cd ForkerRenderer
 # Compile
 mkdir build && cd build
 cmake .. && make
-```
 
-```sh
 # Usage: <filename> <rotate degree on y-axis>(optional) <scale factor>(optional)
 ./ForkerRenderer ../obj/diablo_pose/diablo_pose.obj -10.0 1.0
 ```
