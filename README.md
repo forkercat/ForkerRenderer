@@ -1,4 +1,4 @@
-# ForkerRenderer: Learn How Software Rendering Works
+# ForkerRenderer: A CPU-Based Software Renderer, A Tiny OpenGL
 
 Implement CPU-based software rendering that mimics OpenGL behavior without using any third-party libraries, but use [spdlog](https://github.com/gabime/spdlog)
 for logging though :)
