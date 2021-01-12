@@ -53,7 +53,7 @@ int main(int argc, const char* argv[])
     spdlog::stopwatch totalStopwatch;
 
     // Model
-    Model model(modelFilename, false);
+    Model model(modelFilename, true);
     Mat4f modelMatrix = MakeModelMatrix(Vec3f(0.f), rotateDegreeOnY, uniformScale);
     TimeElapsed(stepStopwatch, "Model Loaded");
 

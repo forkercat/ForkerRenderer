@@ -44,6 +44,7 @@ cmake .. && make
 - [x] Texture Mapping: Diffuse / Specular / Normal / AO
 - [ ] Texture Filtering: Nearest / Linear
 - [x] Normal Transformation: TBN Matrix
+  - Generate and average tangents for each vertex when loading the model
 - [x] Camera: Orthographic / Perspective Projection
 - [x] Perspective Correct Interpolation (PCI) `#define PERSPECTIVE_CORRECT_MAPPING`
 - [x] Soft-Shadow Mapping with Percentage-Closer Filtering (PCF) `#define SHADOW_MAPPING`

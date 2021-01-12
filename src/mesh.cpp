@@ -60,6 +60,17 @@ Vec3f Mesh::Normal(int faceIdx, int vertIdx) const
     return Normalize(model->GetNormal(index));
 }
 
+Vec3f Mesh::Tangent(int faceIdx, int vertIdx) const
+{
+    int index = faceTangentIndices[faceIdx * 3 + vertIdx];
+    return Normalize(model->GetTangent(index));
+}
+
+int Mesh::GetVertIndex(int faceIdx, int vertIdx) const
+{
+    return faceVertIndices[faceIdx * 3 + vertIdx];
+}
+
 /////////////////////////////////////////////////////////////////////////////////
 
 Vec3f Mesh::DiffuseColor(const Vec2f& uv) const
@@ -121,4 +132,9 @@ void Mesh::AddTexCoordIndex(int index)
 void Mesh::AddNormalIndex(int index)
 {
     faceNormalIndices.push_back(index);
+}
+
+void Mesh::AddTangentIndex(int index)
+{
+    faceTangentIndices.push_back(index);
 }

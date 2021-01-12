@@ -38,12 +38,13 @@ Model::Model(const std::string& filename, bool normalized, bool flipTexCoordY)
     }
 
     // Post-Processing
+    generateTangents();
     if (normalized) this->normalizePositionVertices();
 
     // clang-format off
     spdlog::info(
-        "v# {}, f# {}, vt# {}, vn# {}, mesh# {}, mtl# {} | normalized: {}, flipTexCoordY: {}",
-        GetNumVerts(), GetNumFaces(), texCoords.size(), normals.size(), meshes.size(),
+        "v# {}, f# {}, vt# {}, vn# {}, tg# {}, mesh# {}, mtl# {} | normalized: {}, flipTexCoordY: {}",
+        GetNumVerts(), GetNumFaces(), texCoords.size(), normals.size(), tangents.size(), meshes.size(),
         materials.size(), normalized, flipTexCoordY);
 
     for (auto iter = meshes.begin(); iter != meshes.end(); ++iter)
@@ -105,6 +106,11 @@ Vec2f Model::GetTexCoord(int index) const
 Vec3f Model::GetNormal(int index) const
 {
     return normals[index];
+}
+
+Vec3f Model::GetTangent(int index) const
+{
+    return tangents[index];
 }
 
 int Model::GetNumVerts() const
@@ -397,4 +403,52 @@ void Model::loadTexture(const std::string& textureFilename, TGAImage& image,
     }
 
     if (flipVertically) image.FlipVertically();  // flip v coordinate
+}
+
+// Generate Tangents
+void Model::generateTangents()
+{
+    tangents = std::vector<Vec3f>(verts.size(), Vec3f(0.f));
+    for (auto iter = meshes.begin(); iter != meshes.end(); ++iter)
+    {
+        Mesh& mesh = iter->second;
+        for (int f = 0; f < mesh.NumFaces(); ++f)
+        {
+            int   indexP0 = mesh.GetVertIndex(f, 0);
+            int   indexP1 = mesh.GetVertIndex(f, 1);
+            int   indexP2 = mesh.GetVertIndex(f, 2);
+            Vec3f edge1 = mesh.Vert(f, 1) - mesh.Vert(f, 0);
+            Vec3f edge2 = mesh.Vert(f, 2) - mesh.Vert(f, 0);
+            Vec2f deltaUv1 = mesh.TexCoord(f, 1) - mesh.TexCoord(f, 0);
+            Vec2f deltaUv2 = mesh.TexCoord(f, 2) - mesh.TexCoord(f, 0);
+            Float det = deltaUv1.s * deltaUv2.t - deltaUv2.s * deltaUv1.t;
+            if (det == 0.f)
+            {
+                // spdlog::error("det = 0");
+                mesh.AddTangentIndex(indexP0);
+                mesh.AddTangentIndex(indexP1);
+                mesh.AddTangentIndex(indexP2);
+                continue;
+            }
+            Float inv = 1.f / det;
+            Vec3f T = Normalize(inv * Vec3f(deltaUv2.t * edge1.x - deltaUv1.t * edge2.x,
+                                            deltaUv2.t * edge1.y - deltaUv1.t * edge2.y,
+                                            deltaUv2.t * edge1.z - deltaUv1.t * edge2.z));
+            tangents[indexP0] += T;
+            tangents[indexP1] += T;
+            tangents[indexP2] += T;
+            mesh.AddTangentIndex(indexP0);
+            mesh.AddTangentIndex(indexP1);
+            mesh.AddTangentIndex(indexP2);
+        }
+    }
+
+    // Average Tangents
+    for (auto& v : tangents)
+    {
+        if (v.Length() == 0.f)
+            v = Vec3f(1, 0, 0);  // random (to be improved)
+        else
+            v = Normalize(v);
+    }
 }

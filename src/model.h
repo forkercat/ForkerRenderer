@@ -32,6 +32,7 @@ public:
     Vec3f GetVert(int index) const;
     Vec2f GetTexCoord(int index) const;
     Vec3f GetNormal(int index) const;
+    Vec3f GetTangent(int index) const;
 
     int GetNumVerts() const;
     int GetNumFaces() const;
@@ -42,6 +43,7 @@ private:
     std::vector<Vec3f>              verts;
     std::vector<Vec2f>              texCoords;
     std::vector<Vec3f>              normals;
+    std::vector<Vec3f>              tangents;
 
     // .obj and .mtl Parsers
     // Supported Format: 'g ' is followed by 'usemtl ', which is followed by 'f ...'
@@ -51,8 +53,10 @@ private:
     void loadTexture(const std::string& textureFilename, TGAImage& img,
                      bool flipVertically);
 
-    // Post-Processing
-    void normalizePositionVertices();  // Make position coordinates between [-1, 1]
+    // Make Position Coordinates Between [-1, 1]
+    void normalizePositionVertices();
+    // Generate Tangents For TBN Matrix Transformation
+    void generateTangents();
 };
 
 #endif  //_MODEL_H_

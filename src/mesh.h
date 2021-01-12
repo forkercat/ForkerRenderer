@@ -28,6 +28,8 @@ public:
     Vec3f Vert(int faceIdx, int vertIdx) const;
     Vec2f TexCoord(int faceIdx, int vertIdx) const;
     Vec3f Normal(int faceIdx, int vertIdx) const;
+    Vec3f Tangent(int faceIdx, int vertIdx) const;
+    int   GetVertIndex(int faceIdx, int vertIdx) const;
 
     // Material Properties
     Vec3f GetKa() const { return material->Ka; }
@@ -49,6 +51,7 @@ public:
     void            AddVertIndex(int index);
     void            AddTexCoordIndex(int index);
     void            AddNormalIndex(int index);
+    void            AddTangentIndex(int index);
 
 private:
     // Model and material are set right after Mesh creation
@@ -59,6 +62,7 @@ private:
     std::vector<int> faceVertIndices;
     std::vector<int> faceTexCoordIndices;
     std::vector<int> faceNormalIndices;  // 3 vertices form a triangle
+    std::vector<int> faceTangentIndices;
 };
 
 #endif  // _MESH_H_

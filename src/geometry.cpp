@@ -67,6 +67,7 @@ Mat3f MakeNormalMatrix(const Mat4f& matrix)
     return m;
 }
 
+// Deprecated (Tangents have been calculated in Model class)
 Mat3f MakeTbnMatrix(const Vec3f& edge1, const Vec3f& edge2, const Vec2f& deltaUv1,
                     const Vec2f& deltaUv2, const Vec3f& N)
 {

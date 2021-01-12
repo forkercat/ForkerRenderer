@@ -41,6 +41,7 @@ struct BlinnPhongShader : public Shader
     Mat3x3f varying_fragPosInEyeDivided;  // eye space
     Mat2x3f varying_texCoordsDivided;
     Mat3x3f varying_normalsDivided;
+    Mat3x3f varying_tangentsDivided;
 
     // Vertex (out) -> Fragment (in)
     Mat3x3f v2f_fragPosInEye;
@@ -71,9 +72,10 @@ struct BlinnPhongShader : public Shader
         Vec4f fragPosInEye = ufm_view * fragPosInWorld;
         Vec4f fragPosInClip = ufm_projection * fragPosInEye;
 
-        // TexCoord and Normal
+        // TexCoord, Normal, Tangent
         Vec2f texCoord = mesh->TexCoord(faceIdx, vertIdx);
         Vec3f normalInEye = ufm_normalMatrix * mesh->Normal(faceIdx, vertIdx);
+        Vec3f tangentInEye = ufm_normalMatrix * mesh->Tangent(faceIdx, vertIdx);
 
         // Vertex -> Fragment
         v2f_fragPosInEye.SetCol(vertIdx, fragPosInEye.xyz);
@@ -87,11 +89,13 @@ struct BlinnPhongShader : public Shader
         fragPosInEye *= oneOverW;
         texCoord *= oneOverW;
         normalInEye *= oneOverW;
+        tangentInEye *= oneOverW;
 #endif
         // Varying
         varying_texCoordsDivided.SetCol(vertIdx, texCoord);
         varying_fragPosInEyeDivided.SetCol(vertIdx, fragPosInEye.xyz);
         varying_normalsDivided.SetCol(vertIdx, normalInEye);
+        varying_tangentsDivided.SetCol(vertIdx, tangentInEye);
 
         // Shadow Mapping
 #ifdef SHADOW_MAPPING
@@ -112,6 +116,7 @@ struct BlinnPhongShader : public Shader
         Vec3f fragPosInEye = varying_fragPosInEyeDivided * baryCoord;
         Vec2f texCoord = varying_texCoordsDivided * baryCoord;
         Vec3f normalInEye = varying_normalsDivided * baryCoord;
+        Vec3f tangentInEye = varying_tangentsDivided * baryCoord;
 
         // PCI
 #ifdef PERSPECTIVE_CORRECT_MAPPING
@@ -119,11 +124,19 @@ struct BlinnPhongShader : public Shader
         fragPosInEye *= w;
         texCoord *= w;
         normalInEye *= w;
+        tangentInEye *= w;
 #endif
-        normalInEye = Normalize(normalInEye);
+        Vec3f N = Normalize(normalInEye);
+        Vec3f T = Normalize(tangentInEye);
 
-        // Normal & Directions
-        Vec3f normal = convertNormal(mesh->Normal(texCoord), normalInEye);  // normalized
+        // Normal (TBN Matrix)
+        T = Normalize(T - Dot(T, N) * N);
+        Vec3f B = Normalize(Cross(N, T));
+        Mat3f TbnMatrix;
+        TbnMatrix.SetCol(0, T).SetCol(1, B).SetCol(2, N);
+        Vec3f normal = Normalize(TbnMatrix * mesh->Normal(texCoord));
+
+        // Directions
         Vec3f lightDir = Normalize(v2f_lightPosInEye - fragPosInEye);
         Vec3f viewDir = Normalize(-fragPosInEye);  // eye pos is [0, 0, 0]
         Vec3f halfwayDir = Normalize(lightDir + viewDir);
@@ -173,21 +186,6 @@ private:
         Vec3f color = ambient + diffuse + specular;
         return Clamp(color, 0.f, 1.f);
     }
-
-    /////////////////////////////////////////////////////////////////////////////////
-
-    // Convert Normal By TBN Matrix From Tangent Space To Eye Space
-    Vec3f convertNormal(const Vec3f& normalInTangent, const Vec3f& normalInEye)
-    {
-        Vec3f edge1 = v2f_fragPosInEye.Col(1) - v2f_fragPosInEye.Col(0);
-        Vec3f edge2 = v2f_fragPosInEye.Col(2) - v2f_fragPosInEye.Col(0);
-        Vec2f deltaUv1 = v2f_texCoords.Col(1) - v2f_texCoords.Col(0);
-        Vec2f deltaUv2 = v2f_texCoords.Col(2) - v2f_texCoords.Col(0);
-        Mat3f TbnMatrix = MakeTbnMatrix(edge1, edge2, deltaUv1, deltaUv2, normalInEye);
-        Vec3f normal = Normalize(TbnMatrix * normalInTangent);  // tangent -> eye
-        return normal;
-    }
-
     /////////////////////////////////////////////////////////////////////////////////
 
 #ifdef SHADOW_MAPPING
