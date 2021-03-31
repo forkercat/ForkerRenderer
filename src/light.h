@@ -2,8 +2,8 @@
 // Created by Junhao Wang (@Forkercat) on 2021/1/4.
 //
 
-#ifndef _LIGHT_H_
-#define _LIGHT_H_
+#ifndef LIGHT_H_
+#define LIGHT_H_
 
 #include "geometry.h"
 #include "tgaimage.h"
@@ -11,54 +11,54 @@
 class Light
 {
 public:
-    Vector3f Color;
+    Color3 color;
 
-    Light(const Vector3f& color) : Color(color) { }
+    Light(const Color3& c) : color(c) { }
     virtual ~Light() = default;
 };
 
 class DirLight : public Light
 {
 public:
-    Vector3f Direction;
-    Vector3f Position;  // for shadow mapping
+    Point3f  position;  // for shadow mapping
+    Vector3f direction;
 
-    explicit DirLight() : Light(Vector3f(1.f)), Direction(0, 0, -1), Position(0.f) { }
+    explicit DirLight() : Light(Color3(1.f)), direction(0, 0, -1), position(0.f) { }
 
-    explicit DirLight(const Vector3f& direction, const Vector3f& position,
-                      const Vector3f& color = Vector3f(1.f))
-        : Light(color), Position(position)
+    explicit DirLight(const Vector3f& dir, const Point3f& pos,
+                      const Color3& c = Color3(1.f))
+        : Light(c), position(pos)
     {
-        CHECK(direction != Vector3f(0.f, 0.f, 0.f));
-        Direction = Normalize(direction);
+        CHECK(dir != Vector3f(0.f, 0.f, 0.f));
+        direction = Normalize(dir);
     }
 
-    explicit DirLight(Float dirX, Float dirY, Float dirZ, const Vector3f& position,
-                      const Vector3f& color = Vector3f(1.f))
-        : Light(color), Position(position)
+    explicit DirLight(Float dirX, Float dirY, Float dirZ, const Point3f& position,
+                      const Color3& color = Vector3f(1.f))
+        : Light(color), position(position)
     {
-        Vector3f direction(dirX, dirY, dirZ);
-        CHECK(direction != Vector3f(0.f, 0.f, 0.f));
-        Direction = Normalize(direction);
+        Vector3f dir(dirX, dirY, dirZ);
+        CHECK(dir != Vector3f(0.f, 0.f, 0.f));
+        direction = Normalize(dir);
     }
 };
 
 class PointLight : public Light
 {
 public:
-    Vector3f Position;
+    Vector3f position;
 
-    explicit PointLight() : Light(Vector3f(1.f)), Position(0.f) { }
+    explicit PointLight() : Light(Vector3f(1.f)), position(0.f) { }
 
-    explicit PointLight(Float x, Float y, Float z, const Vector3f& color = Vector3f(1.f))
-        : Light(color), Position(x, y, z)
+    explicit PointLight(Float x, Float y, Float z, const Vector3f& c = Vector3f(1.f))
+        : Light(c), position(x, y, z)
     {
     }
 
-    explicit PointLight(const Vector3f& position, const Vector3f& color = Vector3f(1.f))
-        : Light(color), Position(position)
+    explicit PointLight(const Vector3f& pos, const Vector3f& c = Vector3f(1.f))
+        : Light(c), position(pos)
     {
     }
 };
 
-#endif  // _LIGHT_H_
+#endif  // LIGHT_H_

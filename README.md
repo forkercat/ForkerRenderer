@@ -30,7 +30,7 @@ cmake .. && make
 - [x] Parsing `*.obj` / `*.mtl`
     - `g` defines mesh name; `usemtl` defines material name (comes in order)
     - Support `Ka`, `Kd`, `Ks`, `map_Kd`, `map_Ks`, `map_Bump`, `map_Ao`
-    - Position vertex normalization
+    - position vertex normalization
     - Auto triangulate
 - [x] Geometry Template Class
     - Vector: `Vector2f`, `Vector3f`, `Vector4f`, `Vector4i`, ...
@@ -119,7 +119,7 @@ Rendering:
 - [JoeyDeVries/LearnOpenGL](https://learnopengl.com/)
 - [OpenGL Projection Matrix](http://www.songho.ca/opengl/gl_projectionmatrix.html)
 - [The Normal Matrix](http://www.lighthouse3d.com/tutorials/glsl-12-tutorial/the-normal-matrix/)
-- [Perspectively Correct Texture Mapping And Color Interpolation](http://gamma.cs.unc.edu/courses/graphics-s09/Zaferakis/hw6/)
+- [Perspectively Correct Texture Mapping And color Interpolation](http://gamma.cs.unc.edu/courses/graphics-s09/Zaferakis/hw6/)
 - [Converting quadrilaterals in an OBJ file into triangles?](https://stackoverflow.com/questions/23723993/converting-quadriladerals-in-an-obj-file-into-triangles)
 - [OBJ FILE FORMAT](https://www.cs.cmu.edu/~mbz/personal/graphics/obj.html)
 - [Object Files (.obj)](http://paulbourke.net/dataformats/obj/)

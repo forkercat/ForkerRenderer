@@ -46,9 +46,10 @@ TGAImage Buffer::GenerateGrayImage(bool inverseColor) const
     return image;
 }
 
-void Buffer::PaintColor(const TGAColor& color)
+void Buffer::PaintColor(const Color3& color)
 {
+
     for (int i = 0; i < width; ++i)
         for (int j = 0; j < height; ++j)
-            Set(i, j, Vector3i(color.r, color.g, color.b));
+            Set(i, j, color);
 }

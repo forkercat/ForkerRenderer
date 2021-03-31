@@ -31,12 +31,12 @@ struct ForkerGL
     static void InitShadowBuffers(int width, int height);
 
     // Update Status
-    static void ClearColor(const TGAColor& color);
+    static void ClearColor(const Color3& color);
     static void Viewport(int x, int y, int w, int h);
     static void RenderMode(enum RenderMode mode);
 
     // Rasterization
-    static void DrawTriangle(const Vector4f ndcVerts[3], Shader& shader);
+    static void DrawTriangle(const Point4f ndcVerts[3], Shader& shader);
 };
 
 #endif  // _FORKER_GL_H_

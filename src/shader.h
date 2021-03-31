@@ -2,10 +2,11 @@
 // Created by Junhao Wang (@Forkercat) on 2020/12/26.
 //
 
-#ifndef _SHADER_H_
-#define _SHADER_H_
+#ifndef SHADER_H_
+#define SHADER_H_
 
 #include "buffer.h"
+#include "color.h"
 #include "geometry.h"
 #include "light.h"
 #include "mesh.h"
@@ -30,7 +31,7 @@ struct Shader
     // Vertex Shader
     virtual Vector4f ProcessVertex(int faceIdx, int vertIdx) = 0;
     // Fragment Shader
-    virtual bool ProcessFragment(const Vector3f& baryCoord, Vector3f& gl_Color) = 0;
+    virtual bool ProcessFragment(const Vector3f& baryCoord, Color3& gl_Color) = 0;
 };
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -80,7 +81,7 @@ struct BlinnPhongShader : public Shader
         // Vertex -> Fragment
         v2f_fragPosInEye.SetCol(vertIdx, fragPosInEye.xyz);
         v2f_texCoords.SetCol(vertIdx, texCoord);
-        v2f_lightPosInEye = (ufm_view * Vector4f(ufm_pointLight.Position, 1.f)).xyz;
+        v2f_lightPosInEye = (ufm_view * Vector4f(ufm_pointLight.position, 1.f)).xyz;
 
         // PCI
 #ifdef PERSPECTIVE_CORRECT_MAPPING
@@ -99,18 +100,19 @@ struct BlinnPhongShader : public Shader
 
         // Shadow Mapping
 #ifdef SHADOW_MAPPING
-        Vector4f fragPosInLightSpaceNdc = DivideByW(ufm_lightSpaceMatrix * fragPosInWorld);
+        Vector4f fragPosInLightSpaceNdc = ufm_lightSpaceMatrix * fragPosInWorld;
+        fragPosInLightSpaceNdc /= fragPosInLightSpaceNdc.w;
         varying_fragPosInLightSpaceNdc.SetCol(vertIdx, fragPosInLightSpaceNdc.xyz);
 #endif
 
         // Perspective Division
-        return DivideByW(fragPosInClip);
+        return fragPosInClip /= fragPosInClip.w;
     }
 
     /////////////////////////////////////////////////////////////////////////////////
 
     // Fragment Shader
-    bool ProcessFragment(const Vector3f& baryCoord, Vector3f& gl_Color) override
+    bool ProcessFragment(const Vector3f& baryCoord, Color3& gl_Color) override
     {
         // Interpolation
         Vector3f fragPosInEye = varying_fragPosInEyeDivided * baryCoord;
@@ -158,7 +160,7 @@ private:
     Vector3f calculateLight(const Vector3f& lightDir, const Vector3f& halfwayDir,
                          const Vector3f& normal, const Vector2f& texCoord, Float shadow)
     {
-        Vector3f lightColor = ufm_pointLight.Color;
+        Vector3f lightColor = ufm_pointLight.color;
         Vector3f diffuseColor = mesh->DiffuseColor(texCoord);
         // Float specularity = mesh->SpecularIntensity(texCoord);  // type 1
         Float specularity = mesh->SpecularShininess(texCoord);  // type 2
@@ -250,12 +252,12 @@ struct DepthShader : public Shader
     {
         Vector4f fragPosInClip =
             ufm_lightSpace * ufm_model * Vector4f(mesh->Vert(faceIdx, vertIdx), 1.f);
-        Vector4f fragPosInNdc = DivideByW(fragPosInClip);
+        Vector4f fragPosInNdc = fragPosInClip / fragPosInClip.w;
         varying_fragPosInNdc.SetCol(vertIdx, fragPosInNdc.xyz);
         return fragPosInNdc;
     }
 
-    bool ProcessFragment(const Vector3f& baryCoord, Vector3f& gl_Color) override
+    bool ProcessFragment(const Vector3f& baryCoord, Color3& gl_Color) override
     {
         // Interpolation
         Vector3f fragPosInNdc = varying_fragPosInNdc * baryCoord;
@@ -264,4 +266,4 @@ struct DepthShader : public Shader
     }
 };
 
-#endif  // _SHADER_H_
+#endif  // SHADER_H_

@@ -3,8 +3,8 @@
 // Reference: ssloy/TinyRenderer and mmp/pbrt-v3
 //
 
-#ifndef _GEOMETRY_H_
-#define _GEOMETRY_H_
+#ifndef GEOMETRY_H_
+#define GEOMETRY_H_
 
 #include <spdlog/fmt/ostr.h>
 
@@ -866,19 +866,6 @@ inline Vector<DIM, T> Normalize(const Vector<DIM, T>& v, T l = 1)
     return v * l / v.Length();
 }
 
-template <typename T>
-inline Vector<4, T> DivideByW(const Vector<4, T>& v)
-{
-    DCHECK_NE(v.w, 0);
-    Float        inv = (Float)1 / v.w;
-    Vector<4, T> ret(v);
-    ret.x *= inv;
-    ret.y *= inv;
-    ret.z *= inv;
-    ret.w *= inv;
-    return ret;
-}
-
 // Utility Inline Functions
 inline Float Lerp(Float t, Float v1, Float v2)
 {
@@ -923,12 +910,12 @@ inline Vector<DIM, T> Clamp01(const Vector<DIM, T>& val)
 
 inline Float Radians(Float deg)
 {
-    return deg * Pi / 180.0f;
+    return deg * Pi / 180.f;
 }
 
 inline Float Degrees(Float rad)
 {
-    return rad * 180.0f / Pi;
+    return rad * 180.f / Pi;
 }
 
 template <typename T>
@@ -956,49 +943,61 @@ inline T Max3(const T& v1, const T& v2, const T& v3)
 }
 
 /////////////////////////////////////////////////////////////////////////////////
-// Vector & Matrix Typedef
+// Typedef
 
-// vec
 typedef Vector<2, Float> Vector2f;
 typedef Vector<2, int>   Vector2i;
 typedef Vector<3, Float> Vector3f;
 typedef Vector<3, int>   Vector3i;
 typedef Vector<4, Float> Vector4f;
 typedef Vector<4, int>   Vector4i;
-// square
+
 typedef Matrix<2, 2, Float> Matrix2x2f, Matrix2f;
 typedef Matrix<3, 3, Float> Matrix3x3f, Matrix3f;
 typedef Matrix<4, 4, Float> Matrix4x4f, Matrix4f;
-// non-square
+
 typedef Matrix<2, 3, Float> Matrix2x3f;
 typedef Matrix<3, 2, Float> Matrix3x2f;
 typedef Matrix<3, 4, Float> Matrix3x4f;
 typedef Matrix<4, 3, Float> Matrix4x3f;
 
+// Aliasing
+
+using Point2f = Vector2f;
+using Point3f = Vector3f;
+using Point4f = Vector4f;
+
+using Point2i = Vector2i;
+using Point3i = Vector3i;
+using Point4i = Vector4i;
+
 /////////////////////////////////////////////////////////////////////////////////
 
-bool TestInsideTriangle(const Vector2f& A, const Vector2f& B, const Vector2f& C, const Vector2f& P);
+bool TestInsideTriangle(const Point2f& A, const Point2f& B, const Point2f& C,
+                        const Point2f& P);
 
-Float TriangleArea(Vector2f a, Vector2f b, Vector2f c);
+Float TriangleArea(Point2f a, Point2f b, Point2f c);
 
-Vector3f Barycentric(const Vector2i& A, const Vector2i& B, const Vector2i& C, const Vector2i& P);
-Vector3f Barycentric(const Vector2f& A, const Vector2f& B, const Vector2f& C, const Vector2f& P);
+Point3f Barycentric(const Point2i& A, const Point2i& B, const Point2i& C,
+                     const Point2i& P);
+Point3f Barycentric(const Point2f& A, const Point2f& B, const Point2f& C,
+                     const Point2f& P);
 
-Matrix3f MakeNormalMatrix(const Matrix4f& matrix);
+Matrix3x3f MakeNormalMatrix(const Matrix4f& matrix);
 
-Matrix3f MakeTbnMatrix(const Vector3f& edge1, const Vector3f& edge2, const Vector2f& deltaUv1,
+Matrix3x3f MakeTbnMatrix(const Vector3f& edge1, const Vector3f& edge2, const Vector2f& deltaUv1,
                     const Vector2f& deltaUv2, const Vector3f& N);
 
-Matrix4f MakeModelMatrix(const Vector3f& translation, Float yRotateDegree = 0.f,
+Matrix4x4f MakeModelMatrix(const Vector3f& translation, Float yRotateDegree = 0.f,
                       Float scale = 1.f);
 
-Matrix4f MakeLookAtMatrix(const Vector3f& eyePos, const Vector3f& center,
+Matrix4x4f MakeLookAtMatrix(const Vector3f& eyePos, const Vector3f& center,
                        const Vector3f& worldUp = Vector3f(0.f, 1.f, 0.f));
 
-Matrix4f MakePerspectiveMatrix(Float fov, Float aspectRatio, Float n, Float f);
+Matrix4x4f MakePerspectiveMatrix(Float fov, Float aspectRatio, Float n, Float f);
 
-Matrix4f MakePerspectiveMatrix(Float l, Float r, Float b, Float t, Float n, Float f);
+Matrix4x4f MakePerspectiveMatrix(Float l, Float r, Float b, Float t, Float n, Float f);
 
-Matrix4f MakeOrthographicMatrix(Float l, Float r, Float b, Float t, Float n, Float f);
+Matrix4x4f MakeOrthographicMatrix(Float l, Float r, Float b, Float t, Float n, Float f);
 
-#endif  //_GEOMETRY_H_
+#endif  // GEOMETRY_H_

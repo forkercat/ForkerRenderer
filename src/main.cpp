@@ -20,9 +20,9 @@ const int   HEIGHT = 1024;
 const Float RATIO = (Float)WIDTH / HEIGHT;
 
 const Float CAMERA_NEAR_PLANE = 0.1f;
-const Float CAMERA_FAR_PLANE = 20.0f;
+const Float CAMERA_FAR_PLANE = 20.f;
 const Float SHADOW_NEAR_PLANE = 0.1f;
-const Float SHADOW_FAR_PLANE = 10.0f;
+const Float SHADOW_FAR_PLANE = 10.f;
 
 void     TimeElapsed(spdlog::stopwatch& sw, std::string note = "");
 TGAImage SSAA(const TGAImage& image, int kernelSize);
@@ -41,7 +41,7 @@ int main(int argc, const char* argv[])
     std::string modelFilename = argv[1];
     Float       rotateDegreeOnY = (argc >= 3) ? std::stof(argv[2]) : 0.f;
     Float       uniformScale = (argc >= 4) ? std::stof(argv[3]) : 1.f;
-    if (uniformScale == 0.0f)
+    if (uniformScale == 0.f)
     {
         std::cerr << "Scale factor should not be 0" << std::endl;
         return -1;
@@ -53,8 +53,9 @@ int main(int argc, const char* argv[])
     spdlog::stopwatch totalStopwatch;
 
     // Model
-    Model model(modelFilename, true);
-    Matrix4f modelMatrix = MakeModelMatrix(Vector3f(0.f), rotateDegreeOnY, uniformScale);
+    Model      model(modelFilename, true);
+    Matrix4x4f modelMatrix =
+        MakeModelMatrix(Vector3f(0.f), rotateDegreeOnY, uniformScale);
     TimeElapsed(stepStopwatch, "Model Loaded");
 
     // Camera
@@ -71,10 +72,10 @@ int main(int argc, const char* argv[])
     ForkerGL::InitShadowBuffers(WIDTH, HEIGHT);
     ForkerGL::RenderMode(ForkerGL::Shadow);
     // Matrix
-    Matrix4f viewShadowMapping = MakeLookAtMatrix(pointLight.Position, Vector3f(0.f));
-    Matrix4f projShadowMapping = MakeOrthographicMatrix(-2.f * RATIO, 2.f * RATIO, -2.f, 2.f,
-                                                     SHADOW_NEAR_PLANE, SHADOW_FAR_PLANE);
-    Matrix4f lightSpaceMatrix = projShadowMapping * viewShadowMapping;
+    Matrix4x4f viewShadowMapping = MakeLookAtMatrix(pointLight.position, Vector3f(0.f));
+    Matrix4x4f projShadowMapping = MakeOrthographicMatrix(
+        -2.f * RATIO, 2.f * RATIO, -2.f, 2.f, SHADOW_NEAR_PLANE, SHADOW_FAR_PLANE);
+    Matrix4x4f lightSpaceMatrix = projShadowMapping * viewShadowMapping;
 
     // Depth Shading
     DepthShader depthShader;
@@ -90,7 +91,7 @@ int main(int argc, const char* argv[])
 
     // Buffer Configuration
     ForkerGL::InitFrameBuffers(WIDTH, HEIGHT);
-    ForkerGL::ClearColor(TGAColor(30, 30, 30));
+    ForkerGL::ClearColor(Color3(0.12f, 0.12f, 0.12f));
     ForkerGL::RenderMode(ForkerGL::Color);
 
     // Blinn-Phong Shading
@@ -102,7 +103,7 @@ int main(int argc, const char* argv[])
         (projectionType == Camera::Orthographic)
             ? camera.GetOrthographicMatrix(-1.f * RATIO, 1.f * RATIO, -1.f, 1.f,
                                            CAMERA_NEAR_PLANE, CAMERA_FAR_PLANE)
-            : camera.GetPerspectiveMatrix(45.0f, RATIO, CAMERA_NEAR_PLANE,
+            : camera.GetPerspectiveMatrix(45.f, RATIO, CAMERA_NEAR_PLANE,
                                           CAMERA_FAR_PLANE);
 
     // Shader Configuration

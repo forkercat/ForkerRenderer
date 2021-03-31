@@ -149,7 +149,7 @@ void Model::normalizePositionVertices()
     CHECK_NE(ymax - ymin, 0);
     CHECK_NE(zmax - zmin, 0);
 
-    Float scaleFactor = 2.0f / Max(xmax - xmin, Max(ymax - ymin, zmax - zmin));
+    Float scaleFactor = 2.f / Max(xmax - xmin, Max(ymax - ymin, zmax - zmin));
     Matrix4f m(1.f);
     m[0][0] = scaleFactor;
     m[1][1] = scaleFactor;

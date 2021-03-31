@@ -9,6 +9,7 @@
 
 #include "geometry.h"
 #include "tgaimage.h"
+#include "color.h"
 
 class Buffer
 {
@@ -35,13 +36,13 @@ public:
         return Vector3i(data[index].r, data[index].g, data[index].b);
     }
 
-    void Set(int x, int y, const Vector3i& val)
+    void Set(int x, int y, const Color3& val)
     {
         // For now, it ignores the fourth component
         int index = x + y * width;
-        data[index].r = val.x;
-        data[index].g = val.y;
-        data[index].b = val.z;
+        data[index].r = val.x * 254.999;
+        data[index].g = val.y * 254.999;
+        data[index].b = val.z * 254.999;
     }
 
     float GetValue(int x, int y) const { return data[x + y * width].val; }
@@ -52,7 +53,7 @@ public:
     TGAImage GenerateGrayImage(bool inverseColor = false) const;
 
     // Paint Background Before Rendering
-    void PaintColor(const TGAColor& color);
+    void PaintColor(const Color3& color);
 
 private:
     union Data

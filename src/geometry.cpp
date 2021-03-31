@@ -4,7 +4,7 @@
 
 #include "geometry.h"
 
-bool TestInsideTriangle(const Vector2f& A, const Vector2f& B, const Vector2f& C, const Vector2f& P)
+bool TestInsideTriangle(const Point2f& A, const Point2f& B, const Point2f& C, const Point2f& P)
 {
     Float a = Cross2(A - C, P - C);
     Float b = Cross2(B - A, P - A);
@@ -12,21 +12,21 @@ bool TestInsideTriangle(const Vector2f& A, const Vector2f& B, const Vector2f& C,
     return (a >= 0 && b >= 0 && c >= 0) || (a <= 0 && b <= 0 && c <= 0);
 }
 
-Float TriangleArea(Vector2f a, Vector2f b, Vector2f c)
+Float TriangleArea(Point2f a, Point2f b, Point2f c)
 {
     return 0.5f * ((b.x - a.x) * (c.y - a.y) - (c.x - a.x) * (b.y - a.y));
 }
 
-Vector3f Barycentric(const Vector2i& A, const Vector2i& B, const Vector2i& C, const Vector2i& P)
+Point3f Barycentric(const Point2i& A, const Point2i& B, const Point2i& C, const Point2i& P)
 {
-    Vector2f a(A.x, A.y);
-    Vector2f b(B.x, B.y);
-    Vector2f c(C.x, C.y);
-    Vector2f p(P.x, P.y);
+    Point2f a(A.x, A.y);
+    Point2f b(B.x, B.y);
+    Point2f c(C.x, C.y);
+    Point2f p(P.x, P.y);
     return Barycentric(a, b, c, p);
 }
 
-Vector3f Barycentric(const Vector2f& A, const Vector2f& B, const Vector2f& C, const Vector2f& P)
+Point3f Barycentric(const Point2f& A, const Point2f& B, const Point2f& C, const Point2f& P)
 {
     Vector<3, double> s[2];
     for (int i = 0; i < 2; ++i)
@@ -44,23 +44,23 @@ Vector3f Barycentric(const Vector2f& A, const Vector2f& B, const Vector2f& C, co
         bary.x *= inv;
         bary.y *= inv;  // from [bx, by, bz] to [u, v, 1]
 
-        Vector3f result(1.f - (bary.x + bary.y), bary.x, bary.y);  // good
+        Point3f result(1.f - (bary.x + bary.y), bary.x, bary.y);  // good
 
-        if (result.x < 0.f || result.y < 0.f || result.z < 0.f) return Vector3f(-1, -1, -1);
+        if (result.x < 0.f || result.y < 0.f || result.z < 0.f) return Point3f(-1, -1, -1);
 
         return result;
     }
 
     // Cannot form a triangle
-    return Vector3f(-1, -1, -1);
+    return Point3f(-1, -1, -1);
 }
 
 /////////////////////////////////////////////////////////////////////////////////
 
-Matrix3f MakeNormalMatrix(const Matrix4f& matrix)
+Matrix3x3f MakeNormalMatrix(const Matrix4x4f& matrix)
 {
-    Matrix4f temp = matrix.Inverse().Transpose();
-    Matrix3f m;
+    Matrix4x4f temp = matrix.Inverse().Transpose();
+    Matrix3x3f m;
     m.SetRow(0, temp[0].xyz);
     m.SetRow(1, temp[1].xyz);
     m.SetRow(2, temp[2].xyz);
@@ -68,7 +68,7 @@ Matrix3f MakeNormalMatrix(const Matrix4f& matrix)
 }
 
 // Deprecated (Tangents have been calculated in Model class)
-Matrix3f MakeTbnMatrix(const Vector3f& edge1, const Vector3f& edge2, const Vector2f& deltaUv1,
+Matrix3x3f MakeTbnMatrix(const Vector3f& edge1, const Vector3f& edge2, const Vector2f& deltaUv1,
                     const Vector2f& deltaUv2, const Vector3f& N)
 {
     Float det = deltaUv1.s * deltaUv2.t - deltaUv2.s * deltaUv1.t;
@@ -84,30 +84,30 @@ Matrix3f MakeTbnMatrix(const Vector3f& edge1, const Vector3f& edge2, const Vecto
     T = Normalize(T - Dot(T, N) * N);
     Vector3f B = Normalize(Cross(N, T));
 
-    Matrix3f TBN;
+    Matrix3x3f TBN;
     TBN.SetCol(0, T).SetCol(1, B).SetCol(2, N);
     return TBN;
 }
 
-Matrix4f MakeModelMatrix(const Vector3f& translation, Float yRotateDegree, Float scale)
+Matrix4x4f MakeModelMatrix(const Vector3f& translation, Float yRotateDegree, Float scale)
 {
-    Matrix4f S(1.f);
+    Matrix4x4f S(1.f);
     S[0][0] = S[1][1] = S[2][2] = scale;
 
-    Matrix4f R(1.f);
+    Matrix4x4f R(1.f);
     Float radVal = Radians(yRotateDegree);
     R[0][0] = cos(radVal);
     R[0][2] = sin(radVal);
     R[2][0] = -sin(radVal);
     R[2][2] = cos(radVal);
 
-    Matrix4f T(1.f);
+    Matrix4x4f T(1.f);
     T.SetCol(3, Vector4f(translation, 1.f));
 
     return T * R * S;
 }
 
-Matrix4f MakeLookAtMatrix(const Vector3f& eyePos, const Vector3f& center, const Vector3f& worldUp)
+Matrix4x4f MakeLookAtMatrix(const Vector3f& eyePos, const Vector3f& center, const Vector3f& worldUp)
 {
     CHECK(eyePos != center);
     Vector3f front = Normalize(center - eyePos);
@@ -116,21 +116,21 @@ Matrix4f MakeLookAtMatrix(const Vector3f& eyePos, const Vector3f& center, const 
     Vector3f right = Normalize(Cross(front, worldUp));
     Vector3f up = Normalize(Cross(right, front));
 
-    Matrix4f R(1.f);
+    Matrix4x4f R(1.f);
     R.SetRow(0, Vector4f(right, 0.f));
     R.SetRow(1, Vector4f(up, 0.f));
     R.SetRow(2, Vector4f(-front, 0.f));
 
-    Matrix4f T(1.f);
+    Matrix4x4f T(1.f);
     T.SetCol(3, Vector4f(-eyePos, 1.f));
 
     return R * T;
 }
 
-Matrix4f MakePerspectiveMatrix(Float fov, Float aspectRatio, Float n, Float f)
+Matrix4x4f MakePerspectiveMatrix(Float fov, Float aspectRatio, Float n, Float f)
 {
-    Float tanFovOver2 = std::tan(Radians(fov / 2.0f));
-    Matrix4f m(1.f);
+    Float tanFovOver2 = std::tan(Radians(fov / 2.f));
+    Matrix4x4f m(1.f);
     // for x
     m[0][0] = 1.f / (aspectRatio * tanFovOver2);
     // for y
@@ -144,9 +144,9 @@ Matrix4f MakePerspectiveMatrix(Float fov, Float aspectRatio, Float n, Float f)
     return m;
 }
 
-Matrix4f MakePerspectiveMatrix(Float l, Float r, Float b, Float t, Float n, Float f)
+Matrix4x4f MakePerspectiveMatrix(Float l, Float r, Float b, Float t, Float n, Float f)
 {
-    Matrix4f m(1.f);
+    Matrix4x4f m(1.f);
 
     // for x
     m[0][0] = 2 * n / (r - l);
@@ -163,13 +163,13 @@ Matrix4f MakePerspectiveMatrix(Float l, Float r, Float b, Float t, Float n, Floa
     return m;
 }
 
-Matrix4f MakeOrthographicMatrix(Float l, Float r, Float b, Float t, Float n, Float f)
+Matrix4x4f MakeOrthographicMatrix(Float l, Float r, Float b, Float t, Float n, Float f)
 {
-    Matrix4f m(1.f);
+    Matrix4x4f m(1.f);
 
-    m[0][0] = 2.0f / (r - l);
-    m[1][1] = 2.0f / (t - b);
-    m[2][2] = -2.0f / (f - n);
+    m[0][0] = 2.f / (r - l);
+    m[1][1] = 2.f / (t - b);
+    m[2][2] = -2.f / (f - n);
     m[0][3] = -(r + l) / (r - l);
     m[1][3] = -(t + b) / (t - b);
     m[2][3] = -(f + n) / (f - n);
