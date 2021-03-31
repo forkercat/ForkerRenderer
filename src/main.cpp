@@ -79,8 +79,8 @@ int main(int argc, const char* argv[])
 
     // Depth Shading
     DepthShader depthShader;
-    depthShader.ufm_model = modelMatrix;
-    depthShader.ufm_lightSpace = lightSpaceMatrix;
+    depthShader.uModelMatrix = modelMatrix;
+    depthShader.uLightSpaceMatrix = lightSpaceMatrix;
     // Render
     model.Render(depthShader);
 
@@ -96,10 +96,10 @@ int main(int argc, const char* argv[])
 
     // Blinn-Phong Shading
     BlinnPhongShader bpShader;
-    bpShader.ufm_model = modelMatrix;
-    bpShader.ufm_view = camera.GetViewMatrix();
-    bpShader.ufm_normalMatrix = MakeNormalMatrix(bpShader.ufm_view * bpShader.ufm_model);
-    bpShader.ufm_projection =
+    bpShader.uModelMatrix = modelMatrix;
+    bpShader.uViewMatrix = camera.GetViewMatrix();
+    bpShader.uNormalMatrix = MakeNormalMatrix(bpShader.uViewMatrix * bpShader.uModelMatrix);
+    bpShader.uProjMatrix =
         (projectionType == Camera::Orthographic)
             ? camera.GetOrthographicMatrix(-1.f * RATIO, 1.f * RATIO, -1.f, 1.f,
                                            CAMERA_NEAR_PLANE, CAMERA_FAR_PLANE)
@@ -107,10 +107,10 @@ int main(int argc, const char* argv[])
                                           CAMERA_FAR_PLANE);
 
     // Shader Configuration
-    bpShader.ufm_pointLight = pointLight;
+    bpShader.uPointLight = pointLight;
 #ifdef SHADOW_MAPPING
-    bpShader.ufm_shadowBuffer = ForkerGL::ShadowBuffer;
-    bpShader.ufm_lightSpaceMatrix = lightSpaceMatrix;
+    bpShader.uShadowBuffer = ForkerGL::ShadowBuffer;
+    bpShader.uLightSpaceMatrix = lightSpaceMatrix;
 #endif
 
     // Render
