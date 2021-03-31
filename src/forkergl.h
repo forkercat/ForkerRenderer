@@ -36,7 +36,7 @@ struct ForkerGL
     static void RenderMode(enum RenderMode mode);
 
     // Rasterization
-    static void DrawTriangle(const Vec4f ndcVerts[3], Shader& shader);
+    static void DrawTriangle(const Vector4f ndcVerts[3], Shader& shader);
 };
 
 #endif  // _FORKER_GL_H_

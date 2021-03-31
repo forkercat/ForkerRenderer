@@ -27,10 +27,10 @@ public:
     {
     }  // clang-format on
 
-    Vec3f Ka;
-    Vec3f Kd;
-    Vec3f Ks;
-    Vec3f Ke;
+    Vector3f Ka;
+    Vector3f Kd;
+    Vector3f Ks;
+    Vector3f Ke;
 
     TGAImage DiffuseMap;
     TGAImage SpecularMap;

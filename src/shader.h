@@ -28,9 +28,9 @@ struct Shader
     // Use Shader Program (set which mesh to shade on)
     void Use(const Mesh* m) { mesh = m; }
     // Vertex Shader
-    virtual Vec4f ProcessVertex(int faceIdx, int vertIdx) = 0;
+    virtual Vector4f ProcessVertex(int faceIdx, int vertIdx) = 0;
     // Fragment Shader
-    virtual bool ProcessFragment(const Vec3f& baryCoord, Vec3f& gl_Color) = 0;
+    virtual bool ProcessFragment(const Vector3f& baryCoord, Vector3f& gl_Color) = 0;
 };
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -38,49 +38,49 @@ struct Shader
 struct BlinnPhongShader : public Shader
 {
     // Interpolating Variables
-    Mat3x3f varying_fragPosInEyeDivided;  // eye space
-    Mat2x3f varying_texCoordsDivided;
-    Mat3x3f varying_normalsDivided;
-    Mat3x3f varying_tangentsDivided;
+    Matrix3x3f varying_fragPosInEyeDivided;  // eye space
+    Matrix2x3f varying_texCoordsDivided;
+    Matrix3x3f varying_normalsDivided;
+    Matrix3x3f varying_tangentsDivided;
 
     // Vertex (out) -> Fragment (in)
-    Mat3x3f v2f_fragPosInEye;
-    Mat2x3f v2f_texCoords;
-    Vec3f   v2f_oneOverWs;
-    Vec3f   v2f_lightPosInEye;
+    Matrix3x3f v2f_fragPosInEye;
+    Matrix2x3f v2f_texCoords;
+    Vector3f   v2f_oneOverWs;
+    Vector3f   v2f_lightPosInEye;
 
     // Transformations
-    Mat4f ufm_model;
-    Mat4f ufm_view;
-    Mat4f ufm_projection;
-    Mat3f ufm_normalMatrix;
+    Matrix4f ufm_model;
+    Matrix4f ufm_view;
+    Matrix4f ufm_projection;
+    Matrix3f ufm_normalMatrix;
 
     // Uniform Variables
     PointLight ufm_pointLight;
 
 #ifdef SHADOW_MAPPING
     Buffer  ufm_shadowBuffer;
-    Mat4f   ufm_lightSpaceMatrix;
-    Mat3x3f varying_fragPosInLightSpaceNdc;
+    Matrix4f ufm_lightSpaceMatrix;
+    Matrix3x3f varying_fragPosInLightSpaceNdc;
 #endif
 
     // Vertex Shader
-    Vec4f ProcessVertex(int faceIdx, int vertIdx) override
+    Vector4f ProcessVertex(int faceIdx, int vertIdx) override
     {
         // MVP
-        Vec4f fragPosInWorld = ufm_model * Vec4f(mesh->Vert(faceIdx, vertIdx), 1.f);
-        Vec4f fragPosInEye = ufm_view * fragPosInWorld;
-        Vec4f fragPosInClip = ufm_projection * fragPosInEye;
+        Vector4f fragPosInWorld = ufm_model * Vector4f(mesh->Vert(faceIdx, vertIdx), 1.f);
+        Vector4f fragPosInEye = ufm_view * fragPosInWorld;
+        Vector4f fragPosInClip = ufm_projection * fragPosInEye;
 
         // TexCoord, Normal, Tangent
-        Vec2f texCoord = mesh->TexCoord(faceIdx, vertIdx);
-        Vec3f normalInEye = ufm_normalMatrix * mesh->Normal(faceIdx, vertIdx);
-        Vec3f tangentInEye = ufm_normalMatrix * mesh->Tangent(faceIdx, vertIdx);
+        Vector2f texCoord = mesh->TexCoord(faceIdx, vertIdx);
+        Vector3f normalInEye = ufm_normalMatrix * mesh->Normal(faceIdx, vertIdx);
+        Vector3f tangentInEye = ufm_normalMatrix * mesh->Tangent(faceIdx, vertIdx);
 
         // Vertex -> Fragment
         v2f_fragPosInEye.SetCol(vertIdx, fragPosInEye.xyz);
         v2f_texCoords.SetCol(vertIdx, texCoord);
-        v2f_lightPosInEye = (ufm_view * Vec4f(ufm_pointLight.Position, 1.f)).xyz;
+        v2f_lightPosInEye = (ufm_view * Vector4f(ufm_pointLight.Position, 1.f)).xyz;
 
         // PCI
 #ifdef PERSPECTIVE_CORRECT_MAPPING
@@ -99,7 +99,7 @@ struct BlinnPhongShader : public Shader
 
         // Shadow Mapping
 #ifdef SHADOW_MAPPING
-        Vec4f fragPosInLightSpaceNdc = DivideByW(ufm_lightSpaceMatrix * fragPosInWorld);
+        Vector4f fragPosInLightSpaceNdc = DivideByW(ufm_lightSpaceMatrix * fragPosInWorld);
         varying_fragPosInLightSpaceNdc.SetCol(vertIdx, fragPosInLightSpaceNdc.xyz);
 #endif
 
@@ -110,13 +110,13 @@ struct BlinnPhongShader : public Shader
     /////////////////////////////////////////////////////////////////////////////////
 
     // Fragment Shader
-    bool ProcessFragment(const Vec3f& baryCoord, Vec3f& gl_Color) override
+    bool ProcessFragment(const Vector3f& baryCoord, Vector3f& gl_Color) override
     {
         // Interpolation
-        Vec3f fragPosInEye = varying_fragPosInEyeDivided * baryCoord;
-        Vec2f texCoord = varying_texCoordsDivided * baryCoord;
-        Vec3f normalInEye = varying_normalsDivided * baryCoord;
-        Vec3f tangentInEye = varying_tangentsDivided * baryCoord;
+        Vector3f fragPosInEye = varying_fragPosInEyeDivided * baryCoord;
+        Vector2f texCoord = varying_texCoordsDivided * baryCoord;
+        Vector3f normalInEye = varying_normalsDivided * baryCoord;
+        Vector3f tangentInEye = varying_tangentsDivided * baryCoord;
 
         // PCI
 #ifdef PERSPECTIVE_CORRECT_MAPPING
@@ -126,25 +126,25 @@ struct BlinnPhongShader : public Shader
         normalInEye *= w;
         tangentInEye *= w;
 #endif
-        Vec3f N = Normalize(normalInEye);
-        Vec3f T = Normalize(tangentInEye);
+        Vector3f N = Normalize(normalInEye);
+        Vector3f T = Normalize(tangentInEye);
 
         // Normal (TBN Matrix)
         T = Normalize(T - Dot(T, N) * N);
-        Vec3f B = Normalize(Cross(N, T));
-        Mat3f TbnMatrix;
+        Vector3f B = Normalize(Cross(N, T));
+        Matrix3f TbnMatrix;
         TbnMatrix.SetCol(0, T).SetCol(1, B).SetCol(2, N);
-        Vec3f normal = Normalize(TbnMatrix * mesh->Normal(texCoord));
+        Vector3f normal = Normalize(TbnMatrix * mesh->Normal(texCoord));
 
         // Directions
-        Vec3f lightDir = Normalize(v2f_lightPosInEye - fragPosInEye);
-        Vec3f viewDir = Normalize(-fragPosInEye);  // eye pos is [0, 0, 0]
-        Vec3f halfwayDir = Normalize(lightDir + viewDir);
+        Vector3f lightDir = Normalize(v2f_lightPosInEye - fragPosInEye);
+        Vector3f viewDir = Normalize(-fragPosInEye);  // eye pos is [0, 0, 0]
+        Vector3f halfwayDir = Normalize(lightDir + viewDir);
 
         // Shadow Mapping
         Float shadow = 0.f;
 #ifdef SHADOW_MAPPING
-        Vec3f fragPosInLightSpace = varying_fragPosInLightSpaceNdc * baryCoord;
+        Vector3f fragPosInLightSpace = varying_fragPosInLightSpaceNdc * baryCoord;
         shadow = calculateShadow(fragPosInLightSpace, normal, lightDir);
 #endif
 
@@ -155,11 +155,11 @@ struct BlinnPhongShader : public Shader
     }
 
 private:
-    Vec3f calculateLight(const Vec3f& lightDir, const Vec3f& halfwayDir,
-                         const Vec3f& normal, const Vec2f& texCoord, Float shadow)
+    Vector3f calculateLight(const Vector3f& lightDir, const Vector3f& halfwayDir,
+                         const Vector3f& normal, const Vector2f& texCoord, Float shadow)
     {
-        Vec3f lightColor = ufm_pointLight.Color;
-        Vec3f diffuseColor = mesh->DiffuseColor(texCoord);
+        Vector3f lightColor = ufm_pointLight.Color;
+        Vector3f diffuseColor = mesh->DiffuseColor(texCoord);
         // Float specularity = mesh->SpecularIntensity(texCoord);  // type 1
         Float specularity = mesh->SpecularShininess(texCoord);  // type 2
         Float aoIntensity = mesh->AmbientOcclusionIntensity(texCoord);
@@ -172,9 +172,9 @@ private:
         spec = std::pow(spec, specularity + 5);  // type 2 - shininess
 
         // Color of Shading Component
-        Vec3f ambient = mesh->GetKa() * ambi * diffuseColor * lightColor;
-        Vec3f diffuse = mesh->GetKd() * diff * diffuseColor * lightColor;
-        Vec3f specular = mesh->GetKs() * spec * lightColor;
+        Vector3f ambient = mesh->GetKa() * ambi * diffuseColor * lightColor;
+        Vector3f diffuse = mesh->GetKd() * diff * diffuseColor * lightColor;
+        Vector3f specular = mesh->GetKs() * spec * lightColor;
 
         // Shadow Mapping
 #ifdef SHADOW_MAPPING
@@ -183,18 +183,18 @@ private:
 #endif
 
         // Combine
-        Vec3f color = ambient + diffuse + specular;
-        return Clamp(color, 0.f, 1.f);
+        Vector3f color = ambient + diffuse + specular;
+        return Clamp01(color);
     }
     /////////////////////////////////////////////////////////////////////////////////
 
 #ifdef SHADOW_MAPPING
     // Calculate Shadow Component
-    Float calculateShadow(const Vec3f& fragPosInLightSpace, const Vec3f& normal,
-                          const Vec3f& lightDir)
+    Float calculateShadow(const Vector3f& fragPosInLightSpace, const Vector3f& normal,
+                          const Vector3f& lightDir)
     {
         // Transform to [0, 1]
-        Vec3f fragPosTransformed = fragPosInLightSpace * 0.5f + Vec3f(0.5f);
+        Vector3f fragPosTransformed = fragPosInLightSpace * 0.5f + Vector3f(0.5f);
 
         // Bias
         Float bias = Max(0.009f * (1.f - Dot(normal, lightDir)), 0.007f);
@@ -238,27 +238,27 @@ private:
 struct DepthShader : public Shader
 {
     // Interpolation
-    Mat3x3f varying_fragPosInNdc;
+    Matrix3x3f varying_fragPosInNdc;
 
     // Transformations
-    Mat4f ufm_model;
-    Mat4f ufm_lightSpace;
+    Matrix4f ufm_model;
+    Matrix4f ufm_lightSpace;
 
     DepthShader() : Shader() { }
 
-    Vec4f ProcessVertex(int faceIdx, int vertIdx) override
+    Vector4f ProcessVertex(int faceIdx, int vertIdx) override
     {
-        Vec4f fragPosInClip =
-            ufm_lightSpace * ufm_model * Vec4f(mesh->Vert(faceIdx, vertIdx), 1.f);
-        Vec4f fragPosInNdc = DivideByW(fragPosInClip);
+        Vector4f fragPosInClip =
+            ufm_lightSpace * ufm_model * Vector4f(mesh->Vert(faceIdx, vertIdx), 1.f);
+        Vector4f fragPosInNdc = DivideByW(fragPosInClip);
         varying_fragPosInNdc.SetCol(vertIdx, fragPosInNdc.xyz);
         return fragPosInNdc;
     }
 
-    bool ProcessFragment(const Vec3f& baryCoord, Vec3f& gl_Color) override
+    bool ProcessFragment(const Vector3f& baryCoord, Vector3f& gl_Color) override
     {
         // Interpolation
-        Vec3f fragPosInNdc = varying_fragPosInNdc * baryCoord;
+        Vector3f fragPosInNdc = varying_fragPosInNdc * baryCoord;
         gl_Color.z = fragPosInNdc.z * 0.5f + 0.5f;  // to [0, 1]
         return false;
     }

@@ -29,10 +29,10 @@ public:
     void Render(Shader& shader);
 
     // Get Vertex Data
-    Vec3f GetVert(int index) const;
-    Vec2f GetTexCoord(int index) const;
-    Vec3f GetNormal(int index) const;
-    Vec3f GetTangent(int index) const;
+    Vector3f GetVert(int index) const;
+    Vector2f GetTexCoord(int index) const;
+    Vector3f GetNormal(int index) const;
+    Vector3f GetTangent(int index) const;
 
     int GetNumVerts() const;
     int GetNumFaces() const;
@@ -40,10 +40,10 @@ public:
 private:
     std::map<std::string, Mesh>     meshes;
     std::map<std::string, Material> materials;
-    std::vector<Vec3f>              verts;
-    std::vector<Vec2f>              texCoords;
-    std::vector<Vec3f>              normals;
-    std::vector<Vec3f>              tangents;
+    std::vector<Vector3f>              verts;
+    std::vector<Vector2f>              texCoords;
+    std::vector<Vector3f>              normals;
+    std::vector<Vector3f>              tangents;
 
     // .obj and .mtl Parsers
     // Supported Format: 'g ' is followed by 'usemtl ', which is followed by 'f ...'

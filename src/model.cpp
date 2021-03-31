@@ -93,22 +93,22 @@ void Model::Render(Shader& shader)
 
 /////////////////////////////////////////////////////////////////////////////////
 
-Vec3f Model::GetVert(int index) const
+Vector3f Model::GetVert(int index) const
 {
     return verts[index];
 }
 
-Vec2f Model::GetTexCoord(int index) const
+Vector2f Model::GetTexCoord(int index) const
 {
     return texCoords[index];
 }
 
-Vec3f Model::GetNormal(int index) const
+Vector3f Model::GetNormal(int index) const
 {
     return normals[index];
 }
 
-Vec3f Model::GetTangent(int index) const
+Vector3f Model::GetTangent(int index) const
 {
     return tangents[index];
 }
@@ -139,7 +139,7 @@ void Model::normalizePositionVertices()
 
     for (size_t i = 0; i < GetNumVerts(); ++i)
     {
-        Vec3f v = verts[i];
+        Vector3f v = verts[i];
         xmin = Min(xmin, v.x), xmax = Max(xmax, v.x);
         ymin = Min(ymin, v.y), ymax = Max(ymax, v.y);
         zmin = Min(zmin, v.z), zmax = Max(zmax, v.z);
@@ -150,7 +150,7 @@ void Model::normalizePositionVertices()
     CHECK_NE(zmax - zmin, 0);
 
     Float scaleFactor = 2.0f / Max(xmax - xmin, Max(ymax - ymin, zmax - zmin));
-    Mat4f m(1.f);
+    Matrix4f m(1.f);
     m[0][0] = scaleFactor;
     m[1][1] = scaleFactor;
     m[2][2] = scaleFactor;
@@ -160,7 +160,7 @@ void Model::normalizePositionVertices()
 
     for (size_t i = 0; i < GetNumVerts(); ++i)
     {
-        verts[i] = (m * Vec4f(verts[i], 1.f)).xyz;
+        verts[i] = (m * Vector4f(verts[i], 1.f)).xyz;
     }
 }
 
@@ -212,14 +212,14 @@ bool Model::loadObjectFile(const std::string& filename, bool flipVertically)
         else if (line.compare(0, 2, "v ") == 0)  // v
         {
             iss >> strTrash;  // skip 'v' and ' '
-            Vec3f vertex;
+            Vector3f vertex;
             iss >> vertex.x >> vertex.y >> vertex.z;
             verts.push_back(vertex);
         }
         else if (line.compare(0, 3, "vt ") == 0)  // vt
         {
             iss >> strTrash;  // skip 'vt' and ' '
-            Vec2f texCoord;
+            Vector2f texCoord;
             iss >> texCoord.x >> texCoord.y;
             Float floatTrash;
             iss >> floatTrash;  // ignore the last value
@@ -237,7 +237,7 @@ bool Model::loadObjectFile(const std::string& filename, bool flipVertically)
         {
             iss >> strTrash;  // skip 'vn' and ' '
 
-            Vec3f normal;
+            Vector3f normal;
             iss >> normal.x >> normal.y >> normal.z;
             normals.push_back(normal);
         }
@@ -258,11 +258,11 @@ bool Model::loadObjectFile(const std::string& filename, bool flipVertically)
         else if (line.compare(0, 2, "f ") == 0)  // f
         {
             iss >> chTrash;  // skip 'f' and ' '
-            std::vector<Vec3i> vertices;
+            std::vector<Vector3i> vertices;
             unsigned int       v, t, n;
             while (iss >> v >> chTrash >> t >> chTrash >> n)  // f 24/1/24 25/2/25 26/3/26
             {
-                vertices.push_back(Vec3i(--v, --t, --n));
+                vertices.push_back(Vector3i(--v, --t, --n));
             }
 
             Mesh& mesh = meshes[meshName];
@@ -324,28 +324,28 @@ void Model::loadMaterials(const std::string& directory, const std::string& filen
         else if (line.compare(0, 3, "Ka ") == 0)  // Ka
         {
             iss >> strTrash;  // skip 'Ka' and ' '
-            Vec3f floats;
+            Vector3f floats;
             iss >> floats.x >> floats.y >> floats.z;
             materials[materialName].Ka = floats;
         }
         else if (line.compare(0, 3, "Kd ") == 0)  // Kd
         {
             iss >> strTrash;
-            Vec3f floats;
+            Vector3f floats;
             iss >> floats.x >> floats.y >> floats.z;
             materials[materialName].Kd = floats;
         }
         else if (line.compare(0, 3, "Ks ") == 0)  // Ks
         {
             iss >> strTrash;
-            Vec3f floats;
+            Vector3f floats;
             iss >> floats.x >> floats.y >> floats.z;
             materials[materialName].Ks = floats;
         }
         else if (line.compare(0, 3, "Ke ") == 0)  // Ke
         {
             iss >> strTrash;
-            Vec3f floats;
+            Vector3f floats;
             iss >> floats.x >> floats.y >> floats.z;
             materials[materialName].Ke = floats;
         }
@@ -408,7 +408,7 @@ void Model::loadTexture(const std::string& textureFilename, TGAImage& image,
 // Generate Tangents
 void Model::generateTangents()
 {
-    tangents = std::vector<Vec3f>(verts.size(), Vec3f(0.f));
+    tangents = std::vector<Vector3f>(verts.size(), Vector3f(0.f));
     for (auto iter = meshes.begin(); iter != meshes.end(); ++iter)
     {
         Mesh& mesh = iter->second;
@@ -417,10 +417,10 @@ void Model::generateTangents()
             int   indexP0 = mesh.GetVertIndex(f, 0);
             int   indexP1 = mesh.GetVertIndex(f, 1);
             int   indexP2 = mesh.GetVertIndex(f, 2);
-            Vec3f edge1 = mesh.Vert(f, 1) - mesh.Vert(f, 0);
-            Vec3f edge2 = mesh.Vert(f, 2) - mesh.Vert(f, 0);
-            Vec2f deltaUv1 = mesh.TexCoord(f, 1) - mesh.TexCoord(f, 0);
-            Vec2f deltaUv2 = mesh.TexCoord(f, 2) - mesh.TexCoord(f, 0);
+            Vector3f edge1 = mesh.Vert(f, 1) - mesh.Vert(f, 0);
+            Vector3f edge2 = mesh.Vert(f, 2) - mesh.Vert(f, 0);
+            Vector2f deltaUv1 = mesh.TexCoord(f, 1) - mesh.TexCoord(f, 0);
+            Vector2f deltaUv2 = mesh.TexCoord(f, 2) - mesh.TexCoord(f, 0);
             Float det = deltaUv1.s * deltaUv2.t - deltaUv2.s * deltaUv1.t;
             if (det == 0.f)
             {
@@ -431,7 +431,7 @@ void Model::generateTangents()
                 continue;
             }
             Float inv = 1.f / det;
-            Vec3f T = Normalize(inv * Vec3f(deltaUv2.t * edge1.x - deltaUv1.t * edge2.x,
+            Vector3f T = Normalize(inv * Vector3f(deltaUv2.t * edge1.x - deltaUv1.t * edge2.x,
                                             deltaUv2.t * edge1.y - deltaUv1.t * edge2.y,
                                             deltaUv2.t * edge1.z - deltaUv1.t * edge2.z));
             tangents[indexP0] += T;
@@ -447,7 +447,7 @@ void Model::generateTangents()
     for (auto& v : tangents)
     {
         if (v.Length() == 0.f)
-            v = Vec3f(1, 0, 0);  // random (to be improved)
+            v = Vector3f(1, 0, 0);  // random (to be improved)
         else
             v = Normalize(v);
     }

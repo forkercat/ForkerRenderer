@@ -28,14 +28,14 @@ public:
     int GetHeight() const { return height; }
 
     // Getters & Setters
-    Vec3i Get(int x, int y) const
+    Vector3i Get(int x, int y) const
     {
         // For now, it ignores the fourth component
         int index = x + y * width;
-        return Vec3i(data[index].r, data[index].g, data[index].b);
+        return Vector3i(data[index].r, data[index].g, data[index].b);
     }
 
-    void Set(int x, int y, const Vec3i& val)
+    void Set(int x, int y, const Vector3i& val)
     {
         // For now, it ignores the fourth component
         int index = x + y * width;

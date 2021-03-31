@@ -11,7 +11,7 @@ Buffer ForkerGL::ShadowBuffer;
 Buffer ForkerGL::ShadowDepthBuffer;
 
 // Matrix
-Mat4f viewportMatrix = Mat4f::Identity();
+Matrix4f viewportMatrix = Matrix4f::Identity();
 
 // RenderMode
 enum ForkerGL::RenderMode renderMode = ForkerGL::Color;
@@ -37,7 +37,7 @@ void ForkerGL::ClearColor(const TGAColor& color)
 
 void ForkerGL::Viewport(int x, int y, int w, int h)
 {
-    viewportMatrix = Mat4f::Identity();
+    viewportMatrix = Matrix4f::Identity();
 
     viewportMatrix[0][0] = w / 2.0f;
     viewportMatrix[1][1] = h / 2.0f;
@@ -65,7 +65,7 @@ struct BoundBox
     {
     }
 
-    static BoundBox GenerateBoundBox(const Vec2i points[3], T bufferWidth, T bufferHeight)
+    static BoundBox GenerateBoundBox(const Vector2i points[3], T bufferWidth, T bufferHeight)
     {
         T minX = Clamp(Min3(points[0].x, points[1].x, points[2].x), 0, bufferWidth - 1);
         T minY = Clamp(Min3(points[0].y, points[1].y, points[2].y), 0, bufferHeight - 1);
@@ -76,15 +76,15 @@ struct BoundBox
 };
 
 // Rasterization
-void ForkerGL::DrawTriangle(const Vec4f ndcVerts[3], Shader& shader)
+void ForkerGL::DrawTriangle(const Vector4f ndcVerts[3], Shader& shader)
 {
     // Viewport transformation
-    Vec2i points[3];  // screen coordinates
-    Vec3f depths;     // from 0 to 1
+    Vector2i points[3];  // screen coordinates
+    Vector3f depths;     // from 0 to 1
     for (int i = 0; i < 3; ++i)
     {
-        Vec3f coord = (viewportMatrix * ndcVerts[i]).xyz;
-        points[i] = Vec2i(coord.x, coord.y);
+        Vector3f coord = (viewportMatrix * ndcVerts[i]).xyz;
+        points[i] = Vector2i(coord.x, coord.y);
         depths[i] = coord.z;
     }
 
@@ -97,7 +97,7 @@ void ForkerGL::DrawTriangle(const Vec4f ndcVerts[3], Shader& shader)
     {
         for (int py = bbox.MinY; py <= bbox.MaxY; ++py)
         {
-            Vec3f bary = Barycentric(points[0], points[1], points[2], Vec2i(px, py));
+            Vector3f bary = Barycentric(points[0], points[1], points[2], Vector2i(px, py));
 
             // Inside Triangle Test
             if (bary.x < 0) continue;
@@ -116,12 +116,13 @@ void ForkerGL::DrawTriangle(const Vec4f ndcVerts[3], Shader& shader)
             }
 
             // Fragment Shader
-            Vec3f frag;
+            Vector3f frag;
             bool  discard = shader.ProcessFragment(bary, frag);
             if (discard) continue;
 
             if (renderMode == Color)
-                FrameBuffer.Set(px, py, Vec3i(frag.r * 255, frag.g * 255, frag.b * 255));
+                FrameBuffer.Set(px, py,
+                                Vector3i(frag.r * 255, frag.g * 255, frag.b * 255));
             else
                 ShadowBuffer.SetValue(px, py, frag.z);
         }

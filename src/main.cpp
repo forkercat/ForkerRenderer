@@ -54,7 +54,7 @@ int main(int argc, const char* argv[])
 
     // Model
     Model model(modelFilename, true);
-    Mat4f modelMatrix = MakeModelMatrix(Vec3f(0.f), rotateDegreeOnY, uniformScale);
+    Matrix4f modelMatrix = MakeModelMatrix(Vector3f(0.f), rotateDegreeOnY, uniformScale);
     TimeElapsed(stepStopwatch, "Model Loaded");
 
     // Camera
@@ -71,10 +71,10 @@ int main(int argc, const char* argv[])
     ForkerGL::InitShadowBuffers(WIDTH, HEIGHT);
     ForkerGL::RenderMode(ForkerGL::Shadow);
     // Matrix
-    Mat4f viewShadowMapping = MakeLookAtMatrix(pointLight.Position, Vec3f(0.f));
-    Mat4f projShadowMapping = MakeOrthographicMatrix(-2.f * RATIO, 2.f * RATIO, -2.f, 2.f,
+    Matrix4f viewShadowMapping = MakeLookAtMatrix(pointLight.Position, Vector3f(0.f));
+    Matrix4f projShadowMapping = MakeOrthographicMatrix(-2.f * RATIO, 2.f * RATIO, -2.f, 2.f,
                                                      SHADOW_NEAR_PLANE, SHADOW_FAR_PLANE);
-    Mat4f lightSpaceMatrix = projShadowMapping * viewShadowMapping;
+    Matrix4f lightSpaceMatrix = projShadowMapping * viewShadowMapping;
 
     // Depth Shading
     DepthShader depthShader;

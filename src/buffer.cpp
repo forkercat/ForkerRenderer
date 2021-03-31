@@ -25,7 +25,7 @@ TGAImage Buffer::GenerateImage() const
     {
         for (int y = 0; y < height; ++y)
         {
-            const Vec3i& color = Get(x, y);
+            const Vector3i& color = Get(x, y);
             image.Set(x, y, TGAColor(color.r, color.g, color.b));
         }
     }
@@ -50,5 +50,5 @@ void Buffer::PaintColor(const TGAColor& color)
 {
     for (int i = 0; i < width; ++i)
         for (int j = 0; j < height; ++j)
-            Set(i, j, Vec3i(color.r, color.g, color.b));
+            Set(i, j, Vector3i(color.r, color.g, color.b));
 }

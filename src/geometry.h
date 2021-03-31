@@ -705,6 +705,7 @@ public:
         return GetMinor(row, col).Det() * ((row + col) % 2 ? -1 : 1);
     }
 
+
     Matrix<DIM_ROW, DIM_COL, T> Adjugate() const
     {
         Matrix<DIM_ROW, DIM_COL, T> ret;
@@ -896,12 +897,27 @@ inline T Clamp(T val, T min, T max)
     return std::min(max, std::max(val, min));
 }
 
+template <typename T>
+inline T Clamp01(T val)
+{
+    return Clamp(val, (T) 0, (T) 1);
+}
+
 template <size_t DIM, typename T>
 inline Vector<DIM, T> Clamp(const Vector<DIM, T>& val, T min, T max)
 {
     Vector<DIM, T> ret;
     for (size_t i = 0; i < DIM; ++i)
         ret[i] = Clamp(val[i], min, max);
+    return ret;
+}
+
+template <size_t DIM, typename T>
+inline Vector<DIM, T> Clamp01(const Vector<DIM, T>& val)
+{
+    Vector<DIM, T> ret;
+    for (size_t i = 0; i < DIM; ++i)
+        ret[i] = Clamp(val[i], (T) 0, (T) 1);
     return ret;
 }
 
@@ -943,46 +959,46 @@ inline T Max3(const T& v1, const T& v2, const T& v3)
 // Vector & Matrix Typedef
 
 // vec
-typedef Vector<2, Float> Vec2f;
-typedef Vector<2, int>   Vec2i;
-typedef Vector<3, Float> Vec3f;
-typedef Vector<3, int>   Vec3i;
-typedef Vector<4, Float> Vec4f;
-typedef Vector<4, int>   Vec4i;
+typedef Vector<2, Float> Vector2f;
+typedef Vector<2, int>   Vector2i;
+typedef Vector<3, Float> Vector3f;
+typedef Vector<3, int>   Vector3i;
+typedef Vector<4, Float> Vector4f;
+typedef Vector<4, int>   Vector4i;
 // square
-typedef Matrix<2, 2, Float> Mat2x2f, Mat2f;
-typedef Matrix<3, 3, Float> Mat3x3f, Mat3f;
-typedef Matrix<4, 4, Float> Mat4x4f, Mat4f;
+typedef Matrix<2, 2, Float> Matrix2x2f, Matrix2f;
+typedef Matrix<3, 3, Float> Matrix3x3f, Matrix3f;
+typedef Matrix<4, 4, Float> Matrix4x4f, Matrix4f;
 // non-square
-typedef Matrix<2, 3, Float> Mat2x3f;
-typedef Matrix<3, 2, Float> Mat3x2f;
-typedef Matrix<3, 4, Float> Mat3x4f;
-typedef Matrix<4, 3, Float> Mat4x3f;
+typedef Matrix<2, 3, Float> Matrix2x3f;
+typedef Matrix<3, 2, Float> Matrix3x2f;
+typedef Matrix<3, 4, Float> Matrix3x4f;
+typedef Matrix<4, 3, Float> Matrix4x3f;
 
 /////////////////////////////////////////////////////////////////////////////////
 
-bool TestInsideTriangle(const Vec2f& A, const Vec2f& B, const Vec2f& C, const Vec2f& P);
+bool TestInsideTriangle(const Vector2f& A, const Vector2f& B, const Vector2f& C, const Vector2f& P);
 
-Float TriangleArea(Vec2f a, Vec2f b, Vec2f c);
+Float TriangleArea(Vector2f a, Vector2f b, Vector2f c);
 
-Vec3f Barycentric(const Vec2i& A, const Vec2i& B, const Vec2i& C, const Vec2i& P);
-Vec3f Barycentric(const Vec2f& A, const Vec2f& B, const Vec2f& C, const Vec2f& P);
+Vector3f Barycentric(const Vector2i& A, const Vector2i& B, const Vector2i& C, const Vector2i& P);
+Vector3f Barycentric(const Vector2f& A, const Vector2f& B, const Vector2f& C, const Vector2f& P);
 
-Mat3f MakeNormalMatrix(const Mat4f& matrix);
+Matrix3f MakeNormalMatrix(const Matrix4f& matrix);
 
-Mat3f MakeTbnMatrix(const Vec3f& edge1, const Vec3f& edge2, const Vec2f& deltaUv1,
-                    const Vec2f& deltaUv2, const Vec3f& N);
+Matrix3f MakeTbnMatrix(const Vector3f& edge1, const Vector3f& edge2, const Vector2f& deltaUv1,
+                    const Vector2f& deltaUv2, const Vector3f& N);
 
-Mat4f MakeModelMatrix(const Vec3f& translation, Float yRotateDegree = 0.f,
+Matrix4f MakeModelMatrix(const Vector3f& translation, Float yRotateDegree = 0.f,
                       Float scale = 1.f);
 
-Mat4f MakeLookAtMatrix(const Vec3f& eyePos, const Vec3f& center,
-                       const Vec3f& worldUp = Vec3f(0.f, 1.f, 0.f));
+Matrix4f MakeLookAtMatrix(const Vector3f& eyePos, const Vector3f& center,
+                       const Vector3f& worldUp = Vector3f(0.f, 1.f, 0.f));
 
-Mat4f MakePerspectiveMatrix(Float fov, Float aspectRatio, Float n, Float f);
+Matrix4f MakePerspectiveMatrix(Float fov, Float aspectRatio, Float n, Float f);
 
-Mat4f MakePerspectiveMatrix(Float l, Float r, Float b, Float t, Float n, Float f);
+Matrix4f MakePerspectiveMatrix(Float l, Float r, Float b, Float t, Float n, Float f);
 
-Mat4f MakeOrthographicMatrix(Float l, Float r, Float b, Float t, Float n, Float f);
+Matrix4f MakeOrthographicMatrix(Float l, Float r, Float b, Float t, Float n, Float f);
 
 #endif  //_GEOMETRY_H_

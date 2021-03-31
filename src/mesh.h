@@ -25,23 +25,23 @@ public:
 
     // Vertex Properties
     int   NumFaces() const;
-    Vec3f Vert(int faceIdx, int vertIdx) const;
-    Vec2f TexCoord(int faceIdx, int vertIdx) const;
-    Vec3f Normal(int faceIdx, int vertIdx) const;
-    Vec3f Tangent(int faceIdx, int vertIdx) const;
+    Vector3f Vert(int faceIdx, int vertIdx) const;
+    Vector2f TexCoord(int faceIdx, int vertIdx) const;
+    Vector3f Normal(int faceIdx, int vertIdx) const;
+    Vector3f Tangent(int faceIdx, int vertIdx) const;
     int   GetVertIndex(int faceIdx, int vertIdx) const;
 
     // Material Properties
-    Vec3f GetKa() const { return material->Ka; }
-    Vec3f GetKd() const { return material->Kd; }
-    Vec3f GetKs() const { return material->Ks; }
-    Vec3f GetKe() const { return material->Ke; }
+    Vector3f GetKa() const { return material->Ka; }
+    Vector3f GetKd() const { return material->Kd; }
+    Vector3f GetKs() const { return material->Ks; }
+    Vector3f GetKe() const { return material->Ke; }
 
-    Vec3f DiffuseColor(const Vec2f& uv) const;
-    Float SpecularIntensity(const Vec2f& uv) const;
-    Float SpecularShininess(const Vec2f& uv) const;
-    Float AmbientOcclusionIntensity(const Vec2f& uv) const;
-    Vec3f Normal(const Vec2f& uv) const;
+    Vector3f DiffuseColor(const Vector2f& uv) const;
+    Float SpecularIntensity(const Vector2f& uv) const;
+    Float SpecularShininess(const Vector2f& uv) const;
+    Float AmbientOcclusionIntensity(const Vector2f& uv) const;
+    Vector3f Normal(const Vector2f& uv) const;
 
     // Helper
     const Model*    GetModel() const { return model; }

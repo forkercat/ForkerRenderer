@@ -4,7 +4,7 @@
 
 #include "camera.h"
 
-Camera::Camera(const Vec3f& position, const Vec3f& lookAtPos)
+Camera::Camera(const Vector3f& position, const Vector3f& lookAtPos)
     : position(position), worldUp(WORLD_UP), lookAtPos(lookAtPos)
 {
 }
@@ -29,25 +29,25 @@ void Camera::SetLookAtPos(Float x, Float y, Float z)
     lookAtPos.z = z;
 }
 
-Mat4f Camera::GetViewMatrix()
+Matrix4f Camera::GetViewMatrix()
 {
     // calculate lookAt matrix
     return MakeLookAtMatrix(position, lookAtPos, worldUp);
 }
 
-Mat4f Camera::GetPerspectiveMatrix(Float fov, Float aspectRatio, Float n, Float f)
+Matrix4f Camera::GetPerspectiveMatrix(Float fov, Float aspectRatio, Float n, Float f)
 {
     return MakePerspectiveMatrix(fov, aspectRatio, n, f);
 }
 
 // 0 < n < f (right-handed) --> [-1, 1] NDC (left-handed)
-Mat4f Camera::GetPerspectiveMatrix(Float l, Float r, Float b, Float t, Float n, Float f)
+Matrix4f Camera::GetPerspectiveMatrix(Float l, Float r, Float b, Float t, Float n, Float f)
 {
     return MakePerspectiveMatrix(l, r, b, t, n, f);
 }
 
 // 0 < n < f (right-handed) --> [-1, 1] NDC (left-handed)
-Mat4f Camera::GetOrthographicMatrix(Float l, Float r, Float b, Float t, Float n, Float f)
+Matrix4f Camera::GetOrthographicMatrix(Float l, Float r, Float b, Float t, Float n, Float f)
 {
     return MakeOrthographicMatrix(l, r, b, t, n, f);
 }
