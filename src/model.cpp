@@ -23,8 +23,9 @@ std::string ltrim(const std::string& s)
 
 /////////////////////////////////////////////////////////////////////////////////
 
-Model::Model(const std::string& filename, bool normalized, bool flipTexCoordY)
-    : meshes(), verts(), texCoords(), normals()
+Model::Model(const std::string& filename, bool normalized, bool generateTangent,
+             bool flipTexCoordY)
+    : meshes(), verts(), texCoords(), normals(), hasTangents(generateTangent)
 {
     spdlog::info("Model File: {}", filename);
 
@@ -38,7 +39,7 @@ Model::Model(const std::string& filename, bool normalized, bool flipTexCoordY)
     }
 
     // Post-Processing
-    generateTangents();
+    if (generateTangent) this->generateTangents();
     if (normalized) this->normalizePositionVertices();
 
     // clang-format off
@@ -71,8 +72,9 @@ Model::Model(const Model& m)
     {
         Mesh& mesh = iter->second;
         mesh.SetModel(this);
-        mesh.SetMaterial(&(this->materials[mesh.GetMaterial()->Name]));
+        mesh.SetMaterial(&(this->materials[mesh.GetMaterial()->name]));
     }
+    spdlog::debug("hi");
 }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -86,7 +88,7 @@ void Model::Render(Shader& shader)
         const Mesh& mesh = iter->second;
         mesh.Draw(shader);
 
-        spdlog::info("-- [{}] Time Used: {:.6} Seconds", iter->first, stopwatch);
+        spdlog::info("--> [{}] Time Used: {:.6} Seconds", iter->first, stopwatch);
         stopwatch.reset();
     }
 }
@@ -326,28 +328,28 @@ void Model::loadMaterials(const std::string& directory, const std::string& filen
             iss >> strTrash;  // skip 'Ka' and ' '
             Vector3f floats;
             iss >> floats.x >> floats.y >> floats.z;
-            materials[materialName].Ka = floats;
+            materials[materialName].ka = floats;
         }
         else if (line.compare(0, 3, "Kd ") == 0)  // Kd
         {
             iss >> strTrash;
             Vector3f floats;
             iss >> floats.x >> floats.y >> floats.z;
-            materials[materialName].Kd = floats;
+            materials[materialName].kd = floats;
         }
         else if (line.compare(0, 3, "Ks ") == 0)  // Ks
         {
             iss >> strTrash;
             Vector3f floats;
             iss >> floats.x >> floats.y >> floats.z;
-            materials[materialName].Ks = floats;
+            materials[materialName].ks = floats;
         }
         else if (line.compare(0, 3, "Ke ") == 0)  // Ke
         {
             iss >> strTrash;
             Vector3f floats;
             iss >> floats.x >> floats.y >> floats.z;
-            materials[materialName].Ke = floats;
+            materials[materialName].ke = floats;
         }
         // Texture Maps
         else if (line.compare(0, 7, "map_Kd ") == 0)  // map_Kd
@@ -356,8 +358,9 @@ void Model::loadMaterials(const std::string& directory, const std::string& filen
             iss >> strTrash >> filename;
 
             std::string textureFilename = directory + filename;
-            loadTexture(textureFilename, materials[materialName].DiffuseMap,
+            loadTexture(textureFilename, materials[materialName].diffuseMap,
                         flipVertically);
+            materials[materialName].hasDiffuseMap = true;
         }
         else if (line.compare(0, 7, "map_Ks ") == 0)  // map_Ks
         {
@@ -365,8 +368,9 @@ void Model::loadMaterials(const std::string& directory, const std::string& filen
             iss >> strTrash >> filename;
 
             std::string textureFilename = directory + filename;
-            loadTexture(textureFilename, materials[materialName].SpecularMap,
+            loadTexture(textureFilename, materials[materialName].specularMap,
                         flipVertically);
+            materials[materialName].hasSpecularMap = true;
         }
         else if (line.compare(0, 9, "map_Bump ") == 0)  // map_Bump / Normal
         {
@@ -374,8 +378,9 @@ void Model::loadMaterials(const std::string& directory, const std::string& filen
             iss >> strTrash >> filename;
 
             std::string textureFilename = directory + filename;
-            loadTexture(textureFilename, materials[materialName].NormalMap,
+            loadTexture(textureFilename, materials[materialName].normalMap,
                         flipVertically);
+            materials[materialName].hasNormalMap = true;
         }
         else if (line.compare(0, 7, "map_Ao ") == 0)  // map_Ao
         {
@@ -383,8 +388,9 @@ void Model::loadMaterials(const std::string& directory, const std::string& filen
             iss >> strTrash >> filename;
 
             std::string textureFilename = directory + filename;
-            loadTexture(textureFilename, materials[materialName].AmbientOcclusionMap,
+            loadTexture(textureFilename, materials[materialName].ambientOcclusionMap,
                         flipVertically);
+            materials[materialName].hasAmbientOcclusionMap = true;
         }
     }
     in.close();

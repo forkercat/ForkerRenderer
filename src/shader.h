@@ -10,13 +10,14 @@
 #include "geometry.h"
 #include "light.h"
 #include "mesh.h"
+#include "model.h"
 #include "tgaimage.h"
 
 // Enable Perspective Correct Mapping (PCI) If Using Perspective Projection
 #define PERSPECTIVE_CORRECT_MAPPING
 
 // Enable Shadow Mapping
-#define SHADOW_MAPPING
+#define SHADOW_PASS
 #define SOFT_SHADOW_MAPPING_PCF
 
 // Abstract Class
@@ -57,7 +58,7 @@ struct BlinnPhongShader : public Shader
     Matrix3x3f uNormalMatrix;
     PointLight uPointLight;
 
-#ifdef SHADOW_MAPPING
+#ifdef SHADOW_PASS
     Buffer     uShadowBuffer;
     Matrix4x4f uLightSpaceMatrix;
     Matrix3x3f vPositionLightSpaceNDC;
@@ -74,7 +75,11 @@ struct BlinnPhongShader : public Shader
         // TexCoord, Normal, Tangent
         Vector2f texCoord = mesh->TexCoord(faceIdx, vertIdx);
         Vector3f normalVS = uNormalMatrix * mesh->Normal(faceIdx, vertIdx);
-        Vector3f tangentVS = uNormalMatrix * mesh->Tangent(faceIdx, vertIdx);
+        Vector3f tangentVS;
+        if (mesh->GetModel()->HasTangents())
+        {
+            tangentVS = uNormalMatrix * mesh->Tangent(faceIdx, vertIdx);
+        }
 
         // Vertex -> Fragment
         v2fPositionsVS.SetCol(vertIdx, positionVS.xyz);
@@ -88,16 +93,16 @@ struct BlinnPhongShader : public Shader
         positionVS *= oneOverW;
         texCoord *= oneOverW;
         normalVS *= oneOverW;
-        tangentVS *= oneOverW;
+        if (mesh->GetModel()->HasTangents()) tangentVS *= oneOverW;
 #endif
         // Varying
         vTexCoordCorrected.SetCol(vertIdx, texCoord);
         vPositionCorrectedVS.SetCol(vertIdx, positionVS.xyz);
         vNormalCorrected.SetCol(vertIdx, normalVS);
-        vTangentCorrected.SetCol(vertIdx, tangentVS);
+        if (mesh->GetModel()->HasTangents()) vTangentCorrected.SetCol(vertIdx, tangentVS);
 
-        // Shadow Mapping
-#ifdef SHADOW_MAPPING
+            // Shadow Mapping
+#ifdef SHADOW_PASS
         Vector4f positionLightSpaceNDC = uLightSpaceMatrix * positionWS;
         positionLightSpaceNDC /= positionLightSpaceNDC.w;
         vPositionLightSpaceNDC.SetCol(vertIdx, positionLightSpaceNDC.xyz);
@@ -117,7 +122,6 @@ struct BlinnPhongShader : public Shader
         Point3f  positionVS = vPositionCorrectedVS * baryCoord;
         Vector2f texCoord = vTexCoordCorrected * baryCoord;
         Vector3f normalVS = vNormalCorrected * baryCoord;
-        Vector3f tangentVS = vTangentCorrected * baryCoord;
 
         // PCI
 #ifdef PERSPECTIVE_CORRECT_MAPPING
@@ -125,17 +129,28 @@ struct BlinnPhongShader : public Shader
         positionVS *= w;
         texCoord *= w;
         normalVS *= w;
-        tangentVS *= w;
 #endif
         Vector3f N = Normalize(normalVS);
-        Vector3f T = Normalize(tangentVS);
+        Vector3f normal;
 
-        // Normal (TBN Matrix)
-        T = Normalize(T - Dot(T, N) * N);
-        Vector3f   B = Normalize(Cross(N, T));
-        Matrix3x3f TbnMatrix;
-        TbnMatrix.SetCol(0, T).SetCol(1, B).SetCol(2, N);
-        Vector3f normal = Normalize(TbnMatrix * mesh->Normal(texCoord));
+        if (mesh->GetModel()->HasTangents())
+        {
+            Vector3f tangentVS = vTangentCorrected * baryCoord;
+#ifdef PERSPECTIVE_CORRECT_MAPPING
+            tangentVS *= w;
+#endif
+            Vector3f T = Normalize(tangentVS);
+            // Normal (TBN Matrix)
+            T = Normalize(T - Dot(T, N) * N);
+            Vector3f   B = Normalize(Cross(N, T));
+            Matrix3x3f TbnMatrix;
+            TbnMatrix.SetCol(0, T).SetCol(1, B).SetCol(2, N);
+            normal = Normalize(TbnMatrix * mesh->Normal(texCoord));
+        }
+        else
+        {
+            normal = N;
+        }
 
         // Directions
         Vector3f lightDir = Normalize(v2fLightPositionVS - positionVS);
@@ -144,7 +159,7 @@ struct BlinnPhongShader : public Shader
 
         // Shadow Mapping
         Float shadow = 0.f;
-#ifdef SHADOW_MAPPING
+#ifdef SHADOW_PASS
         Point3f positionLightSpaceNDC = vPositionLightSpaceNDC * baryCoord;
         shadow = calculateShadow(positionLightSpaceNDC, normal, lightDir);
 #endif
@@ -160,36 +175,62 @@ private:
                           const Vector3f& normal, const Vector2f& texCoord, Float shadow)
     {
         Color3 lightColor = uPointLight.color;
-        Color3 diffuseColor = mesh->DiffuseColor(texCoord);
-        // Float specularity = mesh->SpecularIntensity(texCoord);  // type 1
-        Float specularity = mesh->SpecularShininess(texCoord);  // type 2
-        Float aoIntensity = mesh->AmbientOcclusionIntensity(texCoord);
 
-        // Contribution of Shading Component
-        Float ambi = aoIntensity;
+        // Ambient
+        Float ambi;
+        ambi = mesh->HasAmbientOcclusionMap() ? 1.f
+                                              : mesh->AmbientOcclusionIntensity(texCoord);
+
+        // Diffuse
         Float diff = Max(0.f, Dot(lightDir, normal));
+
+        // Specular
         Float spec = Max(0.f, Dot(halfwayDir, normal));
-        // spec *= specularity;  // type 1 - intensity
-        spec = std::pow(spec, specularity + 5);  // type 2 - shininess
+        if (mesh->HasSpecularMap())
+        {
+            // Float specularity = mesh->SpecularIntensity(texCoord);  // type 1
+            Float specularity = mesh->SpecularShininess(texCoord);  // type 2
+            // spec *= specularity;  // type 1 - intensity
+            spec = std::pow(spec, specularity + 5);  // type 2 - shininess
+        }
+        else
+        {
+            spec = std::pow(spec, 32.0);
+        }
 
         // Color of Shading Component
-        Color3 ambient = mesh->GetKa() * ambi * diffuseColor * lightColor;
-        Color3 diffuse = mesh->GetKd() * diff * diffuseColor * lightColor;
-        Color3 specular = mesh->GetKs() * spec * lightColor;
+        Color3 ambient, diffuse, specular;
+        if (mesh->HasDiffuseMap())
+        {
+            Color3 diffuseColor = mesh->DiffuseColor(texCoord);
+            ambient = ambi * diffuseColor;
+            diffuse = diff * diffuseColor;
+        }
+        else
+        {
+            ambient = ambi * mesh->GetKa();
+            diffuse = diff * mesh->GetKd();
+        }
+        specular = mesh->GetKs() * spec;
+
+        ambient = ambient * lightColor;
+        diffuse = diffuse * lightColor;
+        specular = specular * lightColor;
 
         // Shadow Mapping
-#ifdef SHADOW_MAPPING
+#ifdef SHADOW_PASS
         diffuse *= 1.f - shadow;
         specular *= 1.f - shadow;
 #endif
 
         // Combine
         Color3 color = ambient + diffuse + specular;
+        // Color3 color = ambient;
         return Clamp01(color);
     }
     /////////////////////////////////////////////////////////////////////////////////
 
-#ifdef SHADOW_MAPPING
+#ifdef SHADOW_PASS
     // Calculate Shadow Component
     Float calculateShadow(const Point3f& positionLightSpaceNDC, const Vector3f& normal,
                           const Vector3f& lightDir) const

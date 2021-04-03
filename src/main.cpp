@@ -10,9 +10,12 @@
 #include "shader.h"
 #include "tgaimage.h"
 
+using std::make_shared;
+using std::shared_ptr;
+
 /////////////////////////////////////////////////////////////////////////////////
 
-#define ANTI_ALIASING_SSAA
+// #define ANTI_ALIASING_SSAA
 #define KERNEL_SIZE 1  // width of output will be (WIDTH / KERNEL_SIZE)
 
 const int   WIDTH = 1024;
@@ -27,28 +30,10 @@ const Float SHADOW_FAR_PLANE = 10.f;
 void     TimeElapsed(spdlog::stopwatch& sw, std::string note = "");
 TGAImage SSAA(const TGAImage& image, int kernelSize);
 
-inline void UpdateProgress(float progress)
-{
-    int barWidth = 70;
-
-    std::cout << "[";
-    int pos = barWidth * progress;
-    for (int i = 0; i < barWidth; ++i)
-    {
-        if (i < pos)
-            std::cout << "=";
-        else if (i == pos)
-            std::cout << ">";
-        else
-            std::cout << " ";
-    }
-    std::cout << "] " << int(progress * 100.0) << " %\r";
-    std::cout.flush();
-}
-
 int main(int argc, const char* argv[])
 {
     // Input
+
     if (argc < 2 || argc > 4)
     {
         std::cerr << "Required: 1 - 3 arguments, but given " << argc - 1 << std::endl;
@@ -67,80 +52,100 @@ int main(int argc, const char* argv[])
     }
 
     // Spdlog
+
     spdlog::set_level(spdlog::level::debug);
     spdlog::stopwatch stepStopwatch;
     spdlog::stopwatch totalStopwatch;
 
-    Vector3f v(1.0, 2.3, 1 / 3.0f);
-    Matrix4x4f m = Matrix4x4f(1.f);
-    m[0][1] = 1.0 / 3;
-    spdlog::debug(v);
-    spdlog::debug(m);
-
     // Model
-    Model      model(modelFilename, true);
-    Matrix4x4f modelMatrix =
-        MakeModelMatrix(Vector3f(0.f), rotateDegreeOnY, uniformScale);
+
+    std::vector<shared_ptr<Model>> models;
+    std::vector<Matrix4x4f>        modelMatrices;
+
+    models.push_back(make_shared<Model>("obj/plane/plane.obj"));  // default plane
+    modelMatrices.push_back(MakeModelMatrix(Vector3f(0, -1, 0), 0, 2.f));
+
+    models.push_back(make_shared<Model>(modelFilename, true, true));
+    modelMatrices.push_back(MakeModelMatrix(Vector3f(0), rotateDegreeOnY, uniformScale));
+
     TimeElapsed(stepStopwatch, "Model Loaded");
 
     // Camera
-    Camera                 camera(0, 0, 5);  // LookAt = (0,0,0)
-    Camera::ProjectionType projectionType = Camera::Orthographic;
+
+    Camera                 camera(0, 2, 5);  // LookAt = (0,0,0)
+    Camera::ProjectionType projectionType = Camera::Perspective;
     ForkerGL::Viewport(0, 0, WIDTH, HEIGHT);
 
     // Light
+
     PointLight pointLight(0, 2, 5);
 
     // Shadow Mapping
-#ifdef SHADOW_MAPPING
+
+#ifdef SHADOW_PASS
+    spdlog::info("");
+    spdlog::info("Shadow Pass:");
     // Buffer Configuration
     ForkerGL::InitShadowBuffers(WIDTH, HEIGHT);
-    ForkerGL::RenderMode(ForkerGL::Shadow);
+    ForkerGL::RenderMode(ForkerGL::ShadowPass);
     // Matrix
     Matrix4x4f viewShadowMapping = MakeLookAtMatrix(pointLight.position, Vector3f(0.f));
     Matrix4x4f projShadowMapping = MakeOrthographicMatrix(
         -2.f * RATIO, 2.f * RATIO, -2.f, 2.f, SHADOW_NEAR_PLANE, SHADOW_FAR_PLANE);
     Matrix4x4f lightSpaceMatrix = projShadowMapping * viewShadowMapping;
 
-    // Depth Shading
-    DepthShader depthShader;
-    depthShader.uModelMatrix = modelMatrix;
-    depthShader.uLightSpaceMatrix = lightSpaceMatrix;
-    // Render
-    model.Render(depthShader);
+    for (int i = 0; i < models.size(); ++i)
+    {
+        auto model = models[i];
 
+        // Depth Shading
+        DepthShader depthShader;
+        depthShader.uModelMatrix = modelMatrices[i];
+        depthShader.uLightSpaceMatrix = lightSpaceMatrix;
+        // Render
+        model->Render(depthShader);
+    }
     ForkerGL::ShadowBuffer.GenerateGrayImage(false).WriteTgaFile(
         "output/output_shadowmap.tga");
     TimeElapsed(stepStopwatch, "Shadow Mapping Finished");
 #endif
 
     // Buffer Configuration
+
     ForkerGL::InitFrameBuffers(WIDTH, HEIGHT);
     ForkerGL::ClearColor(Color3(0.12f, 0.12f, 0.12f));
-    ForkerGL::RenderMode(ForkerGL::Color);
+    ForkerGL::RenderMode(ForkerGL::ColorPass);
 
     // Blinn-Phong Shading
-    BlinnPhongShader bpShader;
-    bpShader.uModelMatrix = modelMatrix;
-    bpShader.uViewMatrix = camera.GetViewMatrix();
-    bpShader.uNormalMatrix = MakeNormalMatrix(bpShader.uViewMatrix * bpShader.uModelMatrix);
-    bpShader.uProjectionMatrix =
-        (projectionType == Camera::Orthographic)
-            ? camera.GetOrthographicMatrix(-1.f * RATIO, 1.f * RATIO, -1.f, 1.f,
-                                           CAMERA_NEAR_PLANE, CAMERA_FAR_PLANE)
-            : camera.GetPerspectiveMatrix(45.f, RATIO, CAMERA_NEAR_PLANE,
-                                          CAMERA_FAR_PLANE);
+    spdlog::info("");
+    spdlog::info("Color Pass:");
+    for (int i = 0; i < models.size(); ++i)
+    {
+        auto model = models[i];
 
-    // Shader Configuration
-    bpShader.uPointLight = pointLight;
-#ifdef SHADOW_MAPPING
-    bpShader.uShadowBuffer = ForkerGL::ShadowBuffer;
-    bpShader.uLightSpaceMatrix = lightSpaceMatrix;
+        BlinnPhongShader bpShader;
+        bpShader.uModelMatrix = modelMatrices[i];
+        bpShader.uViewMatrix = camera.GetViewMatrix();
+        bpShader.uNormalMatrix =
+            MakeNormalMatrix(bpShader.uViewMatrix * bpShader.uModelMatrix);
+        bpShader.uProjectionMatrix =
+            (projectionType == Camera::Orthographic)
+                ? camera.GetOrthographicMatrix(-1.f * RATIO, 1.f * RATIO, -1.f, 1.f,
+                                               CAMERA_NEAR_PLANE, CAMERA_FAR_PLANE)
+                : camera.GetPerspectiveMatrix(45.f, RATIO, CAMERA_NEAR_PLANE,
+                                              CAMERA_FAR_PLANE);
+
+        // Shader Configuration
+        bpShader.uPointLight = pointLight;
+#ifdef SHADOW_PASS
+        bpShader.uShadowBuffer = ForkerGL::ShadowBuffer;
+        bpShader.uLightSpaceMatrix = lightSpaceMatrix;
 #endif
 
-    // Render
-    model.Render(bpShader);
-    TimeElapsed(stepStopwatch, "Model Rendered");
+        // Render
+        model->Render(bpShader);
+        TimeElapsed(stepStopwatch, "Model Rendered");
+    }
 
     // Output Framebuffer Image
     TimeElapsed(totalStopwatch, "Total");
@@ -163,8 +168,8 @@ int main(int argc, const char* argv[])
 // Timer
 void TimeElapsed(spdlog::stopwatch& sw, std::string note)
 {
-    spdlog::info("Time Used: {:.6} Seconds ({})", sw, note);
-    spdlog::info("------------------------------------------------------------");
+    spdlog::info("<Time Used: {:.6} Seconds ({})>", sw, note);
+    // spdlog::info("------------------------------------------------------------");
     sw.reset();
 }
 

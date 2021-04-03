@@ -20,7 +20,7 @@ class Model
 {
 public:
     explicit Model(const std::string& filename, bool normalized = false,
-                   bool flipTexCoordY = true);
+                   bool generateTangent = false, bool flipTexCoordY = true);
 
     // Copy Constructor
     Model(const Model& m);
@@ -37,13 +37,16 @@ public:
     int GetNumVerts() const;
     int GetNumFaces() const;
 
+    inline bool HasTangents() const { return hasTangents; }
+
 private:
     std::map<std::string, Mesh>     meshes;
     std::map<std::string, Material> materials;
-    std::vector<Vector3f>              verts;
-    std::vector<Vector2f>              texCoords;
-    std::vector<Vector3f>              normals;
-    std::vector<Vector3f>              tangents;
+    std::vector<Vector3f>           verts;
+    std::vector<Vector2f>           texCoords;
+    std::vector<Vector3f>           normals;
+    std::vector<Vector3f>           tangents;
+    bool                            hasTangents;
 
     // .obj and .mtl Parsers
     // Supported Format: 'g ' is followed by 'usemtl ', which is followed by 'f ...'

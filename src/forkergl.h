@@ -17,8 +17,8 @@ struct ForkerGL
 
     enum RenderMode
     {
-        Color,
-        Shadow
+        ColorPass,
+        ShadowPass
     };
 
     // Buffers

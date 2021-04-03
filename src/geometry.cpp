@@ -89,13 +89,13 @@ Matrix3x3f MakeTbnMatrix(const Vector3f& edge1, const Vector3f& edge2, const Vec
     return TBN;
 }
 
-Matrix4x4f MakeModelMatrix(const Vector3f& translation, Float yRotateDegree, Float scale)
+Matrix4x4f MakeModelMatrix(const Vector3f& translation, Float yRotate, Float scale)
 {
     Matrix4x4f S(1.f);
     S[0][0] = S[1][1] = S[2][2] = scale;
 
     Matrix4x4f R(1.f);
-    Float radVal = Radians(yRotateDegree);
+    Float radVal = Radians(yRotate);
     R[0][0] = cos(radVal);
     R[0][2] = sin(radVal);
     R[2][0] = -sin(radVal);

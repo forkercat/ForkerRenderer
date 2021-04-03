@@ -16,7 +16,7 @@ Buffer ForkerGL::ShadowDepthBuffer;
 Matrix4x4f viewportMatrix = Matrix4x4f::Identity();
 
 // RenderMode
-enum ForkerGL::RenderMode renderMode = ForkerGL::Color;
+enum ForkerGL::RenderMode renderMode = ForkerGL::ColorPass;
 
 // Buffer Initialization
 void ForkerGL::InitFrameBuffers(int width, int height)
@@ -91,8 +91,8 @@ void ForkerGL::DrawTriangle(const Point4f ndcVerts[3], Shader& shader)
     }
 
     // Bounding Box
-    int w = (renderMode == Color) ? FrameBuffer.GetWidth() : ShadowBuffer.GetWidth();
-    int h = (renderMode == Color) ? FrameBuffer.GetHeight() : ShadowBuffer.GetHeight();
+    int w = (renderMode == ColorPass) ? FrameBuffer.GetWidth() : ShadowBuffer.GetWidth();
+    int h = (renderMode == ColorPass) ? FrameBuffer.GetHeight() : ShadowBuffer.GetHeight();
     BoundBox<int> bbox = BoundBox<int>::GenerateBoundBox(points, w, h);
 
     for (int px = bbox.MinX; px <= bbox.MaxX; ++px)
@@ -106,7 +106,8 @@ void ForkerGL::DrawTriangle(const Point4f ndcVerts[3], Shader& shader)
 
             // Depth Test
             Float currentDepth = Dot(bary, depths);
-            if (renderMode == Color)  // distinguish between render color or just depth value
+            if (renderMode ==
+                ColorPass)  // distinguish between render color or just depth value
             {
                 if (currentDepth >= DepthBuffer.GetValue(px, py)) continue;
                 DepthBuffer.SetValue(px, py, currentDepth);
@@ -122,7 +123,7 @@ void ForkerGL::DrawTriangle(const Point4f ndcVerts[3], Shader& shader)
             bool   discard = shader.ProcessFragment(bary, frag);
             if (discard) continue;
 
-            if (renderMode == Color)
+            if (renderMode == ColorPass)
                 FrameBuffer.Set(px, py, frag);
             else
                 ShadowBuffer.SetValue(px, py, frag.z);

@@ -47,7 +47,7 @@ cmake .. && make
   - Generate and average tangents for each vertex when loading the model
 - [x] Camera: Orthographic / Perspective Projection
 - [x] Perspective Correct Interpolation (PCI) `#define PERSPECTIVE_CORRECT_MAPPING`
-- [x] Soft-Shadow Mapping with Percentage-Closer Filtering (PCF) `#define SHADOW_MAPPING`
+- [x] Soft-ShadowPass Mapping with Percentage-Closer Filtering (PCF) `#define SHADOW_PASS`
 - [x] Anti-Aliasing (SSAA) `#define ANTI_ALIASING_SSAA`
 - [ ] Screen Space Ambient Occlusion (SSAO)
 

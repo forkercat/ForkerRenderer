@@ -1010,7 +1010,7 @@ Matrix3x3f MakeNormalMatrix(const Matrix4f& matrix);
 Matrix3x3f MakeTbnMatrix(const Vector3f& edge1, const Vector3f& edge2, const Vector2f& deltaUv1,
                     const Vector2f& deltaUv2, const Vector3f& N);
 
-Matrix4x4f MakeModelMatrix(const Vector3f& translation, Float yRotateDegree = 0.f,
+Matrix4x4f MakeModelMatrix(const Vector3f& translation, Float yRotate = 0.f,
                       Float scale = 1.f);
 
 Matrix4x4f MakeLookAtMatrix(const Vector3f& eyePos, const Vector3f& center,
