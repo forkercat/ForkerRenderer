@@ -12,7 +12,7 @@
 #include "geometry.h"
 #include "material.h"
 #include "mesh.h"
-#include "tgaimage.h"
+#include "texture.h"
 
 class Shader;
 
@@ -53,7 +53,7 @@ private:
     bool loadObjectFile(const std::string& filename, bool flipVertically);
     void loadMaterials(const std::string& directory, const std::string& filename,
                        bool flipVertically);
-    void loadTexture(const std::string& textureFilename, TGAImage& img,
+    void loadTexture(const std::string& textureFilename, shared_ptr<Texture>& texture,
                      bool flipVertically);
 
     // Make Position Coordinates Between [-1, 1]

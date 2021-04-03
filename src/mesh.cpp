@@ -73,52 +73,6 @@ int Mesh::GetVertIndex(int faceIdx, int vertIdx) const
 
 /////////////////////////////////////////////////////////////////////////////////
 
-Vector3f Mesh::DiffuseColor(const Vector2f& uv) const
-{
-    const TGAImage& diffuseMap = material->diffuseMap;
-    int             w = diffuseMap.GetWidth() - 1;
-    int             h = diffuseMap.GetHeight() - 1;
-    const TGAColor& color = diffuseMap.Get(uv.s * w, uv.t * h);
-    return Vector3f(color.r / 255.f, color.g / 255.f, color.b / 255.f);
-}
-
-Float Mesh::SpecularIntensity(const Vector2f& uv) const
-{
-    const TGAImage& specularMap = material->specularMap;
-    int             w = specularMap.GetWidth() - 1;
-    int             h = specularMap.GetHeight() - 1;
-    return specularMap.Get(uv.s * w, uv.t * h)[0] / 255.f;
-}
-
-Float Mesh::SpecularShininess(const Vector2f& uv) const
-{
-    const TGAImage& specularMap = material->specularMap;
-    int             w = specularMap.GetWidth() - 1;
-    int             h = specularMap.GetHeight() - 1;
-    return specularMap.Get(uv.s * w, uv.t * h)[0] / 1.f;
-}
-
-Float Mesh::AmbientOcclusionIntensity(const Vector2f& uv) const
-{
-    const TGAImage& aoMap = material->ambientOcclusionMap;
-    int             w = aoMap.GetWidth() - 1;
-    int             h = aoMap.GetHeight() - 1;
-    return aoMap.Get(uv.s * w, uv.t * h)[0] / 255.f;
-}
-
-Vector3f Mesh::Normal(const Vector2f& uv) const
-{
-    const TGAImage& normalMap = material->normalMap;
-    int             w = normalMap.GetWidth() - 1;
-    int             h = normalMap.GetHeight() - 1;
-    const TGAColor& color = normalMap.Get(uv.s * w, uv.t * h);
-    Vector3f        normal(color.r / 255.f, color.g / 255.f, color.b / 255.f);
-    normal = normal * 2.f - Vector3f(1.f);  // from [0, 1] to [-1, 1]
-    return Normalize(normal);
-}
-
-/////////////////////////////////////////////////////////////////////////////////
-
 void Mesh::AddVertIndex(int index)
 {
     faceVertIndices.push_back(index);

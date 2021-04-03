@@ -121,6 +121,8 @@ struct BlinnPhongShader : public Shader
     // Fragment Shader
     bool ProcessFragment(const Vector3f& baryCoord, Color3& gl_Color) override
     {
+        const Material* material = mesh->GetMaterial();
+
         // Interpolation
         Point3f  positionVS = vPositionCorrectedVS * baryCoord;
         Vector2f texCoord = vTexCoordCorrected * baryCoord;
@@ -136,7 +138,7 @@ struct BlinnPhongShader : public Shader
         Vector3f N = Normalize(normalVS);
         Vector3f normal;
 
-        if (mesh->GetModel()->HasTangents())
+        if (mesh->GetModel()->HasTangents() && material->HasNormalMap())
         {
             Vector3f tangentVS = vTangentCorrected * baryCoord;
 #ifdef PERSPECTIVE_CORRECT_MAPPING
@@ -148,7 +150,9 @@ struct BlinnPhongShader : public Shader
             Vector3f   B = Normalize(Cross(N, T));
             Matrix3x3f TbnMatrix;
             TbnMatrix.SetCol(0, T).SetCol(1, B).SetCol(2, N);
-            normal = Normalize(TbnMatrix * mesh->Normal(texCoord));
+            Vector3f sampledNormal = material->normalMap->Sample(texCoord);
+            sampledNormal = Normalize(sampledNormal * 2.f - Vector3f(1.f));  // remap
+            normal = Normalize(TbnMatrix * sampledNormal);
         }
         else
         {
@@ -180,22 +184,27 @@ private:
     Color3 calculateLight(const Vector3f& lightDir, const Vector3f& halfwayDir,
                           const Vector3f& normal, const Vector2f& texCoord, Float shadow)
     {
+        const Material*           material = mesh->GetMaterial();
+        const shared_ptr<Texture> diffuseMap = material->diffuseMap;
+        const shared_ptr<Texture> specularMap = material->specularMap;
+        const shared_ptr<Texture> ambientOcclusionMap = material->ambientOcclusionMap;
+
         Color3 lightColor = uPointLight.color;
 
         // Ambient
-        Float ambi;
-        ambi = mesh->HasAmbientOcclusionMap() ? 1.f
-                                              : mesh->AmbientOcclusionIntensity(texCoord);
+        Float ambi = material->HasAmbientOcclusionMap()
+                         ? material->ambientOcclusionMap->SampleFloat(texCoord)
+                         : 0.2f;
 
         // Diffuse
         Float diff = Max(0.f, Dot(lightDir, normal));
 
         // Specular
         Float spec = Max(0.f, Dot(halfwayDir, normal));
-        if (mesh->HasSpecularMap())
+        if (material->HasSpecularMap())
         {
-            // Float specularity = mesh->SpecularIntensity(texCoord);  // type 1
-            Float specularity = mesh->SpecularShininess(texCoord);  // type 2
+            Float specularity = specularMap->SampleFloat(texCoord);  // type 1
+            // Float specularity = specularMap->SampleFloat(texCoord) * 255.f;  // type 2
             // spec *= specularity;  // type 1 - intensity
             spec = std::pow(spec, specularity + 5);  // type 2 - shininess
         }
@@ -206,18 +215,18 @@ private:
 
         // Color of Shading Component
         Color3 ambient, diffuse, specular;
-        if (mesh->HasDiffuseMap())
+        if (material->HasDiffuseMap())
         {
-            Color3 diffuseColor = mesh->DiffuseColor(texCoord);
+            Color3 diffuseColor = diffuseMap->Sample(texCoord);
             ambient = ambi * diffuseColor;
             diffuse = diff * diffuseColor;
         }
         else
         {
-            ambient = ambi * mesh->GetKa();
-            diffuse = diff * mesh->GetKd();
+            ambient = ambi * material->ka;
+            diffuse = diff * material->kd;
         }
-        specular = mesh->GetKs() * spec;
+        specular = material->ks * spec;
 
         ambient = ambient * lightColor;
         diffuse = diffuse * lightColor;
@@ -231,7 +240,7 @@ private:
 
         // Combine
         Color3 color = ambient + diffuse + specular;
-        // Color3 color = ambient;
+        // Color3 color = ambient + diffuse;
         return Clamp01(color);
     }
     /////////////////////////////////////////////////////////////////////////////////
@@ -243,8 +252,10 @@ private:
         if (coord.x < 0.f || coord.x > 1.f || coord.y < 0.f || coord.y > 1.f)
             return Infinity;
 
-        int   u = (uShadowBuffer.GetWidth() - 1) * coord.x;
-        int   v = (uShadowBuffer.GetHeight() - 1) * coord.y;
+        int   w = uShadowBuffer.GetWidth() - 1;
+        int   h = uShadowBuffer.GetHeight() - 1;
+        int   u = (int)((float)w * coord.x);
+        int   v = (int)((float)h * coord.y);
         Float depth = uShadowBuffer.GetValue(u, v);
 
         // return depth < 1e-3 ? 1.f : depth;  // fix background depth

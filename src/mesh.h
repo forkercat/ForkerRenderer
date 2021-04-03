@@ -8,6 +8,7 @@
 #include "geometry.h"
 #include "material.h"
 #include "tgaimage.h"
+#include "color.h"
 
 class Shader;
 class Model;
@@ -30,22 +31,6 @@ public:
     Vector3f Normal(int faceIdx, int vertIdx) const;
     Vector3f Tangent(int faceIdx, int vertIdx) const;
     int   GetVertIndex(int faceIdx, int vertIdx) const;
-
-    // Material Properties
-    Vector3f GetKa() const { return material->ka; }
-    Vector3f GetKd() const { return material->kd; }
-    Vector3f GetKs() const { return material->ks; }
-    Vector3f GetKe() const { return material->ke; }
-
-    Vector3f DiffuseColor(const Vector2f& uv) const;
-    Float SpecularIntensity(const Vector2f& uv) const;
-    Float SpecularShininess(const Vector2f& uv) const;
-    Float AmbientOcclusionIntensity(const Vector2f& uv) const;
-    bool HasDiffuseMap() const { return material->hasDiffuseMap; }
-    bool HasSpecularMap() const { return material->hasSpecularMap; }
-    bool HasNormalMap() const { return material->hasNormalMap; }
-    bool HasAmbientOcclusionMap() const { return material->hasAmbientOcclusionMap; }
-    Vector3f Normal(const Vector2f& uv) const;
 
     // Helper
     const Model*    GetModel() const { return model; }

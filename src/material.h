@@ -11,7 +11,10 @@
 #include <string>
 
 #include "geometry.h"
-#include "tgaimage.h"
+#include "texture.h"
+
+using std::make_shared;
+using std::shared_ptr;
 
 class Material
 {
@@ -21,28 +24,26 @@ public:
     Material() = default;
 
     // clang-format off
-    explicit  Material(const std::string& name)
+    explicit Material(const std::string& name)
         : name(name), ka(0.f), kd(0.f), ks(0.f), ke(0.f),
-          diffuseMap(), specularMap(), normalMap(), ambientOcclusionMap(),
-          hasDiffuseMap(false), hasSpecularMap(false), hasNormalMap(false),
-          hasAmbientOcclusionMap(false)
+          diffuseMap(nullptr), specularMap(nullptr), normalMap(nullptr), ambientOcclusionMap(nullptr)
     {
-    }  // clang-format on
+    }  // clang-format ons
 
     Vector3f ka;
     Vector3f kd;
     Vector3f ks;
     Vector3f ke;
 
-    TGAImage diffuseMap;
-    TGAImage specularMap;
-    TGAImage normalMap;
-    TGAImage ambientOcclusionMap;
+    shared_ptr<Texture> diffuseMap;
+    shared_ptr<Texture> specularMap;
+    shared_ptr<Texture> normalMap;
+    shared_ptr<Texture> ambientOcclusionMap;
 
-    bool hasDiffuseMap;
-    bool hasSpecularMap;
-    bool hasNormalMap;
-    bool hasAmbientOcclusionMap;
+    inline bool HasDiffuseMap() const { return diffuseMap != nullptr; }
+    inline bool HasSpecularMap() const { return specularMap != nullptr; }
+    inline bool HasNormalMap() const { return normalMap != nullptr; }
+    inline bool HasAmbientOcclusionMap() const { return ambientOcclusionMap != nullptr; }
 };
 
 inline std::ostream& operator<<(std::ostream& out, const Material& m)
@@ -54,10 +55,10 @@ inline std::ostream& operator<<(std::ostream& out, const Material& m)
             "Ka(%3.2f, %3.2f, %3.2f), "
             "Kd(%3.2f, %3.2f, %3.2f), "
             "Ks(%3.2f, %3.2f, %3.2f)",
-            (m.diffuseMap.GetWidth() != 0) ? "o" : "x",
-            (m.specularMap.GetWidth() != 0) ? "o" : "x",
-            (m.normalMap.GetWidth() != 0) ? "o" : "x",
-            (m.ambientOcclusionMap.GetWidth() != 0) ? "o" : "x",
+            m.diffuseMap ? "o" : "x",
+            m.specularMap ? "o" : "x",
+            m.normalMap ? "o" : "x",
+            m.ambientOcclusionMap ? "o" : "x",
             (Float)m.ka.x, (Float)m.ka.y, (Float)m.ka.z,
             (Float)m.kd.x, (Float)m.kd.y, (Float)m.kd.z,
             (Float)m.ks.x, (Float)m.ks.y, (Float)m.ks.z);

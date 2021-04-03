@@ -68,6 +68,7 @@ int main(int argc, const char* argv[])
     modelMatrices.push_back(MakeModelMatrix(Vector3f(0, -1, -1), 0, 3.f));
 
     // models.push_back(make_shared<Model>("obj/cyborg/cyborg.obj", true, true));
+
     models.push_back(make_shared<Model>(modelFilename, true, true));
     modelMatrices.push_back(
         MakeModelMatrix(Vector3f(0, 0, -1), rotateDegreeOnY, uniformScale));

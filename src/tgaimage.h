@@ -65,6 +65,7 @@ struct TGAColor
         }
     }
 
+    std::uint8_t  operator[](const int i) const { return bgra[i]; }
     std::uint8_t& operator[](const int i) { return bgra[i]; }
 
     TGAColor& operator=(const TGAColor& c)

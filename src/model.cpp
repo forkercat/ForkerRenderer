@@ -13,6 +13,9 @@
 
 #include "shader.h"
 
+using std::make_shared;
+using std::shared_ptr;
+
 const std::string WHITESPACE = " \n\r\t\f\v";
 
 std::string ltrim(const std::string& s)
@@ -74,7 +77,6 @@ Model::Model(const Model& m)
         mesh.SetModel(this);
         mesh.SetMaterial(&(this->materials[mesh.GetMaterial()->name]));
     }
-    spdlog::debug("hi");
 }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -360,7 +362,6 @@ void Model::loadMaterials(const std::string& directory, const std::string& filen
             std::string textureFilename = directory + filename;
             loadTexture(textureFilename, materials[materialName].diffuseMap,
                         flipVertically);
-            materials[materialName].hasDiffuseMap = true;
         }
         else if (line.compare(0, 7, "map_Ks ") == 0)  // map_Ks
         {
@@ -370,7 +371,6 @@ void Model::loadMaterials(const std::string& directory, const std::string& filen
             std::string textureFilename = directory + filename;
             loadTexture(textureFilename, materials[materialName].specularMap,
                         flipVertically);
-            materials[materialName].hasSpecularMap = true;
         }
         else if (line.compare(0, 9, "map_Bump ") == 0)  // map_Bump / Normal
         {
@@ -380,7 +380,6 @@ void Model::loadMaterials(const std::string& directory, const std::string& filen
             std::string textureFilename = directory + filename;
             loadTexture(textureFilename, materials[materialName].normalMap,
                         flipVertically);
-            materials[materialName].hasNormalMap = true;
         }
         else if (line.compare(0, 7, "map_Ao ") == 0)  // map_Ao
         {
@@ -390,16 +389,16 @@ void Model::loadMaterials(const std::string& directory, const std::string& filen
             std::string textureFilename = directory + filename;
             loadTexture(textureFilename, materials[materialName].ambientOcclusionMap,
                         flipVertically);
-            materials[materialName].hasAmbientOcclusionMap = true;
         }
     }
     in.close();
 }
 
 // Load Texture File
-void Model::loadTexture(const std::string& textureFilename, TGAImage& image,
+void Model::loadTexture(const std::string& textureFilename, shared_ptr<Texture>& texture,
                         bool flipVertically)
 {
+    TGAImage image;
     bool success = image.ReadTgaFile(textureFilename.c_str());
 
     if (!success)
@@ -409,6 +408,8 @@ void Model::loadTexture(const std::string& textureFilename, TGAImage& image,
     }
 
     if (flipVertically) image.FlipVertically();  // flip v coordinate
+
+    texture = make_shared<Texture>(image);
 }
 
 // Generate Tangents
