@@ -27,6 +27,25 @@ const Float SHADOW_FAR_PLANE = 10.f;
 void     TimeElapsed(spdlog::stopwatch& sw, std::string note = "");
 TGAImage SSAA(const TGAImage& image, int kernelSize);
 
+inline void UpdateProgress(float progress)
+{
+    int barWidth = 70;
+
+    std::cout << "[";
+    int pos = barWidth * progress;
+    for (int i = 0; i < barWidth; ++i)
+    {
+        if (i < pos)
+            std::cout << "=";
+        else if (i == pos)
+            std::cout << ">";
+        else
+            std::cout << " ";
+    }
+    std::cout << "] " << int(progress * 100.0) << " %\r";
+    std::cout.flush();
+}
+
 int main(int argc, const char* argv[])
 {
     // Input
@@ -51,6 +70,12 @@ int main(int argc, const char* argv[])
     spdlog::set_level(spdlog::level::debug);
     spdlog::stopwatch stepStopwatch;
     spdlog::stopwatch totalStopwatch;
+
+    Vector3f v(1.0, 2.3, 1 / 3.0f);
+    Matrix4x4f m = Matrix4x4f(1.f);
+    m[0][1] = 1.0 / 3;
+    spdlog::debug(v);
+    spdlog::debug(m);
 
     // Model
     Model      model(modelFilename, true);
@@ -99,7 +124,7 @@ int main(int argc, const char* argv[])
     bpShader.uModelMatrix = modelMatrix;
     bpShader.uViewMatrix = camera.GetViewMatrix();
     bpShader.uNormalMatrix = MakeNormalMatrix(bpShader.uViewMatrix * bpShader.uModelMatrix);
-    bpShader.uProjMatrix =
+    bpShader.uProjectionMatrix =
         (projectionType == Camera::Orthographic)
             ? camera.GetOrthographicMatrix(-1.f * RATIO, 1.f * RATIO, -1.f, 1.f,
                                            CAMERA_NEAR_PLANE, CAMERA_FAR_PLANE)

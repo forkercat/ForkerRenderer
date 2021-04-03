@@ -53,7 +53,7 @@ struct BlinnPhongShader : public Shader
     // Uniform Variables
     Matrix4x4f uModelMatrix;
     Matrix4x4f uViewMatrix;
-    Matrix4x4f uProjMatrix;
+    Matrix4x4f uProjectionMatrix;
     Matrix3x3f uNormalMatrix;
     PointLight uPointLight;
 
@@ -69,7 +69,7 @@ struct BlinnPhongShader : public Shader
         // MVP
         Point4f positionWS = uModelMatrix * Point4f(mesh->Vert(faceIdx, vertIdx), 1.f);
         Point4f positionVS = uViewMatrix * positionWS;
-        Point4f positionCS = uProjMatrix * positionVS;
+        Point4f positionCS = uProjectionMatrix * positionVS;
 
         // TexCoord, Normal, Tangent
         Vector2f texCoord = mesh->TexCoord(faceIdx, vertIdx);

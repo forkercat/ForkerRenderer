@@ -13,6 +13,7 @@
 #include <ostream>
 
 #include "check.h"
+#include "stringprint.h"
 
 /////////////////////////////////////////////////////////////////////////////////
 
@@ -570,18 +571,39 @@ public:
 /////////////////////////////////////////////////////////////////////////////////
 // Vector Operators
 
-template <size_t DIM, typename T>
-std::ostream& operator<<(std::ostream& out, const Vector<DIM, T>& v)
+// template <size_t DIM, typename T>
+// std::ostream& operator<<(std::ostream& out, const Vector<DIM, T>& v)
+// {
+//     char buffer[50];
+//     out << "[ ";
+//     for (size_t i = 0; i < DIM - 1; ++i)
+//     {
+//         sprintf(buffer, "%7.8f", (Float)v[i]);
+//         out << buffer << ", ";
+//     }
+//     sprintf(buffer, "%7.8f", (Float)v[DIM - 1]);
+//     out << buffer << " ]";
+//     return out;
+// }
+
+template <typename T>
+std::ostream& operator<<(std::ostream& out, const Vector<2, T>& v)
 {
-    char buffer[50];
-    out << "(";
-    for (size_t i = 0; i < DIM - 1; ++i)
-    {
-        sprintf(buffer, "%7.8f", (Float)v[i]);
-        out << buffer << ", ";
-    }
-    sprintf(buffer, "%7.8f", (Float)v[DIM - 1]);
-    out << buffer << ")";
+    out << StringPrintf("[ %7.8f, %7.8f ]", v.x, v.y);
+    return out;
+}
+
+template <typename T>
+std::ostream& operator<<(std::ostream& out, const Vector<3, T>& v)
+{
+    out << StringPrintf("[ %7.8f, %7.8f, %7.8f ]", v.x, v.y, v.z);
+    return out;
+}
+
+template <typename T>
+std::ostream& operator<<(std::ostream& out, const Vector<4, T>& v)
+{
+    out << StringPrintf("[ %7.8f, %7.8f, %7.8f, %7.8f ]", v.x, v.y, v.z, v.w);
     return out;
 }
 
@@ -808,11 +830,11 @@ Matrix<DIM_ROW, DIM_COL, T> operator/(const Matrix<DIM_ROW, DIM_COL, T>& lhs,
 template <size_t DIM_ROW, size_t DIM_COL, typename T>
 std::ostream& operator<<(std::ostream& out, const Matrix<DIM_ROW, DIM_COL, T>& m)
 {
-    out << "\n    Mat" << DIM_ROW << "x" << DIM_COL << " [";
+    out << "\n    Matrix" << DIM_ROW << "x" << DIM_COL << " [";
     out << m[0] << std::endl;
     for (size_t i = 1; i < DIM_ROW - 1; ++i)
-        out << "            " << m[i] << std::endl;
-    out << "            " << m[DIM_ROW - 1] << "]";
+        out << "               " << m[i] << std::endl;
+    out << "               " << m[DIM_ROW - 1] << "]";
     return out;
 }
 
