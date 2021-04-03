@@ -24,8 +24,10 @@ const Float RATIO = (Float)WIDTH / HEIGHT;
 
 const Float CAMERA_NEAR_PLANE = 0.1f;
 const Float CAMERA_FAR_PLANE = 20.f;
+
+const Float SHADOW_VIEW_SIZE = 3.0f;
 const Float SHADOW_NEAR_PLANE = 0.1f;
-const Float SHADOW_FAR_PLANE = 10.f;
+const Float SHADOW_FAR_PLANE = 20.f;
 
 void     TimeElapsed(spdlog::stopwatch& sw, std::string note = "");
 TGAImage SSAA(const TGAImage& image, int kernelSize);
@@ -63,22 +65,24 @@ int main(int argc, const char* argv[])
     std::vector<Matrix4x4f>        modelMatrices;
 
     models.push_back(make_shared<Model>("obj/plane/plane.obj"));  // default plane
-    modelMatrices.push_back(MakeModelMatrix(Vector3f(0, -1, 0), 0, 2.f));
+    modelMatrices.push_back(MakeModelMatrix(Vector3f(0, -1, -1), 0, 3.f));
 
+    // models.push_back(make_shared<Model>("obj/cyborg/cyborg.obj", true, true));
     models.push_back(make_shared<Model>(modelFilename, true, true));
-    modelMatrices.push_back(MakeModelMatrix(Vector3f(0), rotateDegreeOnY, uniformScale));
+    modelMatrices.push_back(
+        MakeModelMatrix(Vector3f(0, 0, -1), rotateDegreeOnY, uniformScale));
 
     TimeElapsed(stepStopwatch, "Model Loaded");
 
     // Camera
 
-    Camera                 camera(0, 2, 5);  // LookAt = (0,0,0)
+    Camera                 camera(-1, 1, 1, 0, 0, -1);  // LookAt = (0,0,0)
     Camera::ProjectionType projectionType = Camera::Perspective;
     ForkerGL::Viewport(0, 0, WIDTH, HEIGHT);
 
     // Light
 
-    PointLight pointLight(0, 2, 5);
+    PointLight pointLight(2, 5, 5);
 
     // Shadow Mapping
 
@@ -89,10 +93,11 @@ int main(int argc, const char* argv[])
     ForkerGL::InitShadowBuffers(WIDTH, HEIGHT);
     ForkerGL::RenderMode(ForkerGL::ShadowPass);
     // Matrix
-    Matrix4x4f viewShadowMapping = MakeLookAtMatrix(pointLight.position, Vector3f(0.f));
-    Matrix4x4f projShadowMapping = MakeOrthographicMatrix(
-        -2.f * RATIO, 2.f * RATIO, -2.f, 2.f, SHADOW_NEAR_PLANE, SHADOW_FAR_PLANE);
-    Matrix4x4f lightSpaceMatrix = projShadowMapping * viewShadowMapping;
+    Matrix4x4f viewMatrixSM = MakeLookAtMatrix(pointLight.position, Vector3f(0.f));
+    Matrix4x4f projMatrixSM = MakeOrthographicMatrix(
+        -SHADOW_VIEW_SIZE * RATIO, SHADOW_VIEW_SIZE * RATIO, -SHADOW_VIEW_SIZE,
+        SHADOW_VIEW_SIZE, SHADOW_NEAR_PLANE, SHADOW_FAR_PLANE);
+    Matrix4x4f lightSpaceMatrix = projMatrixSM * viewMatrixSM;
 
     for (int i = 0; i < models.size(); ++i)
     {

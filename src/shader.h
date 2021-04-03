@@ -18,7 +18,7 @@
 
 // Enable Shadow Mapping
 #define SHADOW_PASS
-#define SOFT_SHADOW_MAPPING_PCF
+// #define SOFT_SHADOW_MAPPING_PCF
 
 // Abstract Class
 struct Shader
@@ -86,6 +86,12 @@ struct BlinnPhongShader : public Shader
         v2fTexCoords.SetCol(vertIdx, texCoord);
         v2fLightPositionVS = (uViewMatrix * Vector4f(uPointLight.position, 1.f)).xyz;
 
+        // Shadow Mapping
+#ifdef SHADOW_PASS
+        Point4f positionLightSpaceNDC = uLightSpaceMatrix * positionWS;
+        positionLightSpaceNDC /= positionLightSpaceNDC.w;
+#endif
+
         // PCI
 #ifdef PERSPECTIVE_CORRECT_MAPPING
         Float oneOverW = 1.f / positionCS.w;
@@ -94,17 +100,14 @@ struct BlinnPhongShader : public Shader
         texCoord *= oneOverW;
         normalVS *= oneOverW;
         if (mesh->GetModel()->HasTangents()) tangentVS *= oneOverW;
+        positionLightSpaceNDC *= oneOverW;
 #endif
         // Varying
         vTexCoordCorrected.SetCol(vertIdx, texCoord);
         vPositionCorrectedVS.SetCol(vertIdx, positionVS.xyz);
         vNormalCorrected.SetCol(vertIdx, normalVS);
         if (mesh->GetModel()->HasTangents()) vTangentCorrected.SetCol(vertIdx, tangentVS);
-
-            // Shadow Mapping
 #ifdef SHADOW_PASS
-        Vector4f positionLightSpaceNDC = uLightSpaceMatrix * positionWS;
-        positionLightSpaceNDC /= positionLightSpaceNDC.w;
         vPositionLightSpaceNDC.SetCol(vertIdx, positionLightSpaceNDC.xyz);
 #endif
 
@@ -161,6 +164,9 @@ struct BlinnPhongShader : public Shader
         Float shadow = 0.f;
 #ifdef SHADOW_PASS
         Point3f positionLightSpaceNDC = vPositionLightSpaceNDC * baryCoord;
+#ifdef PERSPECTIVE_CORRECT_MAPPING
+        positionLightSpaceNDC *= w;
+#endif
         shadow = calculateShadow(positionLightSpaceNDC, normal, lightDir);
 #endif
 
@@ -231,17 +237,32 @@ private:
     /////////////////////////////////////////////////////////////////////////////////
 
 #ifdef SHADOW_PASS
+    Float sampleShadowMap(const Buffer& shadowMap, const Vector2f& coord) const
+    {
+        // Fix region out of map
+        if (coord.x < 0.f || coord.x > 1.f || coord.y < 0.f || coord.y > 1.f)
+            return Infinity;
+
+        int   u = (uShadowBuffer.GetWidth() - 1) * coord.x;
+        int   v = (uShadowBuffer.GetHeight() - 1) * coord.y;
+        Float depth = uShadowBuffer.GetValue(u, v);
+
+        // return depth < 1e-3 ? 1.f : depth;  // fix background depth
+        return depth;
+    }
+
     // Calculate Shadow Component
     Float calculateShadow(const Point3f& positionLightSpaceNDC, const Vector3f& normal,
                           const Vector3f& lightDir) const
     {
         // Transform to [0, 1]
-        Point3f position01 = positionLightSpaceNDC * 0.5f + Point3f(0.5f);
+        Point3f positionNDC01 = positionLightSpaceNDC * 0.5f + Point3f(0.5f);
 
         // Bias
         Float bias = Max(0.009f * (1.f - Dot(normal, lightDir)), 0.007f);
-        // Float bias = 0.008f;
-        Float currentDepth = position01.z;
+        // bias = 0.008f;
+        // bias = 0;
+        Float currentDepth = positionNDC01.z;
         Float shadow;
 
 #ifdef SOFT_SHADOW_MAPPING_PCF
@@ -253,21 +274,19 @@ private:
             {
                 int w = uShadowBuffer.GetWidth();
                 int h = uShadowBuffer.GetHeight();
-                int xpos = w * position01.x + xoffset;
-                int ypos = h * position01.y + yoffset;
+                int xpos = w * positionNDC01.x + xoffset;
+                int ypos = h * positionNDC01.y + yoffset;
                 xpos = Clamp(xpos, 0, w - 1);
                 ypos = Clamp(ypos, 0, h - 1);
                 Float pcfClosestDepth = uShadowBuffer.GetValue(xpos, ypos);
-                shadow += (currentDepth - bias > pcfClosestDepth) ? 1.f : 0.f;
+                shadow += (currentDepth > pcfClosestDepth + bias) ? 1.f : 0.f;
             }
         }
         shadow /= (Float)((2 * size + 1) * (2 * size + 1));
 #else
-        // Regular Shadowing
-        int   xpos = ufm_shadowBuffer.GetWidth() * fragPosTransformed.x;
-        int   ypos = ufm_shadowBuffer.GetHeight() * fragPosTransformed.y;
-        Float closestDepth = ForkerGL::ShadowBuffer.Get(xpos, ypos);
-        shadow = (currentDepth - bias > closestDepth) ? 1.f : 0.f;
+        // Hard Shadow
+        Float sampledDepth = sampleShadowMap(uShadowBuffer, positionNDC01.xy);
+        shadow = (currentDepth > sampledDepth + bias) ? 1.f : 0.f;
 #endif
         return shadow;
     }

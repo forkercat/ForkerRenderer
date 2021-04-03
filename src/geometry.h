@@ -236,6 +236,7 @@ public:
     {  // clang-format off
         struct { T x, y; };
         struct { T s, t; };
+        struct { T u, v; };
     };  // clang-format on
 };
 
