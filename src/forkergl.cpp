@@ -8,7 +8,7 @@
 
 // Texture Wrapping & Filtering
 Texture::WrapMode   ForkerGL::TextureWrapping = Texture::WrapMode::NoWrap;
-Texture::FilterMode ForkerGL::TextureFiltering = Texture::FilterMode::NoFilter;
+Texture::FilterMode ForkerGL::TextureFiltering = Texture::FilterMode::Nearest;
 
 // Buffers
 Buffer ForkerGL::FrameBuffer;

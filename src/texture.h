@@ -24,13 +24,12 @@ public:
 
     enum FilterMode
     {
-        NoFilter,
         Nearest,
-        Linear
+        Linear  // Bilinear
     };
 
-    Texture(const TGAImage& img, WrapMode wrap = WrapMode::Repeat,
-            FilterMode filter = FilterMode::NoFilter)
+    Texture(const TGAImage& img, WrapMode wrap = WrapMode::NoWrap,
+            FilterMode filter = FilterMode::Nearest)
         : width(img.GetWidth()),
           height(img.GetHeight()),
           image(img),
@@ -44,18 +43,14 @@ public:
 
     inline Color3 Sample(const Vector2f& coord) const
     {
-        Vector2f        wrap = wrapCoord(coord);
-        int             w = width - 1, h = height - 1;
-        const TGAColor& color = image.Get(wrap.s * w, wrap.t * h);
-        return Color3(color.r / 255.f, color.g / 255.f, color.b / 255.f);
+        Vector2f wrapUV = wrapCoord(coord);
+        return colorFromFiltering(wrapUV) / 255.f;
     }
 
     inline Float SampleFloat(const Vector2f& coord) const
     {
-        Vector2f        wrap = wrapCoord(coord);
-        int             w = width - 1, h = height - 1;
-        const TGAColor& color = image.Get(wrap.s * w, wrap.t * h);
-        return color[0] / 255.f;
+        Vector2f wrapUV = wrapCoord(coord);
+        return colorFromFiltering(wrapUV)[0] / 255.f;
     }
 
 private:
@@ -66,14 +61,10 @@ private:
     WrapMode   wrapMode;
     FilterMode filterMode;
 
-    // Process wrapping
+    // Texture Wrapping
     inline Vector2f wrapCoord(const Vector2f& coord) const
     {
-        if (wrapMode == WrapMode::NoWrap)
-        {
-            return coord;  // TGAImage::Get will return a specific color
-        }
-        else if (wrapMode == WrapMode::Repeat)
+        if (wrapMode == WrapMode::Repeat)
         {
             return Vector2f(coord.x - std::floor(coord.x), coord.y - std::floor(coord.y));
         }
@@ -88,10 +79,71 @@ private:
         {
             return Clamp01(coord);
         }
-        else
+        else  // No Wrap (Default)
         {
-            return coord;
+            return coord;  // TGAImage::Get will return a specific color
         }
+    }
+
+    // Texture Filtering
+    inline Color3 colorFromFiltering(const Vector2f& coord) const
+    {
+        Float w = width - 0.001, h = height - 0.001;
+        if (filterMode == FilterMode::Linear)
+        {
+            // Point in image space (not truncated)
+            Vector2f p = Vector2f(coord.u * w, coord.v * h);
+
+            // Find the top-left pixel in the sample region
+            Vector2f topLeft = Vector2f(std::floor(p.x - 0.5f), std::floor(p.y - 0.5f));
+
+            // Bilinear Interpolation
+            Float tx = p.x - (topLeft.x + 0.5f);  // sample point is at center (+ 0.5f)
+            Float ty = p.y - (topLeft.y + 0.5f);
+
+            // Sample Points
+            Vector2i s0 = Vector2i(topLeft.x, topLeft.y);
+            Vector2i s1 = Vector2i(topLeft.x + 1.f, topLeft.y);
+            Vector2i s2 = Vector2i(topLeft.x, topLeft.y + 1.f);
+            Vector2i s3 = Vector2i(topLeft.x + 1.f, topLeft.y + 1.f);
+
+            if (wrapMode != WrapMode::NoWrap)
+            {
+                // For modes except NoWrap, we need to manually clamp the image coordinate.
+                // For NoWrap, don't clamp it to retrieve black color when out of image region.
+                s0 = clampImageCoord(s0);
+                s1 = clampImageCoord(s1);
+                s2 = clampImageCoord(s2);
+                s3 = clampImageCoord(s3);
+            }
+
+            Color3 c0 = getColorFromImage(s0);
+            Color3 c1 = getColorFromImage(s1);
+            Color3 c2 = getColorFromImage(s2);
+            Color3 c3 = getColorFromImage(s3);
+
+            Color3 cx1 = Lerp(tx, c0, c1);  // Horizontal Interpolation
+            Color3 cx2 = Lerp(tx, c2, c3);
+            return Lerp(ty, cx1, cx2);  // Vertical Interpolation
+        }
+        else  // Nearest (Default)
+        {
+            Vector2i imageUV = Vector2i(std::floor(coord.u * w), std::floor(coord.v * h));
+            return getColorFromImage(imageUV);
+        }
+    }
+
+    // Return Color3 [0, 255]
+    inline Color3 getColorFromImage(const Vector2i& imageUV) const
+    {
+        const TGAColor& color = image.Get(imageUV.u, imageUV.v);
+        return Color3(color.r, color.g, color.b);
+    }
+
+    inline Vector2i clampImageCoord(const Vector2i& imageUV) const
+    {
+        return Vector2i(Clamp(imageUV.u, 0, image.GetWidth() - 1),
+                        Clamp(imageUV.v, 0, image.GetHeight() - 1));
     }
 };
 
