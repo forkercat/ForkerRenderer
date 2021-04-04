@@ -59,27 +59,40 @@ int main(int argc, const char* argv[])
     spdlog::stopwatch stepStopwatch;
     spdlog::stopwatch totalStopwatch;
 
+    // ForkerGL
+
+    ForkerGL::Viewport(0, 0, WIDTH, HEIGHT);
+    ForkerGL::TextureWrapMode(Texture::ClampToEdge);
+    ForkerGL::TextureFilterMode(Texture::NoFilter);
+
     // Model
 
     std::vector<shared_ptr<Model>> models;
     std::vector<Matrix4x4f>        modelMatrices;
 
+    // Plane
     models.push_back(make_shared<Model>("obj/plane/plane.obj"));  // default plane
     modelMatrices.push_back(MakeModelMatrix(Vector3f(0, -1, -1), 0, 3.f));
 
+    // Cyborg
     // models.push_back(make_shared<Model>("obj/cyborg/cyborg.obj", true, true));
 
-    models.push_back(make_shared<Model>(modelFilename, true, true));
+    // Cat Box
+    models.push_back(make_shared<Model>("obj/catbox/catbox.obj", true, false));
     modelMatrices.push_back(
-        MakeModelMatrix(Vector3f(0, 0, -1), rotateDegreeOnY, uniformScale));
+        MakeModelMatrix(Vector3f(-0.1, 0.2, -1), rotateDegreeOnY, 0.75f));
+
+    // models.push_back(make_shared<Model>(modelFilename, true, true));
+    // modelMatrices.push_back(
+    //     MakeModelMatrix(Vector3f(0, 0, -1), rotateDegreeOnY, uniformScale));
 
     TimeElapsed(stepStopwatch, "Model Loaded");
 
     // Camera
 
-    Camera                 camera(-1, 1, 1, 0, 0, -1);  // LookAt = (0,0,0)
+    Camera camera(-1, 1, 1, 0, 0, -1);  // LookAt = (0,0,0)
+
     Camera::ProjectionType projectionType = Camera::Perspective;
-    ForkerGL::Viewport(0, 0, WIDTH, HEIGHT);
 
     // Light
 

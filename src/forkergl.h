@@ -10,6 +10,7 @@
 #include "buffer.h"
 #include "geometry.h"
 #include "shader.h"
+#include "texture.h"
 
 struct ForkerGL
 {
@@ -20,6 +21,13 @@ struct ForkerGL
         ColorPass,
         ShadowPass
     };
+
+    // Texture Wrap Mode & Filter Mode
+    static Texture::WrapMode   TextureWrapping;
+    static Texture::FilterMode TextureFiltering;
+
+    static void TextureWrapMode(Texture::WrapMode wrapMode);
+    static void TextureFilterMode(Texture::FilterMode filterMode);
 
     // Buffers
     static Buffer FrameBuffer;

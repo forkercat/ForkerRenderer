@@ -1,10 +1,8 @@
 # Material Count: 1
 
-newmtl Brickwall
+newmtl CatBox
     Ka 0.200000 0.200000 0.200000
     Kd 0.512000 0.512000 0.512000
     Ks 0.400000 0.400000 0.400000
     illum 2
-    map_Kd brickwall_diff.tga
-    map_Ks brickwall_spec.tga
-    map_Bump brickwall_nm.tga
+    map_Kd catbox_diff.tga

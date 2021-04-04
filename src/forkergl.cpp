@@ -6,6 +6,10 @@
 
 #include "color.h"
 
+// Texture Wrapping & Filtering
+Texture::WrapMode   ForkerGL::TextureWrapping = Texture::WrapMode::NoWrap;
+Texture::FilterMode ForkerGL::TextureFiltering = Texture::FilterMode::NoFilter;
+
 // Buffers
 Buffer ForkerGL::FrameBuffer;
 Buffer ForkerGL::DepthBuffer;
@@ -17,6 +21,17 @@ Matrix4x4f viewportMatrix = Matrix4x4f::Identity();
 
 // RenderMode
 enum ForkerGL::RenderMode renderMode = ForkerGL::ColorPass;
+
+// Texture Wrap Mode & Filter Mode
+void ForkerGL::TextureWrapMode(Texture::WrapMode wrapMode)
+{
+    ForkerGL::TextureWrapping = wrapMode;
+}
+
+void ForkerGL::TextureFilterMode(Texture::FilterMode filterMode)
+{
+    ForkerGL::TextureFiltering = filterMode;
+}
 
 // Buffer Initialization
 void ForkerGL::InitFrameBuffers(int width, int height)

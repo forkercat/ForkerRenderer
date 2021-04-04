@@ -17,7 +17,7 @@
 #define PERSPECTIVE_CORRECT_MAPPING
 
 // Enable Shadow Mapping
-#define SHADOW_PASS
+// #define SHADOW_PASS
 // #define SOFT_SHADOW_MAPPING_PCF
 
 // Abstract Class
@@ -100,7 +100,9 @@ struct BlinnPhongShader : public Shader
         texCoord *= oneOverW;
         normalVS *= oneOverW;
         if (mesh->GetModel()->HasTangents()) tangentVS *= oneOverW;
+#ifdef SHADOW_PASS
         positionLightSpaceNDC *= oneOverW;
+#endif
 #endif
         // Varying
         vTexCoordCorrected.SetCol(vertIdx, texCoord);
@@ -272,7 +274,7 @@ private:
         // Bias
         Float bias = Max(0.009f * (1.f - Dot(normal, lightDir)), 0.007f);
         // bias = 0.008f;
-        // bias = 0;
+        // bias = 0.001;
         Float currentDepth = positionNDC01.z;
         Float shadow;
 

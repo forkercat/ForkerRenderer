@@ -11,6 +11,7 @@
 #include <sstream>
 #include <string>
 
+#include "forkergl.h"
 #include "shader.h"
 
 using std::make_shared;
@@ -409,7 +410,8 @@ void Model::loadTexture(const std::string& textureFilename, shared_ptr<Texture>&
 
     if (flipVertically) image.FlipVertically();  // flip v coordinate
 
-    texture = make_shared<Texture>(image);
+    texture = make_shared<Texture>(image, ForkerGL::TextureWrapping,
+                                   ForkerGL::TextureFiltering);
 }
 
 // Generate Tangents
