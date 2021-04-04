@@ -1,9 +1,9 @@
-# ForkerRenderer: A CPU-Based Software Renderer, A Tiny OpenGL
+# ForkerRenderer: CPU-Based Software Rasterizer, A Tiny OpenGL
 
-Implement CPU-based software rendering that mimics OpenGL behavior without using any third-party libraries, but use [spdlog](https://github.com/gabime/spdlog)
+Implement CPU-based software rasterizer that mimics OpenGL behavior without using any third-party libraries, but use [spdlog](https://github.com/gabime/spdlog)
 for logging though :)
 
-![](https://bloggg-1254259681.cos.na-siliconvalley.myqcloud.com/7ecoa.jpg)
+![](https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Head_1.jpg)
 
 ## Building & Usage
 
@@ -25,7 +25,11 @@ cmake .. && make
 
 ## Features
 
-![](https://bloggg-1254259681.cos.na-siliconvalley.myqcloud.com/i892z.jpg)
+![](https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Mapping.jpg)
+
+![](https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Wrap.jpeg)
+
+<img src="https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Filter.jpg" height="194">
 
 - [x] Parsing `*.obj` / `*.mtl`
     - `g` defines mesh name; `usemtl` defines material name (comes in order)
@@ -41,13 +45,17 @@ cmake .. && make
     - Bounding Box Method (currently used)
 - [x] Shader: Blinn-Phong Shading / Depth Shading
 - [x] Light: Point / Directional
-- [x] Texture Mapping: Diffuse / Specular / Normal / AO
-- [ ] Texture Filtering: Nearest / Linear
+- [x] Texture Mapping
+  - Diffuse / Specular / Normal / Ambient Occlusion
+  - Texture Wrapping: NoWrap / ClampToEdge / Repeat / MirroredRepeat `Texture::WrapMode`
+  - Texture Filtering: Nearest / Linear (Bilinear) `Texture::FilterMode`
 - [x] Normal Transformation: TBN Matrix
   - Generate and average tangents for each vertex when loading the model
 - [x] Camera: Orthographic / Perspective Projection
 - [x] Perspective Correct Interpolation (PCI) `#define PERSPECTIVE_CORRECT_MAPPING`
-- [x] Soft-ShadowPass Mapping with Percentage-Closer Filtering (PCF) `#define SHADOW_PASS`
+- [x] Shadow Effect
+  - Hard Shadow: Shadow Mapping
+  - Soft Shadow: Percentage-Closer Filtering (PCF) `#define SHADOW_PASS`
 - [x] Anti-Aliasing (SSAA) `#define ANTI_ALIASING_SSAA`
 - [ ] Screen Space Ambient Occlusion (SSAO)
 
@@ -55,28 +63,28 @@ cmake .. && make
 
 Apex Horizon (also [Dr. Mary Somers](https://www.ea.com/games/apex-legends/about/characters/horizon)), author: Squral
 
-<img src="https://bloggg-1254259681.cos.na-siliconvalley.myqcloud.com/9vm5c.jpg" width="600">
+<img src="https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Gallery_1.jpg" width="600">
 
 Sci-Fi Welding Vehicle, author: Berk Gedik
 
-<img src="https://bloggg-1254259681.cos.na-siliconvalley.myqcloud.com/ftuc3.jpg" width="600">
+<img src="https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Gallery_2.jpg" width="600">
 
 Backpack, author: Berk Gedik
 
-<img src="https://bloggg-1254259681.cos.na-siliconvalley.myqcloud.com/1zcq0.jpg" width="400">
+<img src="https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Gallery_3.jpg" width="400">
 
 African Head, author: Vidar Rapp
 
-<img src="https://bloggg-1254259681.cos.na-siliconvalley.myqcloud.com/vkyah.jpg" width="400">
+<img src="https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Gallery_4.jpg" width="400">
 
 
 ## Structure
 
-Approximately 3,500 lines of code:
+Approximately 4,000 lines of code:
 
 - Rendering: `forkergl.h/cpp` (rasterization), `buffer.h/cpp` (framebuffer & z-buffer)
 - Shader: `shader.h`
-- Model: `model.h/cpp`, `mesh.h/cpp`, `material.h`
+- Model: `model.h/cpp`, `mesh.h/cpp`, `material.h`, `texture.h`
 - Camera: `camera.h/cpp`
 - Light: `light.h`
 - Geometry: `geometry.h/cpp`
