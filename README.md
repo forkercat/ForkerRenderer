@@ -64,7 +64,7 @@ cmake .. && make
   - [x] Hard Shadow: Shadow Mapping `#define SHADOW_PASS`
   - [x] Soft Shadow:
     - [x] Percentage-Closer Filtering (PCF) `#define SOFT_SHADOW_PCF`
-    - [x] Percentage-Closer Soft Shadowing (PCSS) `#define SOFT_SHADOW_PCSS`
+    - [x] Percentage-Closer Soft Shadow (PCSS) `#define SOFT_SHADOW_PCSS`
 ```cpp
 #ifdef SOFT_SHADOW_PCF
     // Percentage-Closer Filtering (PCF)
@@ -108,37 +108,37 @@ African Head, author: Vidar Rapp
 
 ## Structure 📁
 
-Approximately 4,300 lines of code:
+Approximately **4,300** lines of code:
 
 - Rendering: `forkergl.h/cpp` (rasterization), `buffer.h/cpp` (framebuffer & z-buffer)
 - Shader: `shader.h`
 - Model: `model.h/cpp`, `mesh.h/cpp`, `material.h`, `texture.h`
 - Camera: `camera.h/cpp`
 - Light: `light.h`
+- Color: `color.h`
 - Geometry: `geometry.h/cpp`
-- Utility: `tgaimage.h/cpp`, `check.h`, `utility.h`, `constant.h`
+- Utility: `tgaimage.h/cpp`, `check.h`, `utility.h`, `constant.h`, `stringprint.h` (PBRT-v3)
 
 ## Console Output 📜
 
 ```console
-$ ./ForkerRenderer obj/horizon/horizon.obj
-[info] Model File: obj/horizon/horizon.obj
-[info] v# 25606, f# 48886, vt# 29859, vn# 24460, mesh# 4, mtl# 4 | normalized: true, flipTexCoordY: true
-[info] [    Body] f# 14162 | map_Kd[o] map_Ks[o] map_Bump[o] map_Ao[o] | Ka(0.50, 0.50, 0.50), Kd(0.80, 0.80, 0.80), Ks(0.50, 0.50, 0.50)
-[info] [    Gear] f# 21151 | map_Kd[o] map_Ks[o] map_Bump[o] map_Ao[o] | Ka(0.50, 0.50, 0.50), Kd(0.80, 0.80, 0.80), Ks(0.40, 0.40, 0.40)
-[info] [    Hair] f#  7031 | map_Kd[o] map_Ks[o] map_Bump[o] map_Ao[o] | Ka(0.30, 0.30, 0.30), Kd(0.70, 0.70, 0.70), Ks(0.00, 0.00, 0.00)
-[info] [    Head] f#  6542 | map_Kd[o] map_Ks[o] map_Bump[o] map_Ao[o] | Ka(0.40, 0.40, 0.40), Kd(0.70, 0.70, 0.70), Ks(0.30, 0.30, 0.30)
+$ ./ForkerRenderer obj/diablo_pose/diablo_pose.obj -10
+[info] Model File: obj/diablo_pose/diablo_pose.obj
+[info] v# 2519, f# 5022, vt# 3263, vn# 2519, tg# 2519, mesh# 1, mtl# 1 | normalized: true, generateTangent: true, flipTexCoordY: true
+[info] [Diablo_Pose] f#  5022 | map_Kd[o] map_Ks[o] map_Bump[o] map_Ao[x] | Ka(0.10, 0.10, 0.10), Kd(0.81, 0.81, 0.81), Ks(0.20, 0.20, 0.20)
 [info] ------------------------------------------------------------
-[info] Time Used: 4.74961 Seconds (Model Loaded)
-[info] ------------------------------------------------------------
-[info] -- [Body] Time Used: 2.1908 Seconds
-[info] -- [Gear] Time Used: 1.6237 Seconds
-[info] -- [Hair] Time Used: 2.4018 Seconds
-[info] -- [Head] Time Used: 0.4043 Seconds
-[info] Time Used: 6.6206 Seconds (Model Rendered)
-[info] ------------------------------------------------------------
-[info] Time Used: 11.3702 Seconds (Total)
-[info] ------------------------------------------------------------
+[info] <Time Used: 0.381728 Seconds (Model Loaded)>
+[info] 
+[info] Shadow Pass:
+[info] --> [Diablo_Pose] Time Used: 0.155560 Seconds
+[info] Output TGA File: output/output_shadowmap.tga
+[info] <Time Used: 0.768311 Seconds (Shadow Mapping Finished)>
+[info] 
+[info] Color Pass:
+[info] --> [Diablo_Pose] Time Used: 3.55731 Seconds
+[info] <Time Used: 3.56657 Seconds (Model Rendered)>
+[info] Output TGA File: output/output_framebuffer.tga
+[info] Output TGA File: output/output_zbuffer.tga
 ```
 
 ## Reference 📚

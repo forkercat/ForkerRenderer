@@ -48,9 +48,9 @@ Model::Model(const std::string& filename, bool normalized, bool generateTangent,
 
     // clang-format off
     spdlog::info(
-        "v# {}, f# {}, vt# {}, vn# {}, tg# {}, mesh# {}, mtl# {} | normalized: {}, flipTexCoordY: {}",
+        "v# {}, f# {}, vt# {}, vn# {}, tg# {}, mesh# {}, mtl# {} | normalized: {}, generateTangent: {} flipTexCoordY: {}",
         GetNumVerts(), GetNumFaces(), texCoords.size(), normals.size(), tangents.size(), meshes.size(),
-        materials.size(), normalized, flipTexCoordY);
+        materials.size(), normalized, generateTangent, flipTexCoordY);
 
     for (auto iter = meshes.begin(); iter != meshes.end(); ++iter)
     {
