@@ -42,13 +42,15 @@ cmake .. && make
 - [x] Shader: Blinn-Phong Shading / Depth Shading
 - [x] Light: Point / Directional
 - [x] Texture Mapping: Diffuse / Specular / Normal / Ambient Occlusion
-- Texture Wrapping: NoWrap / ClampToEdge / Repeat / MirroredRepeat `Texture::WrapMode`
+- [x] Texture Wrapping: NoWrap / ClampToEdge / Repeat / MirroredRepeat `Texture::WrapMode`
 
 ![](https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Wrap.jpeg)
 
-- Texture Filtering: Nearest / Linear (Bilinear) `Texture::FilterMode`
+- [x] Texture Filtering: Nearest / Linear (Bilinear) `Texture::FilterMode`
+
 <img src="https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Filter.jpg" width="400" height="200">
   
+
 - [x] Normal Transformation: TBN Matrix
   - Generate and average tangents for each vertex when loading the model
 - [x] Camera: Orthographic / Perspective Projection
