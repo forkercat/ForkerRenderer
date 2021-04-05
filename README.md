@@ -27,10 +27,6 @@ cmake .. && make
 
 ![](https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Mapping.jpg)
 
-![](https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Wrap.jpeg)
-
-<img src="https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Filter.jpg" height="194">
-
 - [x] Parsing `*.obj` / `*.mtl`
     - `g` defines mesh name; `usemtl` defines material name (comes in order)
     - Support `Ka`, `Kd`, `Ks`, `map_Kd`, `map_Ks`, `map_Bump`, `map_Ao`
@@ -45,10 +41,14 @@ cmake .. && make
     - Bounding Box Method (currently used)
 - [x] Shader: Blinn-Phong Shading / Depth Shading
 - [x] Light: Point / Directional
-- [x] Texture Mapping
-  - Diffuse / Specular / Normal / Ambient Occlusion
-  - Texture Wrapping: NoWrap / ClampToEdge / Repeat / MirroredRepeat `Texture::WrapMode`
-  - Texture Filtering: Nearest / Linear (Bilinear) `Texture::FilterMode`
+- [x] Texture Mapping: Diffuse / Specular / Normal / Ambient Occlusion
+- Texture Wrapping: NoWrap / ClampToEdge / Repeat / MirroredRepeat `Texture::WrapMode`
+
+![](https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Wrap.jpeg)
+
+- Texture Filtering: Nearest / Linear (Bilinear) `Texture::FilterMode`
+<img src="https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Filter.jpg" width="400" height="200">
+  
 - [x] Normal Transformation: TBN Matrix
   - Generate and average tangents for each vertex when loading the model
 - [x] Camera: Orthographic / Perspective Projection
