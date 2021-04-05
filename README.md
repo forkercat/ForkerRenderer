@@ -5,6 +5,8 @@ for logging though :)
 
 ![](https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Head_1.jpg)
 
+![](https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Head_2.jpg)
+
 ## Building & Usage
 
 ```sh
@@ -41,7 +43,7 @@ cmake .. && make
     - Bounding Box Method (currently used)
 - [x] Shader: Blinn-Phong Shading / Depth Shading
 - [x] Light: Point / Directional
-
+  - [ ] AreaLight is defined by `AREA_LIGHT_SIZE` in shadow mapping)
 - [x] Texture Mapping: Diffuse / Specular / Normal / Ambient Occlusion
 - [x] Texture Wrapping: NoWrap / ClampToEdge / Repeat / MirroredRepeat `Texture::WrapMode`
 
@@ -49,16 +51,33 @@ cmake .. && make
 
 - [x] Texture Filtering: Nearest / Linear (Bilinear) `Texture::FilterMode`
 
-<img src="https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Filter.jpg" height="230">
+<img src="https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Filter.jpg" height="300">
 
 - [x] Normal Transformation: TBN Matrix
   - Generate and average tangents for each vertex when loading the model
 - [x] Camera: Orthographic / Perspective Projection
 - [x] Perspective Correct Interpolation (PCI) `#define PERSPECTIVE_CORRECT_MAPPING`
+
+![](https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Shadow.jpg)
+
 - [x] Shadow Effect
-  - Hard Shadow: Shadow Mapping
-  - Soft Shadow: Percentage-Closer Filtering (PCF) `#define SHADOW_PASS`
-- [x] Anti-Aliasing (SSAA) `#define ANTI_ALIASING_SSAA`
+  - Hard Shadow: Shadow Mapping `#define SHADOW_PASS`
+  - Soft Shadow:
+    - Percentage-Closer Filtering (PCF) `#define SOFT_SHADOW_PCF`
+    - Percentage-Closer Soft Shadowing (PCSS) `#define SOFT_SHADOW_PCSS`
+```cpp
+#ifdef SOFT_SHADOW_PCF
+    // Percentage-Closer Filtering (PCF)
+    visibility = PCF(uShadowBuffer, shadowCoord, bias, PCF_FILTER_SIZE);
+#elif defined(SOFT_SHADOW_PCSS)
+    // Percentage-Closer Soft Shadow (PCSS)
+    visibility = PCSS(uShadowBuffer, shadowCoord, bias);
+#else
+    // Hard Shadow
+    visibility = hardShadow(uShadowBuffer, shadowCoord, bias);
+#endif
+```
+- [x] Trivial Anti-Aliasing `#define ANTI_ALIASING_SSAA`
 - [ ] Screen Space Ambient Occlusion (SSAO)
 
 ## Gallery
@@ -66,6 +85,10 @@ cmake .. && make
 Apex Horizon (also [Dr. Mary Somers](https://www.ea.com/games/apex-legends/about/characters/horizon)), author: Squral
 
 <img src="https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Gallery_1.jpg" width="600">
+
+Mary, author: TAs from [GAMES202: Real-time High Quality Rendering](https://sites.cs.ucsb.edu/~lingqi/teaching/games202.html)
+
+<img src="https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Gallery_5.jpg" width="600">
 
 Sci-Fi Welding Vehicle, author: Berk Gedik
 
@@ -82,7 +105,7 @@ African Head, author: Vidar Rapp
 
 ## Structure
 
-Approximately 4,000 lines of code:
+Approximately 4,300 lines of code:
 
 - Rendering: `forkergl.h/cpp` (rasterization), `buffer.h/cpp` (framebuffer & z-buffer)
 - Shader: `shader.h`
@@ -125,6 +148,7 @@ Rendering:
 - [ssloy/TinyRenderer](https://github.com/ssloy/tinyrenderer)
 - [mmp/pbrt-v3 & v4](https://github.com/mmp/)
 - [lingqi/GAMES101](https://sites.cs.ucsb.edu/~lingqi/teaching/games101.html)
+- [lingqi/GAMES202](https://sites.cs.ucsb.edu/~lingqi/teaching/games202.html)
 - [Scratchapixel](https://www.scratchapixel.com/)
 - [JoeyDeVries/LearnOpenGL](https://learnopengl.com/)
 - [OpenGL Projection Matrix](http://www.songho.ca/opengl/gl_projectionmatrix.html)
@@ -142,4 +166,5 @@ Model Attribution:
 - [Backpack](https://sketchfab.com/3d-models/survival-guitar-backpack-low-poly-799f8c4511f84fab8c3f12887f7e6b36) by Berk Gedik
 - [African Head](https://github.com/ssloy/tinyrenderer/) by Vidar Rapp
 - [Diablo Pose](https://github.com/ssloy/tinyrenderer/) by Samuel (arshlevon) Sharit
-- Brickwall (for debugging) by MYSELF! :)
+- Mary by TAs in [GAMES202: Real-time High Quality Rendering](https://sites.cs.ucsb.edu/~lingqi/teaching/games202.html)
+- Brickwall, Plane, Catbox (for debugging) by MYSELF! :)

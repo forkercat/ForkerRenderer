@@ -13,33 +13,9 @@
 #include <ostream>
 
 #include "check.h"
+#include "constant.h"
 #include "stringprint.h"
-
-/////////////////////////////////////////////////////////////////////////////////
-
-// #define FLOAT_AS_DOUBLE
-
-#ifdef FLOAT_AS_DOUBLE
-typedef double Float;
-#else
-typedef float Float;
-#endif
-
-#define MinInt std::numeric_limits<int>::min()
-#define MaxInt std::numeric_limits<int>::max()
-#define MaxFloat std::numeric_limits<Float>::max()
-#define MinFloat std::numeric_limits<Float>::min()
-#define Infinity std::numeric_limits<Float>::infinity()
-
-/////////////////////////////////////////////////////////////////////////////////
-
-static const Float Pi = 3.14159265358979323846;
-static const Float InvPi = 0.31830988618379067154;
-static const Float Inv2Pi = 0.15915494309189533577;
-static const Float Inv4Pi = 0.07957747154594766788;
-static const Float PiOver2 = 1.57079632679489661923;
-static const Float PiOver4 = 0.78539816339744830961;
-static const Float Sqrt2 = 1.41421356237309504880;
+#include "utility.h"
 
 /////////////////////////////////////////////////////////////////////////////////
 
@@ -840,6 +816,35 @@ std::ostream& operator<<(std::ostream& out, const Matrix<DIM_ROW, DIM_COL, T>& m
 }
 
 /////////////////////////////////////////////////////////////////////////////////
+// Typedef
+
+typedef Vector<2, Float> Vector2f;
+typedef Vector<2, int>   Vector2i;
+typedef Vector<3, Float> Vector3f;
+typedef Vector<3, int>   Vector3i;
+typedef Vector<4, Float> Vector4f;
+typedef Vector<4, int>   Vector4i;
+
+typedef Matrix<2, 2, Float> Matrix2x2f, Matrix2f;
+typedef Matrix<3, 3, Float> Matrix3x3f, Matrix3f;
+typedef Matrix<4, 4, Float> Matrix4x4f, Matrix4f;
+
+typedef Matrix<2, 3, Float> Matrix2x3f;
+typedef Matrix<3, 2, Float> Matrix3x2f;
+typedef Matrix<3, 4, Float> Matrix3x4f;
+typedef Matrix<4, 3, Float> Matrix4x3f;
+
+// Aliasing
+
+using Point2f = Vector2f;
+using Point3f = Vector3f;
+using Point4f = Vector4f;
+
+using Point2i = Vector2i;
+using Point3i = Vector3i;
+using Point4i = Vector4i;
+
+/////////////////////////////////////////////////////////////////////////////////
 
 // Vector Inline Functions
 template <size_t DIM, typename T, typename U>
@@ -889,28 +894,10 @@ inline Vector<DIM, T> Normalize(const Vector<DIM, T>& v, T l = 1)
     return v * l / v.Length();
 }
 
-// Utility Inline Functions
-inline Float Lerp(Float t, Float v1, Float v2)
-{
-    return (1 - t) * v1 + t * v2;
-}
-
 template <size_t DIM, typename T>
 inline Vector<DIM, T> Lerp(Float t, const Vector<DIM, T>& v1, const Vector<DIM, T>& v2)
 {
     return (1 - t) * v1 + t * v2;
-}
-
-template <typename T>
-inline T Clamp(T val, T min, T max)
-{
-    return std::min(max, std::max(val, min));
-}
-
-template <typename T>
-inline T Clamp01(T val)
-{
-    return Clamp(val, (T) 0, (T) 1);
 }
 
 template <size_t DIM, typename T>
@@ -931,68 +918,38 @@ inline Vector<DIM, T> Clamp01(const Vector<DIM, T>& val)
     return ret;
 }
 
-inline Float Radians(Float deg)
+// Random
+
+inline Vector3f RandomVector3f()
 {
-    return deg * Pi / 180.f;
+    return Vector3f(Random01(), Random01(), Random01());
 }
 
-inline Float Degrees(Float rad)
+inline Vector3f RandomVector3f(Float min, Float max)
 {
-    return rad * 180.f / Pi;
+    return Vector3f(Random(min, max), Random(min, max), Random(min, max));
 }
 
-template <typename T>
-inline T Min(const T& v1, const T& v2)
+inline Vector3f RandomVectorInUnitSphere()
 {
-    return std::min(v1, v2);
+    // Rejection Method
+    while (true)
+    {
+        Vector3f p = RandomVector3f(-1.f, 1.f);
+        if (p.LengthSquared() >= 1.f) continue;
+        return p;
+    }
 }
 
-template <typename T>
-inline T Min3(const T& v1, const T& v2, const T& v3)
+inline Vector3f RandomVectorInUnitDisk()
 {
-    return std::min(v1, std::min(v2, v3));
+    while (true)
+    {
+        Vector3f p = Vector3f(Random(-1, 1), Random(-1, 1), 0);
+        if (p.LengthSquared() >= 1.f) continue;
+        return p;
+    }
 }
-
-template <typename T>
-inline T Max(const T& v1, const T& v2)
-{
-    return std::max(v1, v2);
-}
-
-template <typename T>
-inline T Max3(const T& v1, const T& v2, const T& v3)
-{
-    return std::max(v1, std::max(v2, v3));
-}
-
-/////////////////////////////////////////////////////////////////////////////////
-// Typedef
-
-typedef Vector<2, Float> Vector2f;
-typedef Vector<2, int>   Vector2i;
-typedef Vector<3, Float> Vector3f;
-typedef Vector<3, int>   Vector3i;
-typedef Vector<4, Float> Vector4f;
-typedef Vector<4, int>   Vector4i;
-
-typedef Matrix<2, 2, Float> Matrix2x2f, Matrix2f;
-typedef Matrix<3, 3, Float> Matrix3x3f, Matrix3f;
-typedef Matrix<4, 4, Float> Matrix4x4f, Matrix4f;
-
-typedef Matrix<2, 3, Float> Matrix2x3f;
-typedef Matrix<3, 2, Float> Matrix3x2f;
-typedef Matrix<3, 4, Float> Matrix3x4f;
-typedef Matrix<4, 3, Float> Matrix4x3f;
-
-// Aliasing
-
-using Point2f = Vector2f;
-using Point3f = Vector3f;
-using Point4f = Vector4f;
-
-using Point2i = Vector2i;
-using Point3i = Vector3i;
-using Point4i = Vector4i;
 
 /////////////////////////////////////////////////////////////////////////////////
 

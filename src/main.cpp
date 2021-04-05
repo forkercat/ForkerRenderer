@@ -15,14 +15,14 @@ using std::shared_ptr;
 
 /////////////////////////////////////////////////////////////////////////////////
 
-// #define ANTI_ALIASING_SSAA
-#define KERNEL_SIZE 3  // width of output will be (WIDTH / KERNEL_SIZE)
+// #define ANTI_ALIASING
+#define KERNEL_SIZE 2  // width of output will be (WIDTH / KERNEL_SIZE)
 
-const int   WIDTH = 2048;
-const int   HEIGHT = 2048;
+const int   WIDTH = 1024;
+const int   HEIGHT = 1024;
 const Float RATIO = (Float)WIDTH / HEIGHT;
 
-const Float CAMERA_NEAR_PLANE = 0.1f;
+const Float CAMERA_NEAR_PLANE = 0.01f;
 const Float CAMERA_FAR_PLANE = 20.f;
 
 const Float SHADOW_VIEW_SIZE = 3.0f;
@@ -75,28 +75,30 @@ int main(int argc, const char* argv[])
     modelMatrices.push_back(MakeModelMatrix(Vector3f(0, -1, -1), 0, 3.f));
 
     // Mary
-    models.push_back(make_shared<Model>("obj/mary/mary.obj", true, true));
-    modelMatrices.push_back(
-        MakeModelMatrix(Vector3f(0, 0, -1), rotateDegreeOnY, 1.5f));
-        // MakeModelMatrix(Vector3f(0, 0, -1), rotateDegreeOnY, uniformScale));
+    // models.push_back(make_shared<Model>("obj/mary/mary.obj", true, true));
+    // modelMatrices.push_back(
+    //     MakeModelMatrix(Vector3f(0.05, 0, -1), rotateDegreeOnY, uniformScale));
 
     // Cyborg
     // models.push_back(make_shared<Model>("obj/cyborg/cyborg.obj", true, true));
+    // modelMatrices.push_back(
+    //     MakeModelMatrix(Vector3f(0, 0, -1), rotateDegreeOnY, uniformScale));
 
     // Cat Box (Texture Wrapping Testing)
     // models.push_back(make_shared<Model>("obj/catbox/catbox.obj", true, false));
     // modelMatrices.push_back(
     //     MakeModelMatrix(Vector3f(-0.1, 0.2, -1), rotateDegreeOnY, 0.75f));
 
-    // models.push_back(make_shared<Model>(modelFilename, true, true));
-    // modelMatrices.push_back(
-    //     MakeModelMatrix(Vector3f(0, 0, -1), rotateDegreeOnY, uniformScale));
+    // Input
+    models.push_back(make_shared<Model>(modelFilename, true, true));
+    modelMatrices.push_back(
+        MakeModelMatrix(Vector3f(0, 0, -1), rotateDegreeOnY, uniformScale));
 
     TimeElapsed(stepStopwatch, "Model Loaded");
 
     // Camera
 
-    Camera camera(0.5, 1, 1, 0, 0, -1);  // LookAt = (0,0,0)
+    Camera camera(-1, 1, 1, 0, 0, -1);  // LookAt = (0,0,0)
 
     // Camera::ProjectionType projectionType = Camera::Orthographic;
     Camera::ProjectionType projectionType = Camera::Perspective;
@@ -179,7 +181,7 @@ int main(int argc, const char* argv[])
     outputImage.WriteTgaFile("output/output_framebuffer.tga", true);
 
     // Post-Processing: Anti-Aliasing
-#ifdef ANTI_ALIASING_SSAA  // clang-format off
+#ifdef ANTI_ALIASING  // clang-format off
     SSAA(outputImage, KERNEL_SIZE)
         .WriteTgaFile("output/output_framebuffer_SSAA.tga", true);  // clang-format on
 #endif
