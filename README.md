@@ -49,7 +49,7 @@ cmake .. && make
 
 - [x] Texture Filtering: Nearest / Linear (Bilinear) `Texture::FilterMode`
 
-<img src="https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Filter.jpg" width="400" height="200">
+<img src="https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Filter.jpg" height="230">
 
 - [x] Normal Transformation: TBN Matrix
   - Generate and average tangents for each vertex when loading the model

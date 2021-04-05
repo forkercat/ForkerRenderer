@@ -16,10 +16,10 @@ using std::shared_ptr;
 /////////////////////////////////////////////////////////////////////////////////
 
 // #define ANTI_ALIASING_SSAA
-#define KERNEL_SIZE 1  // width of output will be (WIDTH / KERNEL_SIZE)
+#define KERNEL_SIZE 3  // width of output will be (WIDTH / KERNEL_SIZE)
 
-const int   WIDTH = 1024;
-const int   HEIGHT = 1024;
+const int   WIDTH = 2048;
+const int   HEIGHT = 2048;
 const Float RATIO = (Float)WIDTH / HEIGHT;
 
 const Float CAMERA_NEAR_PLANE = 0.1f;
@@ -74,6 +74,12 @@ int main(int argc, const char* argv[])
     models.push_back(make_shared<Model>("obj/plane/plane.obj"));  // default plane
     modelMatrices.push_back(MakeModelMatrix(Vector3f(0, -1, -1), 0, 3.f));
 
+    // Mary
+    models.push_back(make_shared<Model>("obj/mary/mary.obj", true, true));
+    modelMatrices.push_back(
+        MakeModelMatrix(Vector3f(0, 0, -1), rotateDegreeOnY, 1.5f));
+        // MakeModelMatrix(Vector3f(0, 0, -1), rotateDegreeOnY, uniformScale));
+
     // Cyborg
     // models.push_back(make_shared<Model>("obj/cyborg/cyborg.obj", true, true));
 
@@ -82,16 +88,17 @@ int main(int argc, const char* argv[])
     // modelMatrices.push_back(
     //     MakeModelMatrix(Vector3f(-0.1, 0.2, -1), rotateDegreeOnY, 0.75f));
 
-    models.push_back(make_shared<Model>(modelFilename, true, true));
-    modelMatrices.push_back(
-        MakeModelMatrix(Vector3f(0, 0, -1), rotateDegreeOnY, uniformScale));
+    // models.push_back(make_shared<Model>(modelFilename, true, true));
+    // modelMatrices.push_back(
+    //     MakeModelMatrix(Vector3f(0, 0, -1), rotateDegreeOnY, uniformScale));
 
     TimeElapsed(stepStopwatch, "Model Loaded");
 
     // Camera
 
-    Camera camera(-1, 1, 1, 0, 0, -1);  // LookAt = (0,0,0)
+    Camera camera(0.5, 1, 1, 0, 0, -1);  // LookAt = (0,0,0)
 
+    // Camera::ProjectionType projectionType = Camera::Orthographic;
     Camera::ProjectionType projectionType = Camera::Perspective;
 
     // Light

@@ -161,6 +161,10 @@ struct BlinnPhongShader : public Shader
             normal = N;
         }
 
+        // normal = normal * 0.5f + Vector3f(0.5f);
+        // gl_Color = normal;
+        // return false;
+
         // Directions
         Vector3f lightDir = Normalize(v2fLightPositionVS - positionVS);
         Vector3f viewDir = Normalize(-positionVS);  // eye pos is [0, 0, 0]
@@ -212,7 +216,7 @@ private:
         }
         else
         {
-            spec = std::pow(spec, 32.0);
+            spec = std::pow(spec, 1.0);
         }
 
         // Color of Shading Component
@@ -242,7 +246,11 @@ private:
 
         // Combine
         Color3 color = ambient + diffuse + specular;
-        // Color3 color = ambient + diffuse;
+        // color = ambient;
+        // color = diffuse;
+        // color = Vector3f(diff);
+        // color = diffuseMap->Sample(texCoord);
+        // color = Vector3f(1);
         return Clamp01(color);
     }
     /////////////////////////////////////////////////////////////////////////////////
