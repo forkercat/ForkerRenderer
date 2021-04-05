@@ -7,7 +7,7 @@ for logging though :)
 
 ![](https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Head_2.jpg)
 
-## Building & Usage
+## Building & Usage 🔨
 
 ```sh
 # Logging
@@ -25,25 +25,25 @@ cmake .. && make
 ./ForkerRenderer ../obj/diablo_pose/diablo_pose.obj -10.0 1.0
 ```
 
-## Features
+## Features ⭐
 
 ![](https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Mapping.jpg)
 
 - [x] Parsing `*.obj` / `*.mtl`
     - `g` defines mesh name; `usemtl` defines material name (comes in order)
-    - Support `Ka`, `Kd`, `Ks`, `map_Kd`, `map_Ks`, `map_Bump`, `map_Ao`
-    - position vertex normalization
-    - Auto triangulate
+    - [x] Support `Ka`, `Kd`, `Ks`, `map_Kd`, `map_Ks`, `map_Bump`, `map_Ao`
+    - [x] Position vertex normalization
+    - [x] Auto triangulation
 - [x] Geometry Template Class
     - Vector: `Vector2f`, `Vector3f`, `Vector4f`, `Vector4i`, ...
     - Matrix: `Matrix3f`, `Matrix4f`, `Matrix3x4f`, ...
-    - Support glm-style vector swizzling, e.g. `v.xyz`, `v.xy`
+    - [x] Support glm-style vector swizzling, e.g. `v.xyz`, `v.xy`
 - [x] Rasterization
-    - Bresenham's Line Algorithm (used and removed)
-    - Bounding Box Method (currently used)
+    - [x] Bresenham's Line Algorithm (used and removed)
+    - [x] Bounding Box Method (currently used)
 - [x] Shader: Blinn-Phong Shading / Depth Shading
 - [x] Light: Point / Directional
-  - [ ] AreaLight is defined by `AREA_LIGHT_SIZE` in shadow mapping)
+  - AreaLight is defined by `AREA_LIGHT_SIZE` in shadow mapping)
 - [x] Texture Mapping: Diffuse / Specular / Normal / Ambient Occlusion
 - [x] Texture Wrapping: NoWrap / ClampToEdge / Repeat / MirroredRepeat `Texture::WrapMode`
 
@@ -51,7 +51,7 @@ cmake .. && make
 
 - [x] Texture Filtering: Nearest / Linear (Bilinear) `Texture::FilterMode`
 
-<img src="https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Filter.jpg" height="300">
+<img src="https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Filter.jpg" height="230">
 
 - [x] Normal Transformation: TBN Matrix
   - Generate and average tangents for each vertex when loading the model
@@ -61,10 +61,10 @@ cmake .. && make
 ![](https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Shadow.jpg)
 
 - [x] Shadow Effect
-  - Hard Shadow: Shadow Mapping `#define SHADOW_PASS`
+  - [x] Hard Shadow: Shadow Mapping `#define SHADOW_PASS`
   - Soft Shadow:
-    - Percentage-Closer Filtering (PCF) `#define SOFT_SHADOW_PCF`
-    - Percentage-Closer Soft Shadowing (PCSS) `#define SOFT_SHADOW_PCSS`
+    - [x] Percentage-Closer Filtering (PCF) `#define SOFT_SHADOW_PCF`
+    - [x] Percentage-Closer Soft Shadowing (PCSS) `#define SOFT_SHADOW_PCSS`
 ```cpp
 #ifdef SOFT_SHADOW_PCF
     // Percentage-Closer Filtering (PCF)
@@ -77,10 +77,13 @@ cmake .. && make
     visibility = hardShadow(uShadowBuffer, shadowCoord, bias);
 #endif
 ```
-- [x] Trivial Anti-Aliasing `#define ANTI_ALIASING_SSAA`
+- [x] Anti-Aliasing (AA)
+  - [x] Trivial anti-aliasing `#define ANTI_ALIASING`
+  - [ ] MSAA
+  - [ ] TSA
 - [ ] Screen Space Ambient Occlusion (SSAO)
 
-## Gallery
+## Gallery 🖼️
 
 Apex Horizon (also [Dr. Mary Somers](https://www.ea.com/games/apex-legends/about/characters/horizon)), author: Squral
 
@@ -103,7 +106,7 @@ African Head, author: Vidar Rapp
 <img src="https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Gallery_4.jpg" width="400">
 
 
-## Structure
+## Structure 📁
 
 Approximately 4,300 lines of code:
 
@@ -113,9 +116,9 @@ Approximately 4,300 lines of code:
 - Camera: `camera.h/cpp`
 - Light: `light.h`
 - Geometry: `geometry.h/cpp`
-- Utility: `tgaimage.h/cpp`, `check.h`
+- Utility: `tgaimage.h/cpp`, `check.h`, `utility.h`, `constant.h`
 
-## Console Output
+## Console Output 📜
 
 ```console
 $ ./ForkerRenderer obj/horizon/horizon.obj
@@ -138,7 +141,7 @@ $ ./ForkerRenderer obj/horizon/horizon.obj
 [info] ------------------------------------------------------------
 ```
 
-## Reference
+## Reference 📚
 
 Started by following the basic workflow in _ssloy/TinyRenderer_, improved code style (e.g. `geometry.h`) when referring
 to other great resources such as _mmp/pbrt-v3 & v4_, and resolved tons of issues with the help of the Internet. Thank those authors and creators who wrote the articles and built the models!
