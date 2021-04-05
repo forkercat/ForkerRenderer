@@ -1,4 +1,4 @@
-# ForkerRenderer: CPU-Based Software Rasterizer, A Tiny OpenGL
+# ForkerRenderer: CPU-Based Software Rasterizer, A Tiny OpenGL 🐼
 
 Implement CPU-based software rasterizer that mimics OpenGL behavior without using any third-party libraries, but use [spdlog](https://github.com/gabime/spdlog)
 for logging though :)
@@ -56,13 +56,13 @@ cmake .. && make
 - [x] Normal Transformation: TBN Matrix
   - Generate and average tangents for each vertex when loading the model
 - [x] Camera: Orthographic / Perspective Projection
-- [x] Perspective Correct Interpolation (PCI) `#define PERSPECTIVE_CORRECT_MAPPING`
+- [x] Perspective Correct Interpolation (PCI) `#define PERSPECTIVE_CORRECT_INTERPOLATION`
 
 ![](https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Shadow.jpg)
 
 - [x] Shadow Effect
   - [x] Hard Shadow: Shadow Mapping `#define SHADOW_PASS`
-  - Soft Shadow:
+  - [x] Soft Shadow:
     - [x] Percentage-Closer Filtering (PCF) `#define SOFT_SHADOW_PCF`
     - [x] Percentage-Closer Soft Shadowing (PCSS) `#define SOFT_SHADOW_PCSS`
 ```cpp

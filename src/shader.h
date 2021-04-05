@@ -14,7 +14,7 @@
 #include "tgaimage.h"
 
 // Enable Perspective Correct Mapping (PCI)
-#define PERSPECTIVE_CORRECT_MAPPING
+#define PERSPECTIVE_CORRECT_INTERPOLATION
 
 // Enable Shadow Mapping (Hard Shadow)
 #define SHADOW_PASS
@@ -96,7 +96,7 @@ struct BlinnPhongShader : public Shader
 #endif
 
         // PCI
-#ifdef PERSPECTIVE_CORRECT_MAPPING
+#ifdef PERSPECTIVE_CORRECT_INTERPOLATION
         Float oneOverW = 1.f / positionCS.w;
         v2fOneOverWs[vertIdx] = oneOverW;  // 1/w for 3 vertices
         positionVS *= oneOverW;
@@ -134,7 +134,7 @@ struct BlinnPhongShader : public Shader
         Vector3f normalVS = vNormalCorrected * baryCoord;
 
         // PCI
-#ifdef PERSPECTIVE_CORRECT_MAPPING
+#ifdef PERSPECTIVE_CORRECT_INTERPOLATION
         Float w = 1.f / Dot(v2fOneOverWs, baryCoord);
         positionVS *= w;
         texCoord *= w;
@@ -146,7 +146,7 @@ struct BlinnPhongShader : public Shader
         if (mesh->GetModel()->HasTangents() && material->HasNormalMap())
         {
             Vector3f tangentVS = vTangentCorrected * baryCoord;
-#ifdef PERSPECTIVE_CORRECT_MAPPING
+#ifdef PERSPECTIVE_CORRECT_INTERPOLATION
             tangentVS *= w;
 #endif
             Vector3f T = Normalize(tangentVS);
@@ -177,7 +177,7 @@ struct BlinnPhongShader : public Shader
         Float visibility = 0.f;
 #ifdef SHADOW_PASS
         Point3f positionLightSpaceNDC = vPositionLightSpaceNDC * baryCoord;
-#ifdef PERSPECTIVE_CORRECT_MAPPING
+#ifdef PERSPECTIVE_CORRECT_INTERPOLATION
         positionLightSpaceNDC *= w;
 #endif
         visibility = calculateShadowVisibility(positionLightSpaceNDC, normal, lightDir);
