@@ -6,6 +6,7 @@
 #define _MODEL_H_
 
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -16,14 +17,17 @@
 
 class Shader;
 
-class Model
+class Model : public std::enable_shared_from_this<Model>
 {
 public:
-    explicit Model(const std::string& filename, bool normalized = false,
-                   bool generateTangent = false, bool flipTexCoordY = true);
+    Model() : meshes(), verts(), texCoords(), normals(), hasTangents() { }
 
     // Copy Constructor
     Model(const Model& m);
+
+    // Load Object File
+    std::shared_ptr<Model> Load(const std::string& filename, bool normalized = false,
+              bool generateTangent = false, bool flipTexCoordY = true);
 
     // Starts Rendering This Fun Stuff!
     void Render(Shader& shader);
@@ -40,21 +44,22 @@ public:
     inline bool HasTangents() const { return hasTangents; }
 
 private:
-    std::map<std::string, Mesh>     meshes;
-    std::map<std::string, Material> materials;
-    std::vector<Vector3f>           verts;
-    std::vector<Vector2f>           texCoords;
-    std::vector<Vector3f>           normals;
-    std::vector<Vector3f>           tangents;
-    bool                            hasTangents;
+    std::map<std::string, std::shared_ptr<Mesh>>     meshes;
+    std::map<std::string, std::shared_ptr<Material>> materials;
+
+    std::vector<Vector3f> verts;
+    std::vector<Vector2f> texCoords;
+    std::vector<Vector3f> normals;
+    std::vector<Vector3f> tangents;
+    bool                  hasTangents;
 
     // .obj and .mtl Parsers
     // Supported Format: 'g ' is followed by 'usemtl ', which is followed by 'f ...'
     bool loadObjectFile(const std::string& filename, bool flipVertically);
     void loadMaterials(const std::string& directory, const std::string& filename,
                        bool flipVertically);
-    void loadTexture(const std::string& textureFilename, shared_ptr<Texture>& texture,
-                     bool flipVertically);
+    void loadTexture(const std::string&        textureFilename,
+                     std::shared_ptr<Texture>& texture, bool flipVertically);
 
     // Make Position Coordinates Between [-1, 1]
     void normalizePositionVertices();

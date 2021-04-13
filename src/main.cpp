@@ -10,9 +10,6 @@
 #include "shader.h"
 #include "tgaimage.h"
 
-using std::make_shared;
-using std::shared_ptr;
-
 /////////////////////////////////////////////////////////////////////////////////
 
 // #define ANTI_ALIASING
@@ -62,35 +59,34 @@ int main(int argc, const char* argv[])
     // ForkerGL
 
     ForkerGL::Viewport(0, 0, WIDTH, HEIGHT);
-    ForkerGL::TextureWrapMode(Texture::NoWrap);  // or Repeat, ClampedToEdge, etc
+    ForkerGL::TextureWrapMode(Texture::NoWrap);     // or Repeat, ClampedToEdge, etc
     ForkerGL::TextureFilterMode(Texture::Nearest);  // or Linear
 
     // Model
-
-    std::vector<shared_ptr<Model>> models;
-    std::vector<Matrix4x4f>        modelMatrices;
+    std::vector<std::shared_ptr<Model>> models;
+    std::vector<Matrix4x4f>             modelMatrices;
 
     // Plane
-    models.push_back(make_shared<Model>("obj/plane/plane.obj"));  // default plane
+    models.push_back(std::make_shared<Model>()->Load("obj/plane/plane.obj"));
     modelMatrices.push_back(MakeModelMatrix(Vector3f(0, -1, -1), 0, 3.f));
 
     // Mary
-    // models.push_back(make_shared<Model>("obj/mary/mary.obj", true, true));
+    // models.push_back(std::make_shared<Model>()->("obj/mary/mary.obj", true, true));
     // modelMatrices.push_back(
     //     MakeModelMatrix(Vector3f(0.05, 0, -1), rotateDegreeOnY, uniformScale));
 
     // Cyborg
-    // models.push_back(make_shared<Model>("obj/cyborg/cyborg.obj", true, true));
+    // models.push_back(std::make_shared<Model>()->Load("obj/cyborg/cyborg.obj", true, true));
     // modelMatrices.push_back(
     //     MakeModelMatrix(Vector3f(0, 0, -1), rotateDegreeOnY, uniformScale));
 
     // Cat Box (Texture Wrapping Testing)
-    // models.push_back(make_shared<Model>("obj/catbox/catbox.obj", true, false));
+    // models.push_back(std::make_shared<Model>()->Load("obj/catbox/catbox.obj", true, false));
     // modelMatrices.push_back(
     //     MakeModelMatrix(Vector3f(-0.1, 0.2, -1), rotateDegreeOnY, 0.75f));
 
     // Input
-    models.push_back(make_shared<Model>(modelFilename, true, true));
+    models.push_back(std::make_shared<Model>()->Load(modelFilename, true, true));
     modelMatrices.push_back(
         MakeModelMatrix(Vector3f(0, 0, -1), rotateDegreeOnY, uniformScale));
 

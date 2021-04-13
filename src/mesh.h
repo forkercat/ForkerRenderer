@@ -5,18 +5,20 @@
 #ifndef _MESH_H_
 #define _MESH_H_
 
+#include <memory>
+
+#include "color.h"
 #include "geometry.h"
 #include "material.h"
 #include "tgaimage.h"
-#include "color.h"
 
 class Shader;
 class Model;
 
-class Mesh
+class Mesh : public std::enable_shared_from_this<Mesh>
 {
 public:
-    Mesh() = default;
+    Mesh(std::shared_ptr<const Model> m) : model(m) { }
 
     // Copy Constructor
     Mesh(const Mesh& m);
@@ -25,27 +27,29 @@ public:
     void Draw(Shader& shader) const;
 
     // Vertex Properties
-    int   NumFaces() const;
+    int      NumFaces() const;
     Vector3f Vert(int faceIdx, int vertIdx) const;
     Vector2f TexCoord(int faceIdx, int vertIdx) const;
     Vector3f Normal(int faceIdx, int vertIdx) const;
     Vector3f Tangent(int faceIdx, int vertIdx) const;
-    int   GetVertIndex(int faceIdx, int vertIdx) const;
+    int      GetVertIndex(int faceIdx, int vertIdx) const;
 
     // Helper
-    const Model*    GetModel() const { return model; }
-    void            SetModel(const Model* m) { model = m; };
-    const Material* GetMaterial() const { return material; };
-    void            SetMaterial(const Material* m) { material = m; }
-    void            AddVertIndex(int index);
-    void            AddTexCoordIndex(int index);
-    void            AddNormalIndex(int index);
-    void            AddTangentIndex(int index);
+    std::shared_ptr<const Model>    GetModel() const { return model.lock(); }
+    std::shared_ptr<const Material> GetMaterial() const { return material.lock(); };
+
+    void SetModel(std::shared_ptr<const Model> m) { model = m; };
+    void SetMaterial(std::shared_ptr<const Material> m) { material = m; }
+
+    void AddVertIndex(int index);
+    void AddTexCoordIndex(int index);
+    void AddNormalIndex(int index);
+    void AddTangentIndex(int index);
 
 private:
     // Model and material are set right after Mesh creation
-    const Model*    model;
-    const Material* material;
+    std::weak_ptr<const Model>    model;
+    std::weak_ptr<const Material> material;
 
     // Stores indices of actual vertices in Model class
     std::vector<int> faceVertIndices;

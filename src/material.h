@@ -13,9 +13,6 @@
 #include "geometry.h"
 #include "texture.h"
 
-using std::make_shared;
-using std::shared_ptr;
-
 class Material
 {
 public:
@@ -35,10 +32,10 @@ public:
     Vector3f ks;
     Vector3f ke;
 
-    shared_ptr<Texture> diffuseMap;
-    shared_ptr<Texture> specularMap;
-    shared_ptr<Texture> normalMap;
-    shared_ptr<Texture> ambientOcclusionMap;
+    std::shared_ptr<Texture> diffuseMap;
+    std::shared_ptr<Texture> specularMap;
+    std::shared_ptr<Texture> normalMap;
+    std::shared_ptr<Texture> ambientOcclusionMap;
 
     inline bool HasDiffuseMap() const { return diffuseMap != nullptr; }
     inline bool HasSpecularMap() const { return specularMap != nullptr; }

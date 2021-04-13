@@ -5,6 +5,8 @@
 #ifndef SHADER_H_
 #define SHADER_H_
 
+#include <utility>
+
 #include "buffer.h"
 #include "color.h"
 #include "geometry.h"
@@ -26,12 +28,12 @@
 // Abstract Class
 struct Shader
 {
-    const Mesh* mesh;
+    std::shared_ptr<const Mesh> mesh;
 
     Shader() : mesh(nullptr) { }
 
     // Use Shader Program (set which mesh to shade on)
-    void Use(const Mesh* m) { mesh = m; }
+    void Use(std::shared_ptr<const Mesh> m) { mesh = m; }
     // Vertex Shader
     virtual Point4f ProcessVertex(int faceIdx, int vertIdx) = 0;
     // Fragment Shader
@@ -126,7 +128,7 @@ struct BlinnPhongShader : public Shader
     // Fragment Shader
     bool ProcessFragment(const Vector3f& baryCoord, Color3& gl_Color) override
     {
-        const Material* material = mesh->GetMaterial();
+        std::shared_ptr<const Material> material = mesh->GetMaterial();
 
         // Interpolation
         Point3f  positionVS = vPositionCorrectedVS * baryCoord;
@@ -194,10 +196,11 @@ private:
                           const Vector3f& normal, const Vector2f& texCoord,
                           Float visibility)
     {
-        const Material*           material = mesh->GetMaterial();
-        const shared_ptr<Texture> diffuseMap = material->diffuseMap;
-        const shared_ptr<Texture> specularMap = material->specularMap;
-        const shared_ptr<Texture> ambientOcclusionMap = material->ambientOcclusionMap;
+        std::shared_ptr<const Material> material = mesh->GetMaterial();
+        std::shared_ptr<const Texture>  diffuseMap = material->diffuseMap;
+        std::shared_ptr<const Texture>  specularMap = material->specularMap;
+        std::shared_ptr<const Texture>  ambientOcclusionMap =
+            material->ambientOcclusionMap;
 
         Color3 lightColor = uPointLight.color;
 

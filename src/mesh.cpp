@@ -24,7 +24,7 @@ void Mesh::Draw(Shader& shader) const
     for (int f = 0; f < NumFaces(); ++f)
     {
         // Use Shader To Set Mesh Pointer
-        shader.Use(this);
+        shader.Use(shared_from_this());
 
         Point4f ndcCoords[3];
         for (int v = 0; v < 3; ++v)  // for each vertex
@@ -45,25 +45,25 @@ int Mesh::NumFaces() const
 Vector3f Mesh::Vert(int faceIdx, int vertIdx) const
 {
     int index = faceVertIndices[faceIdx * 3 + vertIdx];
-    return model->GetVert(index);
+    return GetModel()->GetVert(index);
 }
 
 Vector2f Mesh::TexCoord(int faceIdx, int vertIdx) const
 {
     int index = faceTexCoordIndices[faceIdx * 3 + vertIdx];
-    return model->GetTexCoord(index);
+    return GetModel()->GetTexCoord(index);
 }
 
 Vector3f Mesh::Normal(int faceIdx, int vertIdx) const
 {
     int index = faceNormalIndices[faceIdx * 3 + vertIdx];
-    return Normalize(model->GetNormal(index));
+    return Normalize(GetModel()->GetNormal(index));
 }
 
 Vector3f Mesh::Tangent(int faceIdx, int vertIdx) const
 {
     int index = faceTangentIndices[faceIdx * 3 + vertIdx];
-    return Normalize(model->GetTangent(index));
+    return Normalize(GetModel()->GetTangent(index));
 }
 
 int Mesh::GetVertIndex(int faceIdx, int vertIdx) const
