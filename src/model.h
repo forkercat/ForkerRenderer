@@ -20,14 +20,15 @@ class Shader;
 class Model : public std::enable_shared_from_this<Model>
 {
 public:
+    // Public Static Methods
+    static std::shared_ptr<Model> Load(const std::string& filename,
+                                       bool               normalized = false,
+                                       bool               generateTangent = false,
+                                       bool               flipTexCoordY = true);
+
+    // Constructors
     Model() : meshes(), verts(), texCoords(), normals(), hasTangents() { }
-
-    // Copy Constructor
     Model(const Model& m);
-
-    // Load Object File
-    std::shared_ptr<Model> Load(const std::string& filename, bool normalized = false,
-              bool generateTangent = false, bool flipTexCoordY = true);
 
     // Starts Rendering This Fun Stuff!
     void Render(Shader& shader);

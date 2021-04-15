@@ -67,26 +67,26 @@ int main(int argc, const char* argv[])
     std::vector<Matrix4x4f>             modelMatrices;
 
     // Plane
-    models.push_back(std::make_shared<Model>()->Load("obj/plane/plane.obj"));
+    models.push_back(Model::Load("obj/plane/plane.obj"));
     modelMatrices.push_back(MakeModelMatrix(Vector3f(0, -1, -1), 0, 3.f));
 
     // Mary
-    // models.push_back(std::make_shared<Model>()->("obj/mary/mary.obj", true, true));
+    // models.push_back(Model::Load("obj/mary/mary.obj", true, true));
     // modelMatrices.push_back(
     //     MakeModelMatrix(Vector3f(0.05, 0, -1), rotateDegreeOnY, uniformScale));
 
     // Cyborg
-    // models.push_back(std::make_shared<Model>()->Load("obj/cyborg/cyborg.obj", true, true));
-    // modelMatrices.push_back(
+    // models.push_back(Model::Load("obj/cyborg/cyborg.obj", true,
+    // true)); modelMatrices.push_back(
     //     MakeModelMatrix(Vector3f(0, 0, -1), rotateDegreeOnY, uniformScale));
 
     // Cat Box (Texture Wrapping Testing)
-    // models.push_back(std::make_shared<Model>()->Load("obj/catbox/catbox.obj", true, false));
+    // models.push_back(Model::Load("obj/catbox/catbox.obj", true, false));
     // modelMatrices.push_back(
     //     MakeModelMatrix(Vector3f(-0.1, 0.2, -1), rotateDegreeOnY, 0.75f));
 
     // Input
-    models.push_back(std::make_shared<Model>()->Load(modelFilename, true, true));
+    models.push_back(Model::Load(modelFilename, true, true));
     modelMatrices.push_back(
         MakeModelMatrix(Vector3f(0, 0, -1), rotateDegreeOnY, uniformScale));
 

@@ -27,18 +27,21 @@ std::string ltrim(const std::string& s)
 std::shared_ptr<Model> Model::Load(const std::string& filename, bool normalized, bool generateTangent,
             bool flipTexCoordY)
 {
-    meshes.clear();
-    materials.clear();
-    verts.clear();
-    texCoords.clear();
-    normals.clear();
+    // Init Model
+    std::shared_ptr<Model> model = std::make_shared<Model>();
+
+    model->meshes.clear();
+    model->materials.clear();
+    model->verts.clear();
+    model->texCoords.clear();
+    model->normals.clear();
 
     spdlog::info("Model File: {}", filename);
 
-    hasTangents = generateTangent;
+    model->hasTangents = generateTangent;
 
     // Load Object, Material, Texture Files
-    bool success = loadObjectFile(filename, flipTexCoordY);
+    bool success = model->loadObjectFile(filename, flipTexCoordY);
 
     if (!success)
     {
@@ -47,16 +50,16 @@ std::shared_ptr<Model> Model::Load(const std::string& filename, bool normalized,
     }
 
     // Post-Processing
-    if (generateTangent) this->generateTangents();
-    if (normalized) this->normalizePositionVertices();
+    if (generateTangent) model->generateTangents();
+    if (normalized) model->normalizePositionVertices();
 
     // clang-format off
     spdlog::info(
         "v# {}, f# {}, vt# {}, vn# {}, tg# {}, mesh# {}, mtl# {} | normalized: {}, generateTangent: {} flipTexCoordY: {}",
-        GetNumVerts(), GetNumFaces(), texCoords.size(), normals.size(), tangents.size(), meshes.size(),
-        materials.size(), normalized, generateTangent, flipTexCoordY);
+        model->GetNumVerts(), model->GetNumFaces(), model->texCoords.size(), model->normals.size(), model->tangents.size(), model->meshes.size(),
+        model->materials.size(), normalized, generateTangent, flipTexCoordY);
 
-    for (auto iter = meshes.begin(); iter != meshes.end(); ++iter)
+    for (auto iter = model->meshes.begin(); iter != model->meshes.end(); ++iter)
     {
         std::shared_ptr<Mesh> mesh = iter->second;
 
@@ -67,7 +70,7 @@ std::shared_ptr<Model> Model::Load(const std::string& filename, bool normalized,
 
     spdlog::info("------------------------------------------------------------");
 
-    return shared_from_this();
+    return model;
 }
 
 // Copy Constructor
