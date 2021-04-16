@@ -5,36 +5,36 @@
 #include "camera.h"
 
 Camera::Camera(const Point3f& lookFrom, const Point3f& lookAt)
-    : eyePos(lookFrom), worldUp(WORLD_UP), lookAtPos(lookAt)
+    : m_EyePos(lookFrom), m_WorldUp(WORLD_UP), m_LookAtPos(lookAt)
 {
 }
 
 Camera::Camera(Float lookFromX, Float lookFromY, Float lookFromZ, Float lookAtX,
                Float lookAtY, Float lookAtZ)
-    : eyePos(lookFromX, lookFromY, lookFromZ),
-      worldUp(WORLD_UP),
-      lookAtPos(lookAtX, lookAtY, lookAtZ)
+    : m_EyePos(lookFromX, lookFromY, lookFromZ),
+      m_WorldUp(WORLD_UP),
+      m_LookAtPos(lookAtX, lookAtY, lookAtZ)
 {
 }
 
 void Camera::SetPosition(Float x, Float y, Float z)
 {
-    eyePos.x = x;
-    eyePos.y = y;
-    eyePos.z = z;
+    m_EyePos.x = x;
+    m_EyePos.y = y;
+    m_EyePos.z = z;
 }
 
 void Camera::SetLookAtPos(Float x, Float y, Float z)
 {
-    lookAtPos.x = x;
-    lookAtPos.y = y;
-    lookAtPos.z = z;
+    m_LookAtPos.x = x;
+    m_LookAtPos.y = y;
+    m_LookAtPos.z = z;
 }
 
 Matrix4x4f Camera::GetViewMatrix()
 {
     // calculate lookAt matrix
-    return MakeLookAtMatrix(eyePos, lookAtPos, worldUp);
+    return MakeLookAtMatrix(m_EyePos, m_LookAtPos, m_WorldUp);
 }
 
 Matrix4x4f Camera::GetPerspectiveMatrix(Float fov, Float aspectRatio, Float n, Float f)

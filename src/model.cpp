@@ -30,15 +30,15 @@ std::shared_ptr<Model> Model::Load(const std::string& filename, bool normalized,
     // Init Model
     std::shared_ptr<Model> model = std::make_shared<Model>();
 
-    model->meshes.clear();
-    model->materials.clear();
-    model->verts.clear();
-    model->texCoords.clear();
-    model->normals.clear();
+    model->m_Meshes.clear();
+    model->m_Materials.clear();
+    model->m_Verts.clear();
+    model->m_TexCoords.clear();
+    model->m_Normals.clear();
 
     spdlog::info("Model File: {}", filename);
 
-    model->hasTangents = generateTangent;
+    model->m_HasTangents = generateTangent;
 
     // Load Object, Material, Texture Files
     bool success = model->loadObjectFile(filename, flipTexCoordY);
@@ -56,10 +56,10 @@ std::shared_ptr<Model> Model::Load(const std::string& filename, bool normalized,
     // clang-format off
     spdlog::info(
         "v# {}, f# {}, vt# {}, vn# {}, tg# {}, mesh# {}, mtl# {} | normalized: {}, generateTangent: {} flipTexCoordY: {}",
-        model->GetNumVerts(), model->GetNumFaces(), model->texCoords.size(), model->normals.size(), model->tangents.size(), model->meshes.size(),
-        model->materials.size(), normalized, generateTangent, flipTexCoordY);
+        model->GetNumVerts(), model->GetNumFaces(), model->m_TexCoords.size(), model->m_Normals.size(), model->m_Tangents.size(), model->m_Meshes.size(),
+        model->m_Materials.size(), normalized, generateTangent, flipTexCoordY);
 
-    for (auto iter = model->meshes.begin(); iter != model->meshes.end(); ++iter)
+    for (auto iter = model->m_Meshes.begin(); iter != model->m_Meshes.end(); ++iter)
     {
         std::shared_ptr<Mesh> mesh = iter->second;
 
@@ -75,14 +75,14 @@ std::shared_ptr<Model> Model::Load(const std::string& filename, bool normalized,
 
 // Copy Constructor
 Model::Model(const Model& m)
-    : meshes(m.meshes),
-      materials(m.materials),
-      verts(m.verts),
-      texCoords(m.texCoords),
-      normals(m.normals)
+    : m_Meshes(m.m_Meshes),
+      m_Materials(m.m_Materials),
+      m_Verts(m.m_Verts),
+      m_TexCoords(m.m_TexCoords),
+      m_Normals(m.m_Normals)
 {
     // Update Mesh's pointers
-    for (auto iter = meshes.begin(); iter != meshes.end(); ++iter)
+    for (auto iter = m_Meshes.begin(); iter != m_Meshes.end(); ++iter)
     {
         std::shared_ptr<Mesh> mesh = iter->second;
 
@@ -97,7 +97,7 @@ void Model::Render(Shader& shader)
 {
     spdlog::stopwatch stopwatch;
     // For each mesh
-    for (auto iter = meshes.begin(); iter != meshes.end(); ++iter)
+    for (auto iter = m_Meshes.begin(); iter != m_Meshes.end(); ++iter)
     {
         std::shared_ptr<Mesh> mesh = iter->second;
 
@@ -112,33 +112,33 @@ void Model::Render(Shader& shader)
 
 Vector3f Model::GetVert(int index) const
 {
-    return verts[index];
+    return m_Verts[index];
 }
 
 Vector2f Model::GetTexCoord(int index) const
 {
-    return texCoords[index];
+    return m_TexCoords[index];
 }
 
 Vector3f Model::GetNormal(int index) const
 {
-    return normals[index];
+    return m_Normals[index];
 }
 
 Vector3f Model::GetTangent(int index) const
 {
-    return tangents[index];
+    return m_Tangents[index];
 }
 
 int Model::GetNumVerts() const
 {
-    return (int)verts.size();
+    return (int)m_Verts.size();
 }
 
 int Model::GetNumFaces() const
 {
     int total = 0;
-    for (auto iter = meshes.begin(); iter != meshes.end(); ++iter)
+    for (auto iter = m_Meshes.begin(); iter != m_Meshes.end(); ++iter)
     {
         std::shared_ptr<Mesh> mesh = iter->second;
         total += mesh->NumFaces();
@@ -156,7 +156,7 @@ void Model::normalizePositionVertices()
 
     for (size_t i = 0; i < GetNumVerts(); ++i)
     {
-        Vector3f v = verts[i];
+        Vector3f v = m_Verts[i];
         xmin = Min(xmin, v.x), xmax = Max(xmax, v.x);
         ymin = Min(ymin, v.y), ymax = Max(ymax, v.y);
         zmin = Min(zmin, v.z), zmax = Max(zmax, v.z);
@@ -177,7 +177,7 @@ void Model::normalizePositionVertices()
 
     for (size_t i = 0; i < GetNumVerts(); ++i)
     {
-        verts[i] = (m * Vector4f(verts[i], 1.f)).xyz;
+        m_Verts[i] = (m * Vector4f(m_Verts[i], 1.f)).xyz;
     }
 }
 
@@ -231,7 +231,7 @@ bool Model::loadObjectFile(const std::string& filename, bool flipVertically)
             iss >> strTrash;  // skip 'v' and ' '
             Vector3f vertex;
             iss >> vertex.x >> vertex.y >> vertex.z;
-            verts.push_back(vertex);
+            m_Verts.push_back(vertex);
         }
         else if (line.compare(0, 3, "vt ") == 0)  // vt
         {
@@ -240,7 +240,7 @@ bool Model::loadObjectFile(const std::string& filename, bool flipVertically)
             iss >> texCoord.x >> texCoord.y;
             Float floatTrash;
             iss >> floatTrash;  // ignore the last value
-            texCoords.push_back(texCoord);
+            m_TexCoords.push_back(texCoord);
         }
         else if (line.compare(0, 3, "vn ") == 0)  // vn
         {
@@ -248,19 +248,19 @@ bool Model::loadObjectFile(const std::string& filename, bool flipVertically)
 
             Vector3f normal;
             iss >> normal.x >> normal.y >> normal.z;
-            normals.push_back(normal);
+            m_Normals.push_back(normal);
         }
         // Change Mesh / Material Status
         // Only supported when there are "g" and "usemtl" keywords (in order)
         else if (line.compare(0, 2, "g ") == 0)  // g
         {
             iss >> chTrash >> meshName;
-            meshes[meshName] = std::make_shared<Mesh>(shared_from_this());
+            m_Meshes[meshName] = std::make_shared<Mesh>(shared_from_this());
         }
         else if (line.compare(0, 7, "usemtl ") == 0)  // usemtl
         {
             iss >> strTrash >> materialName;
-            meshes[meshName]->SetMaterial(materials[materialName]);
+            m_Meshes[meshName]->SetMaterial(m_Materials[materialName]);
         }
         // Faces
         else if (line.compare(0, 2, "f ") == 0)  // f
@@ -273,7 +273,7 @@ bool Model::loadObjectFile(const std::string& filename, bool flipVertically)
                 vertices.push_back(Vector3i(--v, --t, --n));
             }
 
-            std::shared_ptr<Mesh> mesh = meshes[meshName];
+            std::shared_ptr<Mesh> mesh = m_Meshes[meshName];
             for (int i = 1; i < vertices.size() - 1; ++i)
             {
                 // First Vertex
@@ -327,7 +327,7 @@ void Model::loadMaterials(const std::string& directory, const std::string& filen
         if (line.compare(0, 7, "newmtl ") == 0)  // newmtl
         {
             iss >> strTrash >> materialName;
-            materials[materialName] = std::make_shared<Material>(materialName);
+            m_Materials[materialName] = std::make_shared<Material>(materialName);
         }
         // Ka / Kd / Ks / Ke
         else if (line.compare(0, 3, "Ka ") == 0)  // Ka
@@ -335,28 +335,28 @@ void Model::loadMaterials(const std::string& directory, const std::string& filen
             iss >> strTrash;  // skip 'Ka' and ' '
             Vector3f floats;
             iss >> floats.x >> floats.y >> floats.z;
-            materials[materialName]->ka = floats;
+            m_Materials[materialName]->ka = floats;
         }
         else if (line.compare(0, 3, "Kd ") == 0)  // Kd
         {
             iss >> strTrash;
             Vector3f floats;
             iss >> floats.x >> floats.y >> floats.z;
-            materials[materialName]->kd = floats;
+            m_Materials[materialName]->kd = floats;
         }
         else if (line.compare(0, 3, "Ks ") == 0)  // Ks
         {
             iss >> strTrash;
             Vector3f floats;
             iss >> floats.x >> floats.y >> floats.z;
-            materials[materialName]->ks = floats;
+            m_Materials[materialName]->ks = floats;
         }
         else if (line.compare(0, 3, "Ke ") == 0)  // Ke
         {
             iss >> strTrash;
             Vector3f floats;
             iss >> floats.x >> floats.y >> floats.z;
-            materials[materialName]->ke = floats;
+            m_Materials[materialName]->ke = floats;
         }
         // Texture Maps
         else if (line.compare(0, 7, "map_Kd ") == 0)  // map_Kd
@@ -365,7 +365,7 @@ void Model::loadMaterials(const std::string& directory, const std::string& filen
             iss >> strTrash >> filename;
 
             std::string textureFilename = directory + filename;
-            loadTexture(textureFilename, materials[materialName]->diffuseMap,
+            loadTexture(textureFilename, m_Materials[materialName]->diffuseMap,
                         flipVertically);
         }
         else if (line.compare(0, 7, "map_Ks ") == 0)  // map_Ks
@@ -374,7 +374,7 @@ void Model::loadMaterials(const std::string& directory, const std::string& filen
             iss >> strTrash >> filename;
 
             std::string textureFilename = directory + filename;
-            loadTexture(textureFilename, materials[materialName]->specularMap,
+            loadTexture(textureFilename, m_Materials[materialName]->specularMap,
                         flipVertically);
         }
         else if (line.compare(0, 9, "map_Bump ") == 0)  // map_Bump / Normal
@@ -383,7 +383,7 @@ void Model::loadMaterials(const std::string& directory, const std::string& filen
             iss >> strTrash >> filename;
 
             std::string textureFilename = directory + filename;
-            loadTexture(textureFilename, materials[materialName]->normalMap,
+            loadTexture(textureFilename, m_Materials[materialName]->normalMap,
                         flipVertically);
         }
         else if (line.compare(0, 7, "map_Ao ") == 0)  // map_Ao
@@ -392,7 +392,7 @@ void Model::loadMaterials(const std::string& directory, const std::string& filen
             iss >> strTrash >> filename;
 
             std::string textureFilename = directory + filename;
-            loadTexture(textureFilename, materials[materialName]->ambientOcclusionMap,
+            loadTexture(textureFilename, m_Materials[materialName]->ambientOcclusionMap,
                         flipVertically);
         }
     }
@@ -421,8 +421,8 @@ void Model::loadTexture(const std::string&        textureFilename,
 // Generate Tangents
 void Model::generateTangents()
 {
-    tangents = std::vector<Vector3f>(verts.size(), Vector3f(0.f));
-    for (auto iter = meshes.begin(); iter != meshes.end(); ++iter)
+    m_Tangents = std::vector<Vector3f>(m_Verts.size(), Vector3f(0.f));
+    for (auto iter = m_Meshes.begin(); iter != m_Meshes.end(); ++iter)
     {
         std::shared_ptr<Mesh> mesh = iter->second;
         for (int f = 0; f < mesh->NumFaces(); ++f)
@@ -448,9 +448,9 @@ void Model::generateTangents()
                 Normalize(inv * Vector3f(deltaUv2.t * edge1.x - deltaUv1.t * edge2.x,
                                          deltaUv2.t * edge1.y - deltaUv1.t * edge2.y,
                                          deltaUv2.t * edge1.z - deltaUv1.t * edge2.z));
-            tangents[indexP0] += T;
-            tangents[indexP1] += T;
-            tangents[indexP2] += T;
+            m_Tangents[indexP0] += T;
+            m_Tangents[indexP1] += T;
+            m_Tangents[indexP2] += T;
             mesh->AddTangentIndex(indexP0);
             mesh->AddTangentIndex(indexP1);
             mesh->AddTangentIndex(indexP2);
@@ -458,7 +458,7 @@ void Model::generateTangents()
     }
 
     // Average Tangents
-    for (auto& v : tangents)
+    for (auto& v : m_Tangents)
     {
         if (v.Length() == 0.f)
             v = Vector3f(1, 0, 0);  // random (to be improved)

@@ -47,25 +47,25 @@ public:
     bool HasNaNs() const
     {
         for (size_t i = 0; i < DIM; ++i)
-            if (isNaN(data_[i])) return true;
+            if (isNaN(m_Data[i])) return true;
         return false;
     }
 
     Vector()
     {
         for (size_t i = 0; i < DIM; ++i)
-            data_[i] = T();
+            m_Data[i] = T();
     }
 
     explicit Vector(T val)
     {
         for (size_t i = 0; i < DIM; ++i)
-            data_[i] = val;
+            m_Data[i] = val;
     }
 
-    T operator[](size_t i) const { return data_[i]; }
+    T operator[](size_t i) const { return m_Data[i]; }
 
-    T& operator[](size_t i) { return data_[i]; }
+    T& operator[](size_t i) { return m_Data[i]; }
 
     Vector operator+() const { return Vector(*this); }
 
@@ -73,12 +73,12 @@ public:
     {
         Vector ret;
         for (size_t i = 0; i < DIM; ++i)
-            ret[i] = -data_[i];
+            ret[i] = -m_Data[i];
         return ret;
     }
 
 private:
-    T data_[DIM];
+    T m_Data[DIM];
 };
 
 // Vector2
@@ -620,20 +620,20 @@ public:
     explicit Matrix(T val)  // if val = 1, it is identity matrix
     {
         for (size_t i = 0; i < DIM_ROW; ++i)
-            rows_[i][i] = val;
+            m_Rows[i][i] = val;
     }
 
     // Overload Operators
     Vector<DIM_COL, T>& operator[](const size_t idx)
     {
         DCHECK(idx >= 0 && idx < DIM_ROW);
-        return rows_[idx];
+        return m_Rows[idx];
     }
 
     const Vector<DIM_COL, T>& operator[](const size_t idx) const
     {
         DCHECK(idx >= 0 && idx < DIM_ROW);
-        return rows_[idx];
+        return m_Rows[idx];
     }
 
     Matrix operator+() const { return Matrix(*this); }
@@ -643,7 +643,7 @@ public:
         Matrix ret(*this);
         for (size_t i = 0; i < DIM_ROW; ++i)
             for (size_t j = 0; j < DIM_COL; ++j)
-                ret[i][j] = -rows_[i][j];
+                ret[i][j] = -m_Rows[i][j];
         return ret;
     }
 
@@ -666,7 +666,7 @@ public:
         DCHECK(colIdx >= 0 && colIdx < DIM_COL);
         Vector<DIM_ROW, T> ret;
         for (size_t i = 0; i < DIM_ROW; ++i)
-            ret[i] = rows_[i][colIdx];
+            ret[i] = m_Rows[i][colIdx];
         return ret;
     }
 
@@ -674,7 +674,7 @@ public:
     {
         DCHECK(colIdx >= 0 && colIdx < DIM_COL);
         for (size_t i = 0; i < DIM_ROW; ++i)
-            rows_[i][colIdx] = v[i];
+            m_Rows[i][colIdx] = v[i];
         return *this;
     }
 
@@ -695,7 +695,7 @@ public:
         Matrix<DIM_ROW - 1, DIM_COL - 1, T> ret;
         for (size_t i = 0; i < DIM_ROW - 1; ++i)
             for (size_t j = 0; j < DIM_COL - 1; ++j)
-                ret[i][j] = rows_[i < row ? i : i + 1][j < col ? j : j + 1];
+                ret[i][j] = m_Rows[i < row ? i : i + 1][j < col ? j : j + 1];
         return ret;
     }
 
@@ -728,7 +728,7 @@ public:
 
 private:
     // Private Data
-    Vector<DIM_COL, T> rows_[DIM_ROW];
+    Vector<DIM_COL, T> m_Rows[DIM_ROW];
 };
 
 /////////////////////////////////////////////////////////////////////////////////

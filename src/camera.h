@@ -29,13 +29,14 @@ public:
     Matrix4x4f GetViewMatrix();
     Matrix4x4f GetPerspectiveMatrix(Float fov, Float aspectRatio, Float n, Float f);
     Matrix4x4f GetPerspectiveMatrix(Float l, Float r, Float b, Float t, Float n, Float f);
-    Matrix4x4f GetOrthographicMatrix(Float l, Float r, Float b, Float t, Float n, Float f);
+    Matrix4x4f GetOrthographicMatrix(Float l, Float r, Float b, Float t, Float n,
+                                     Float f);
 
 private:
     // camera attributes
-    Point3f  eyePos;
-    Point3f  lookAtPos;
-    Vector3f worldUp;
+    Point3f  m_EyePos;
+    Point3f  m_LookAtPos;
+    Vector3f m_WorldUp;
 };
 
 #endif  // MYSOFTWARERENDERER__CAMERA_H_

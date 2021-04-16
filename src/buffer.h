@@ -25,28 +25,28 @@ public:
     Buffer() = default;
     Buffer(int w, int h, InitType type);
 
-    int GetWidth() const { return width; }
-    int GetHeight() const { return height; }
+    int GetWidth() const { return m_Width; }
+    int GetHeight() const { return m_Height; }
 
     // Getters & Setters
     Vector3i Get(int x, int y) const
     {
         // For now, it ignores the fourth component
-        int index = x + y * width;
-        return Vector3i(data[index].r, data[index].g, data[index].b);
+        int index = x + y * m_Width;
+        return Vector3i(m_Data[index].r, m_Data[index].g, m_Data[index].b);
     }
 
     void Set(int x, int y, const Color3& val)
     {
         // For now, it ignores the fourth component
-        int index = x + y * width;
-        data[index].r = val.x * 254.999;
-        data[index].g = val.y * 254.999;
-        data[index].b = val.z * 254.999;
+        int index = x + y * m_Width;
+        m_Data[index].r = val.x * 254.999;
+        m_Data[index].g = val.y * 254.999;
+        m_Data[index].b = val.z * 254.999;
     }
 
-    float GetValue(int x, int y) const { return data[x + y * width].val; }
-    void  SetValue(int x, int y, float val) { data[x + y * width].val = val; }
+    float GetValue(int x, int y) const { return m_Data[x + y * m_Width].val; }
+    void  SetValue(int x, int y, float val) { m_Data[x + y * m_Width].val = val; }
 
     // Generate TGAImage For Output Purpose
     TGAImage GenerateImage() const;
@@ -67,9 +67,9 @@ private:
         };
         float val;
     };
-    std::vector<Data> data;
-    int               width;
-    int               height;
+    std::vector<Data> m_Data;
+    int               m_Width;
+    int               m_Height;
 };
 
 #endif  // _BUFFER_H_

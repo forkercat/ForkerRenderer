@@ -27,7 +27,7 @@ public:
                                        bool               flipTexCoordY = true);
 
     // Constructors
-    Model() : meshes(), verts(), texCoords(), normals(), hasTangents() { }
+    Model() : m_Meshes(), m_Verts(), m_TexCoords(), m_Normals(), m_HasTangents() { }
     Model(const Model& m);
 
     // Starts Rendering This Fun Stuff!
@@ -42,17 +42,17 @@ public:
     int GetNumVerts() const;
     int GetNumFaces() const;
 
-    inline bool HasTangents() const { return hasTangents; }
+    inline bool HasTangents() const { return m_HasTangents; }
 
 private:
-    std::map<std::string, std::shared_ptr<Mesh>>     meshes;
-    std::map<std::string, std::shared_ptr<Material>> materials;
+    std::map<std::string, std::shared_ptr<Mesh>>     m_Meshes;
+    std::map<std::string, std::shared_ptr<Material>> m_Materials;
 
-    std::vector<Vector3f> verts;
-    std::vector<Vector2f> texCoords;
-    std::vector<Vector3f> normals;
-    std::vector<Vector3f> tangents;
-    bool                  hasTangents;
+    std::vector<Vector3f> m_Verts;
+    std::vector<Vector2f> m_TexCoords;
+    std::vector<Vector3f> m_Normals;
+    std::vector<Vector3f> m_Tangents;
+    bool                  m_HasTangents;
 
     // .obj and .mtl Parsers
     // Supported Format: 'g ' is followed by 'usemtl ', which is followed by 'f ...'

@@ -30,16 +30,16 @@ public:
 
     Texture(const TGAImage& img, WrapMode wrap = WrapMode::NoWrap,
             FilterMode filter = FilterMode::Nearest)
-        : width(img.GetWidth()),
-          height(img.GetHeight()),
-          image(img),
-          wrapMode(wrap),
-          filterMode(filter)
+        : m_Width(img.GetWidth()),
+          m_Height(img.GetHeight()),
+          m_Image(img),
+          m_WrapMode(wrap),
+          m_FilterMode(filter)
     {
     }
 
-    inline int GetWidth() const { return width; }
-    inline int GetHeight() const { return height; }
+    inline int GetWidth() const { return m_Width; }
+    inline int GetHeight() const { return m_Height; }
 
     inline Color3 Sample(const Vector2f& coord) const
     {
@@ -55,27 +55,27 @@ public:
 
 private:
     // Private Data
-    int        width;
-    int        height;
-    TGAImage   image;
-    WrapMode   wrapMode;
-    FilterMode filterMode;
+    int        m_Width;
+    int        m_Height;
+    TGAImage   m_Image;
+    WrapMode   m_WrapMode;
+    FilterMode m_FilterMode;
 
     // Texture Wrapping
     inline Vector2f wrapCoord(const Vector2f& coord) const
     {
-        if (wrapMode == WrapMode::Repeat)
+        if (m_WrapMode == WrapMode::Repeat)
         {
             return Vector2f(coord.x - std::floor(coord.x), coord.y - std::floor(coord.y));
         }
-        else if (wrapMode == WrapMode::MirroredRepeat)
+        else if (m_WrapMode == WrapMode::MirroredRepeat)
         {
             int      xi = std::floor(coord.x), yi = std::floor(coord.y);
             Vector2f repeat = Vector2f(coord.x - xi, coord.y - yi);
             return Vector2f(xi % 2 == 0 ? repeat.x : 1.f - repeat.x,
                             yi % 2 == 0 ? repeat.y : 1.f - repeat.y);
         }
-        else if (wrapMode == WrapMode::ClampToEdge)
+        else if (m_WrapMode == WrapMode::ClampToEdge)
         {
             return Clamp01(coord);
         }
@@ -88,8 +88,8 @@ private:
     // Texture Filtering
     inline Color3 colorFromFiltering(const Vector2f& coord) const
     {
-        Float w = width - 0.001, h = height - 0.001;
-        if (filterMode == FilterMode::Linear)
+        Float w = m_Width - 0.001, h = m_Height - 0.001;
+        if (m_FilterMode == FilterMode::Linear)
         {
             // Point in image space (not truncated)
             Vector2f p = Vector2f(coord.u * w, coord.v * h);
@@ -107,10 +107,11 @@ private:
             Vector2i s2 = Vector2i(topLeft.x, topLeft.y + 1.f);
             Vector2i s3 = Vector2i(topLeft.x + 1.f, topLeft.y + 1.f);
 
-            if (wrapMode != WrapMode::NoWrap)
+            if (m_WrapMode != WrapMode::NoWrap)
             {
-                // For modes except NoWrap, we need to manually clamp the image coordinate.
-                // For NoWrap, don't clamp it to retrieve black color when out of image region.
+                // For modes except NoWrap, we need to manually clamp the image
+                // coordinate. For NoWrap, don't clamp it to retrieve black color when out
+                // of image region.
                 s0 = clampImageCoord(s0);
                 s1 = clampImageCoord(s1);
                 s2 = clampImageCoord(s2);
@@ -136,14 +137,14 @@ private:
     // Return Color3 [0, 255]
     inline Color3 getColorFromImage(const Vector2i& imageUV) const
     {
-        const TGAColor& color = image.Get(imageUV.u, imageUV.v);
+        const TGAColor& color = m_Image.Get(imageUV.u, imageUV.v);
         return Color3(color.r, color.g, color.b);
     }
 
     inline Vector2i clampImageCoord(const Vector2i& imageUV) const
     {
-        return Vector2i(Clamp(imageUV.u, 0, image.GetWidth() - 1),
-                        Clamp(imageUV.v, 0, image.GetHeight() - 1));
+        return Vector2i(Clamp(imageUV.u, 0, m_Image.GetWidth() - 1),
+                        Clamp(imageUV.v, 0, m_Image.GetHeight() - 1));
     }
 };
 

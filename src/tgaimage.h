@@ -141,10 +141,10 @@ public:
     void          Clear();
 
 protected:
-    std::vector<std::uint8_t> data;
-    int                       width;
-    int                       height;
-    int                       bytespp;
+    std::vector<std::uint8_t> m_Data;
+    int                       m_Width;
+    int                       m_Height;
+    int                       m_Bytespp;
 
     bool loadRleData(std::ifstream& in);
     bool unloadRleData(std::ofstream& out) const;

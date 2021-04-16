@@ -18,7 +18,7 @@ class Model;
 class Mesh : public std::enable_shared_from_this<Mesh>
 {
 public:
-    Mesh(std::shared_ptr<const Model> m) : model(m) { }
+    Mesh(const std::shared_ptr<const Model>& model) : m_Model(model) { }
 
     // Copy Constructor
     Mesh(const Mesh& m);
@@ -35,11 +35,11 @@ public:
     int      GetVertIndex(int faceIdx, int vertIdx) const;
 
     // Helper
-    std::shared_ptr<const Model>    GetModel() const { return model.lock(); }
-    std::shared_ptr<const Material> GetMaterial() const { return material.lock(); };
+    std::shared_ptr<const Model>    GetModel() const { return m_Model.lock(); }
+    std::shared_ptr<const Material> GetMaterial() const { return m_Material.lock(); };
 
-    void SetModel(std::shared_ptr<const Model> m) { model = m; };
-    void SetMaterial(std::shared_ptr<const Material> m) { material = m; }
+    void SetModel(std::shared_ptr<const Model> m) { m_Model = m; };
+    void SetMaterial(std::shared_ptr<const Material> m) { m_Material = m; }
 
     void AddVertIndex(int index);
     void AddTexCoordIndex(int index);
@@ -48,14 +48,14 @@ public:
 
 private:
     // Model and material are set right after Mesh creation
-    std::weak_ptr<const Model>    model;
-    std::weak_ptr<const Material> material;
+    std::weak_ptr<const Model>    m_Model;
+    std::weak_ptr<const Material> m_Material;
 
     // Stores indices of actual vertices in Model class
-    std::vector<int> faceVertIndices;
-    std::vector<int> faceTexCoordIndices;
-    std::vector<int> faceNormalIndices;  // 3 vertices form a triangle
-    std::vector<int> faceTangentIndices;
+    std::vector<int> m_FaceVertIndices;
+    std::vector<int> m_FaceTexCoordIndices;
+    std::vector<int> m_FaceNormalIndices;  // 3 vertices form a triangle
+    std::vector<int> m_FaceTangentIndices;
 };
 
 #endif  // _MESH_H_
