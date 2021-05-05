@@ -13,6 +13,7 @@
 #include "geometry.h"
 #include "material.h"
 #include "mesh.h"
+#include "pbrmaterial.h"
 #include "texture.h"
 
 class Shader;
@@ -46,7 +47,8 @@ public:
 
 private:
     std::map<std::string, std::shared_ptr<Mesh>>     m_Meshes;
-    std::map<std::string, std::shared_ptr<Material>> m_Materials;
+    std::map<std::string, std::shared_ptr<Material>>    m_Materials;
+    std::map<std::string, std::shared_ptr<PBRMaterial>> m_PBRMaterials;
 
     std::vector<Vector3f> m_Verts;
     std::vector<Vector2f> m_TexCoords;

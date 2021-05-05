@@ -19,7 +19,7 @@ add_executable(ForkerRenderer
     # Main
     src/main.cpp)
 
-target_include_directories(ForkerRenderer PRIVATE src src/shaders)
+target_include_directories(ForkerRenderer PRIVATE src src/shaders src/materials)
 target_link_libraries(ForkerRenderer PRIVATE spdlog::spdlog)
 
 # Create output directory

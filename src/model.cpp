@@ -32,6 +32,7 @@ std::shared_ptr<Model> Model::Load(const std::string& filename, bool normalized,
 
     model->m_Meshes.clear();
     model->m_Materials.clear();
+    model->m_PBRMaterials.clear();
     model->m_Verts.clear();
     model->m_TexCoords.clear();
     model->m_Normals.clear();
@@ -55,16 +56,18 @@ std::shared_ptr<Model> Model::Load(const std::string& filename, bool normalized,
 
     // clang-format off
     spdlog::info(
-        "v# {}, f# {}, vt# {}, vn# {}, tg# {}, mesh# {}, mtl# {} | normalized: {}, generateTangent: {} flipTexCoordY: {}",
+        "v# {}, f# {}, vt# {}, vn# {}, tg# {}, mesh# {}, mtl# {}, {} (PBR) | normalized: {}, generateTangent: {} flipTexCoordY: {}",
         model->GetNumVerts(), model->GetNumFaces(), model->m_TexCoords.size(), model->m_Normals.size(), model->m_Tangents.size(), model->m_Meshes.size(),
-        model->m_Materials.size(), normalized, generateTangent, flipTexCoordY);
+        model->m_Materials.size(), model->m_PBRMaterials.size(), normalized, generateTangent, flipTexCoordY);
 
     for (auto iter = model->m_Meshes.begin(); iter != model->m_Meshes.end(); ++iter)
     {
         std::shared_ptr<Mesh> mesh = iter->second;
 
-        spdlog::info("[{:>8}] f# {:>5} | {}",
-                     iter->first, mesh->NumFaces(), *(mesh->GetMaterial()));
+        spdlog::info("[{:}] f# {:}",
+                     iter->first, mesh->NumFaces());
+        spdlog::info("Material: {}", *(mesh->GetMaterial()));
+        spdlog::info("PBR Material: {}", *(mesh->GetPBRMaterial()));
     }
     // clang-format on
 
@@ -77,6 +80,7 @@ std::shared_ptr<Model> Model::Load(const std::string& filename, bool normalized,
 Model::Model(const Model& m)
     : m_Meshes(m.m_Meshes),
       m_Materials(m.m_Materials),
+      m_PBRMaterials(m.m_PBRMaterials),
       m_Verts(m.m_Verts),
       m_TexCoords(m.m_TexCoords),
       m_Normals(m.m_Normals)
@@ -88,6 +92,7 @@ Model::Model(const Model& m)
 
         mesh->SetModel(shared_from_this());
         mesh->SetMaterial(mesh->GetMaterial());
+        mesh->SetPBRMaterial(mesh->GetPBRMaterial());
     }
 }
 
@@ -261,6 +266,7 @@ bool Model::loadObjectFile(const std::string& filename, bool flipVertically)
         {
             iss >> strTrash >> materialName;
             m_Meshes[meshName]->SetMaterial(m_Materials[materialName]);
+            m_Meshes[meshName]->SetPBRMaterial(m_PBRMaterials[materialName]);
         }
         // Faces
         else if (line.compare(0, 2, "f ") == 0)  // f
@@ -328,6 +334,7 @@ void Model::loadMaterials(const std::string& directory, const std::string& filen
         {
             iss >> strTrash >> materialName;
             m_Materials[materialName] = std::make_shared<Material>(materialName);
+            m_PBRMaterials[materialName] = std::make_shared<PBRMaterial>(materialName);
         }
         // Ka / Kd / Ks / Ke
         else if (line.compare(0, 3, "Ka ") == 0)  // Ka
@@ -343,6 +350,7 @@ void Model::loadMaterials(const std::string& directory, const std::string& filen
             Vector3f floats;
             iss >> floats.x >> floats.y >> floats.z;
             m_Materials[materialName]->kd = floats;
+            m_PBRMaterials[materialName]->albedo = floats;
         }
         else if (line.compare(0, 3, "Ks ") == 0)  // Ks
         {
@@ -367,6 +375,8 @@ void Model::loadMaterials(const std::string& directory, const std::string& filen
             std::string textureFilename = directory + filename;
             loadTexture(textureFilename, m_Materials[materialName]->diffuseMap,
                         flipVertically);
+            loadTexture(textureFilename, m_PBRMaterials[materialName]->baseColorMap,
+                        flipVertically);
         }
         else if (line.compare(0, 7, "map_Ks ") == 0)  // map_Ks
         {
@@ -377,13 +387,16 @@ void Model::loadMaterials(const std::string& directory, const std::string& filen
             loadTexture(textureFilename, m_Materials[materialName]->specularMap,
                         flipVertically);
         }
-        else if (line.compare(0, 9, "map_Bump ") == 0)  // map_Bump / Normal
+        else if (line.compare(0, 9, "map_Bump ") == 0 ||
+                 line.compare(0, 5, "norm ") == 0)  // map_Bump / Normal
         {
             std::string filename;
             iss >> strTrash >> filename;
 
             std::string textureFilename = directory + filename;
             loadTexture(textureFilename, m_Materials[materialName]->normalMap,
+                        flipVertically);
+            loadTexture(textureFilename, m_PBRMaterials[materialName]->normalMap,
                         flipVertically);
         }
         else if (line.compare(0, 7, "map_Ao ") == 0)  // map_Ao
@@ -392,7 +405,26 @@ void Model::loadMaterials(const std::string& directory, const std::string& filen
             iss >> strTrash >> filename;
 
             std::string textureFilename = directory + filename;
-            loadTexture(textureFilename, m_Materials[materialName]->ambientOcclusionMap,
+            loadTexture(textureFilename,
+                        m_PBRMaterials[materialName]->ambientOcclusionMap,
+                        flipVertically);
+        }
+        else if (line.compare(0, 7, "map_Pr ") == 0)  // map_Pr
+        {
+            std::string filename;
+            iss >> strTrash >> filename;
+
+            std::string textureFilename = directory + filename;
+            loadTexture(textureFilename, m_PBRMaterials[materialName]->roughnessMap,
+                        flipVertically);
+        }
+        else if (line.compare(0, 7, "map_Pm ") == 0)  // map_Pm
+        {
+            std::string filename;
+            iss >> strTrash >> filename;
+
+            std::string textureFilename = directory + filename;
+            loadTexture(textureFilename, m_PBRMaterials[materialName]->metalnessMap,
                         flipVertically);
         }
     }

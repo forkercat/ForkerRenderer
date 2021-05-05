@@ -10,6 +10,7 @@
 #include "color.h"
 #include "geometry.h"
 #include "material.h"
+#include "pbrmaterial.h"
 #include "tgaimage.h"
 
 class Shader;
@@ -35,11 +36,16 @@ public:
     int      GetVertIndex(int faceIdx, int vertIdx) const;
 
     // Helper
-    std::shared_ptr<const Model>    GetModel() const { return m_Model.lock(); }
-    std::shared_ptr<const Material> GetMaterial() const { return m_Material.lock(); };
+    std::shared_ptr<const Model>       GetModel() const { return m_Model.lock(); }
+    std::shared_ptr<const Material>    GetMaterial() const { return m_Material.lock(); };
+    std::shared_ptr<const PBRMaterial> GetPBRMaterial() const
+    {
+        return m_PBRMaterial.lock();
+    }
 
     void SetModel(std::shared_ptr<const Model> m) { m_Model = m; };
     void SetMaterial(std::shared_ptr<const Material> m) { m_Material = m; }
+    void SetPBRMaterial(std::shared_ptr<const PBRMaterial> m) { m_PBRMaterial = m; }
 
     void AddVertIndex(int index);
     void AddTexCoordIndex(int index);
@@ -48,8 +54,9 @@ public:
 
 private:
     // Model and material are set right after Mesh creation
-    std::weak_ptr<const Model>    m_Model;
-    std::weak_ptr<const Material> m_Material;
+    std::weak_ptr<const Model>       m_Model;
+    std::weak_ptr<const Material>    m_Material;
+    std::weak_ptr<const PBRMaterial> m_PBRMaterial;
 
     // Stores indices of actual vertices in Model class
     std::vector<int> m_FaceVertIndices;

@@ -164,15 +164,8 @@ private:
         std::shared_ptr<const Material> material = mesh->GetMaterial();
         std::shared_ptr<const Texture>  diffuseMap = material->diffuseMap;
         std::shared_ptr<const Texture>  specularMap = material->specularMap;
-        std::shared_ptr<const Texture>  ambientOcclusionMap =
-            material->ambientOcclusionMap;
 
         Color3 lightColor = uPointLight.color;
-
-        // Ambient
-        Float ambi = material->HasAmbientOcclusionMap()
-                         ? material->ambientOcclusionMap->SampleFloat(texCoord)
-                         : 0.2f;
 
         // Diffuse
         Float diff = Max(0.f, Dot(lightDir, normal));
@@ -196,12 +189,12 @@ private:
         if (material->HasDiffuseMap())
         {
             Color3 diffuseColor = diffuseMap->Sample(texCoord);
-            ambient = ambi * diffuseColor;
+            ambient = material->ka * diffuseColor;
             diffuse = diff * diffuseColor;
         }
         else
         {
-            ambient = ambi * material->ka;
+            ambient = material->ka;  // white
             diffuse = diff * material->kd;
         }
         specular = material->ks * spec;

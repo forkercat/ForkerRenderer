@@ -12,6 +12,7 @@
 Mesh::Mesh(const Mesh& m)
     : m_Model(m.m_Model),
       m_Material(m.m_Material),
+      m_PBRMaterial(m.m_PBRMaterial),
       m_FaceVertIndices(m.m_FaceVertIndices),
       m_FaceTexCoordIndices(m.m_FaceTexCoordIndices),
       m_FaceNormalIndices(m.m_FaceNormalIndices)
