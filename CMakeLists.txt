@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD 14)
 find_package(spdlog REQUIRED)
 
 add_executable(ForkerRenderer
+    # Core
     src/tgaimage.cpp
     src/geometry.cpp
     src/model.cpp
@@ -13,8 +14,12 @@ add_executable(ForkerRenderer
     src/buffer.cpp
     src/forkergl.cpp
     src/camera.cpp
+    # Shaders
+    src/shaders/shadow.cpp
+    # Main
     src/main.cpp)
 
+target_include_directories(ForkerRenderer PRIVATE src src/shaders)
 target_link_libraries(ForkerRenderer PRIVATE spdlog::spdlog)
 
 # Create output directory

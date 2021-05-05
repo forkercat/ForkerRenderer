@@ -7,7 +7,8 @@
 #include "geometry.h"
 #include "light.h"
 #include "model.h"
-#include "shader.h"
+#include "phongshader.h"
+#include "depthshader.h"
 #include "tgaimage.h"
 
 /////////////////////////////////////////////////////////////////////////////////

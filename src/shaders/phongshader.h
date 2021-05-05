@@ -1,46 +1,11 @@
 //
-// Created by Junhao Wang (@Forkercat) on 2020/12/26.
+// Created by Junhao Wang (@Forkercat) on 2021/5/5.
 //
 
-#ifndef SHADER_H_
-#define SHADER_H_
+#ifndef SHADERS_PHONGSHADER_H_
+#define SHADERS_PHONGSHADER_H_
 
-#include <utility>
-
-#include "buffer.h"
-#include "color.h"
-#include "geometry.h"
-#include "light.h"
-#include "mesh.h"
-#include "model.h"
-#include "tgaimage.h"
-
-// Enable Perspective Correct Mapping (PCI)
-#define PERSPECTIVE_CORRECT_INTERPOLATION
-
-// Enable Shadow Mapping (Hard Shadow)
-#define SHADOW_PASS
-
-// Enable Soft Shadow
-// #define SOFT_SHADOW_PCF  // Percentage-Closer Filtering (PCF)
-#define SOFT_SHADOW_PCSS  // Percentage-Closer Soft Shadow (PCSS)
-
-// Abstract Class
-struct Shader
-{
-    std::shared_ptr<const Mesh> mesh;
-
-    Shader() : mesh(nullptr) { }
-
-    // Use Shader Program (set which mesh to shade on)
-    void Use(std::shared_ptr<const Mesh> m) { mesh = m; }
-    // Vertex Shader
-    virtual Point4f ProcessVertex(int faceIdx, int vertIdx) = 0;
-    // Fragment Shader
-    virtual bool ProcessFragment(const Vector3f& baryCoord, Color3& gl_Color) = 0;
-};
-
-/////////////////////////////////////////////////////////////////////////////////
+#include "shader.h"
 
 struct BlinnPhongShader : public Shader
 {
@@ -63,11 +28,10 @@ struct BlinnPhongShader : public Shader
     Matrix3x3f uNormalMatrix;
     PointLight uPointLight;
 
-#ifdef SHADOW_PASS
+    // For Shadow Pass
     Buffer     uShadowBuffer;
     Matrix4x4f uLightSpaceMatrix;
     Matrix3x3f vPositionLightSpaceNDC;
-#endif
 
     // Vertex Shader
     Point4f ProcessVertex(int faceIdx, int vertIdx) override
@@ -107,7 +71,7 @@ struct BlinnPhongShader : public Shader
         if (mesh->GetModel()->HasTangents()) tangentVS *= oneOverW;
 #ifdef SHADOW_PASS
         positionLightSpaceNDC *= oneOverW;
-#endif
+#endif  // SHADOW_PASS
 #endif
         // Varying
         vTexCoordCorrected.SetCol(vertIdx, texCoord);
@@ -182,7 +146,8 @@ struct BlinnPhongShader : public Shader
 #ifdef PERSPECTIVE_CORRECT_INTERPOLATION
         positionLightSpaceNDC *= w;
 #endif
-        visibility = calculateShadowVisibility(positionLightSpaceNDC, normal, lightDir);
+        visibility = calculateShadowVisibility(uShadowBuffer, positionLightSpaceNDC,
+                                               normal, lightDir);
 #endif
 
         // Blinn-Phong Shading
@@ -258,162 +223,6 @@ private:
         Color3 color = ambient + diffuse + specular;
         return Clamp01(color);
     }
-    /////////////////////////////////////////////////////////////////////////////////
-
-#ifdef SHADOW_PASS
-Float sampleShadowMap(const Buffer& shadowMap, const Vector2f& uv) const
-    {
-        // Fix region out of map
-        if (uv.x < 0.f || uv.x > 1.f || uv.y < 0.f || uv.y > 1.f) return Infinity;
-
-        int   w = uShadowBuffer.GetWidth() - 0.001f;
-        int   h = uShadowBuffer.GetHeight() - 0.001f;
-        int   u = (int)((float)w * uv.x);
-        int   v = (int)((float)h * uv.y);
-        Float depth = uShadowBuffer.GetValue(u, v);
-
-        return depth < Epsilon ? 1.f : depth;  // fix background depth
-    }
-
-    // Hard Shadow
-    Float hardShadow(const Buffer& shadowMap, const Vector3f& shadowCoord,
-                     Float bias) const
-    {
-        Float visibility;
-        Float sampledDepth = sampleShadowMap(uShadowBuffer, shadowCoord.xy);
-        Float currentDepth = shadowCoord.z;
-        visibility = (currentDepth <= sampledDepth + bias) ? 1.f : 0.f;
-        return visibility;
-    }
-
-    // PCF
-#define PCF_FILTER_SIZE 0.007
-#define PCF_NUM_SAMPLES 64
-    Float PCF(const Buffer& shadowMap, const Vector3f& shadowCoord, Float bias,
-              Float filterSize) const
-    {
-        Float visibility = 0.f;
-        Float currentDepth = shadowCoord.z;
-        Float invPCFNumSamples = 1.f / (Float)PCF_NUM_SAMPLES;
-
-        for (int i = 0; i < PCF_NUM_SAMPLES; ++i)
-        {
-            Vector2f uv = shadowCoord.xy + RandomVectorInUnitDisk().xy * filterSize;
-            Float    sampleDepth = sampleShadowMap(shadowMap, uv);
-
-            if (currentDepth <= sampleDepth + bias) visibility += invPCFNumSamples;
-        }
-
-        return visibility;
-    }
-
-    // PCSS
-#define PCSS_BLOCKER_SEARCH_NUM_SAMPLES 32
-#define PCSS_BLOCKER_SEARCH_FILTER_SIZE 0.005
-
-    Float findAverageBlockDepth(const Buffer& shadowMap, const Vector3f& shadowCoord,
-                                Float bias) const
-    {
-        Float blockerDepth = 0.f;
-        Float numBlockers = 0.f;
-
-        Float currentDepth = shadowCoord.z;
-
-        for (int i = 0; i < PCSS_BLOCKER_SEARCH_NUM_SAMPLES; ++i)
-        {
-            Vector2f uv = shadowCoord.xy +
-                          RandomVectorInUnitDisk().xy * PCSS_BLOCKER_SEARCH_FILTER_SIZE;
-            Float sampleDepth = sampleShadowMap(shadowMap, uv);
-
-            if (currentDepth > sampleDepth + bias)  // is blocker
-            {
-                blockerDepth += sampleDepth;
-                numBlockers += 1.f;
-            }
-        }
-
-        if (numBlockers < 1.f)  // return 0.0 if no blocker is found
-            return 0.f;
-        else
-            return blockerDepth / numBlockers;
-    }
-
-#define AREA_LIGHT_SIZE 2.5f
-
-    Float PCSS(const Buffer& shadowMap, const Vector3f& shadowCoord, Float bias) const
-    {
-        // 1. Average blocker depth
-        Float dReceiver = shadowCoord.z;
-        Float dBlocker = findAverageBlockDepth(shadowMap, shadowCoord, bias);
-
-        if (dBlocker < Epsilon) return 1.f;
-
-        // 2. Penumbra Size
-        Float penumbraSize = (dReceiver - dBlocker) * AREA_LIGHT_SIZE / dBlocker;
-        Float filterSize = PCF_FILTER_SIZE * penumbraSize;
-
-        // 3. PCF Filtering
-        return PCF(uShadowBuffer, shadowCoord, bias, filterSize);
-    }
-
-    // Calculate Shadow Component
-    Float calculateShadowVisibility(const Vector3f& positionLightSpaceNDC,
-                                    const Vector3f& normal,
-                                    const Vector3f& lightDir) const
-    {
-        // Transform to [0, 1]
-        Vector3f shadowCoord = positionLightSpaceNDC * 0.5f + Vector3f(0.5f);
-
-        // Bias
-        Float bias = Max(0.009f * (1.f - Dot(normal, lightDir)), 0.007f);
-        Float visibility;
-
-#ifdef SOFT_SHADOW_PCF
-        // Percentage-Closer Filtering (PCF)
-        visibility = PCF(uShadowBuffer, shadowCoord, bias, PCF_FILTER_SIZE);
-#elif defined(SOFT_SHADOW_PCSS)
-        // Percentage-Closer Soft Shadow (PCSS)
-        visibility = PCSS(uShadowBuffer, shadowCoord, bias);
-#else
-        // Hard Shadow
-        visibility = hardShadow(uShadowBuffer, shadowCoord, bias);
-#endif
-
-        return visibility;
-    }
 };
 
-/////////////////////////////////////////////////////////////////////////////////
-
-// Depth Shader For Shadow Mapping
-struct DepthShader : public Shader
-{
-    // Interpolation
-    Matrix3x3f vPositionNDC;
-
-    // Transformations
-    Matrix4x4f uModelMatrix;
-    Matrix4x4f uLightSpaceMatrix;
-
-    DepthShader() : Shader() { }
-
-    Point4f ProcessVertex(int faceIdx, int vertIdx) override
-    {
-        Point4f positionCS =
-            uLightSpaceMatrix * uModelMatrix * Point4f(mesh->Vert(faceIdx, vertIdx), 1.f);
-        Point4f positionNDC = positionCS / positionCS.w;
-        vPositionNDC.SetCol(vertIdx, positionNDC.xyz);
-        return positionNDC;
-    }
-
-    bool ProcessFragment(const Vector3f& baryCoord, Color3& gl_Color) override
-    {
-        // Interpolation
-        Point3f positionNDC = vPositionNDC * baryCoord;
-        gl_Color.z = positionNDC.z * 0.5f + 0.5f;  // to [0, 1]
-        return false;
-    }
-#endif
-};
-
-#endif  // SHADER_H_
+#endif  // SHADERS_PHONGSHADER_H_
