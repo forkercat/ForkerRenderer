@@ -31,7 +31,7 @@ cmake .. && make
 
 - [x] Parsing `*.obj` / `*.mtl`
     - `g` defines mesh name; `usemtl` defines m_Material name (comes in order)
-    - [x] Support `Ka`, `Kd`, `Ks`, `map_Kd`, `map_Ks`, `map_Bump`, `map_Ao`
+    - [x] Support `Ka`, `Kd`, `Ks`, `map_Kd`, `map_Ks`, `map_Ke`, `map_Bump`, `map_Ao`, `map_Pr`, `map_Pm`
     - [x] Position vertex normalization
     - [x] Auto triangulation
 - [x] Geometry Template Class
@@ -41,10 +41,22 @@ cmake .. && make
 - [x] Rasterization
     - [x] Bresenham's Line Algorithm (used and removed)
     - [x] Bounding Box Method (currently used)
-- [x] Shader: Blinn-Phong Shading / Depth Shading
+- [x] Shader:
+    - [x] Depth Shading
+    - [x] Blinn-Phong Shading
+    - [x] PBR Material and Shading
+        - Cook-Torrance reflectance equation
+        - D: Trowbridge-Reitz GGX
+        - F: Fresnel-Schlick approximation
+        - G: Smith's method with Schlick-GGX
+
+![](https://bloggg-1254259681.cos.na-siliconvalley.myqcloud.com/ncoig.png)
+
 - [x] Light: Point / Directional
   - AreaLight is defined by `AREA_LIGHT_SIZE` in shadow mapping)
-- [x] Texture Mapping: Diffuse / Specular / Normal / Ambient Occlusion
+- [x] Texture Mapping: 
+  - Diffuse / Specular / Normal / Emissive
+  - Roughness / Metalness / Ambient Occlusion
 - [x] Texture Wrapping: NoWrap / ClampToEdge / Repeat / MirroredRepeat `Texture::WrapMode`
 - [x] Texture Filtering: Nearest / Linear (Bilinear) `Texture::FilterMode`
 
