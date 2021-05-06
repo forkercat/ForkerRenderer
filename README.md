@@ -46,12 +46,9 @@ cmake .. && make
   - AreaLight is defined by `AREA_LIGHT_SIZE` in shadow mapping)
 - [x] Texture Mapping: Diffuse / Specular / Normal / Ambient Occlusion
 - [x] Texture Wrapping: NoWrap / ClampToEdge / Repeat / MirroredRepeat `Texture::WrapMode`
-
-![](https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Wrap.jpeg)
-
 - [x] Texture Filtering: Nearest / Linear (Bilinear) `Texture::FilterMode`
 
-<img src="https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Filter.jpg" m_Height="230">
+![](https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Wrap.jpeg)
 
 - [x] Normal Transformation: TBN Matrix
   - Generate and average m_Tangents for each vertex when loading the model
@@ -87,32 +84,33 @@ cmake .. && make
 
 Apex Horizon (also [Dr. Mary Somers](https://www.ea.com/games/apex-legends/about/characters/horizon)), author: Squral
 
-<img src="https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Gallery_1.jpg" m_Width="600">
+<img src="https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Gallery_1.jpg" width="600">
 
 Mary, author: TAs from [GAMES202: Real-time High Quality Rendering](https://sites.cs.ucsb.edu/~lingqi/teaching/games202.html)
 
-<img src="https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Gallery_5.jpg" m_Width="600">
+<img src="https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Gallery_5.jpg" width="600">
 
 Sci-Fi Welding Vehicle, author: Berk Gedik
 
-<img src="https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Gallery_2.jpg" m_Width="600">
+<img src="https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Gallery_2.jpg" width="600">
 
 Backpack, author: Berk Gedik
 
-<img src="https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Gallery_3.jpg" m_Width="400">
+<img src="https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Gallery_3.jpg" width="400">
 
 African Head, author: Vidar Rapp
 
-<img src="https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Gallery_4.jpg" m_Width="400">
+<img src="https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Gallery_4.jpg" width="400">
 
 
 ## Structure 📁
 
-Approximately **4,300** lines of code:
+Approximately **5,000** lines of code:
 
 - Rendering: `forkergl.h/cpp` (rasterization), `buffer.h/cpp` (framebuffer & z-buffer)
-- Shader: `shader.h`
-- Model: `model.h/cpp`, `mesh.h/cpp`, `m_Material.h`, `texture.h`
+- Shader: `shader.h`, `phongshader.h`, `pbrshader.h`, `depthshader.h`
+- Shadow: `shadow.h/cpp`
+- Model: `model.h/cpp`, `mesh.h/cpp`, `material.h`, `pbrmaterial.h`, `texture.h`
 - Camera: `camera.h/cpp`
 - Light: `light.h`
 - Color: `color.h`

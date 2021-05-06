@@ -97,8 +97,12 @@ int main(int argc, const char* argv[])
     // modelMatrices.push_back(MakeModelMatrix(Vector3f(0, 0, -1), 180, 1.f));
 
     // Chalkboard
-    models.push_back(Model::Load("obj/chalkboard/chalkboard.obj", true, true));
-    modelMatrices.push_back(MakeModelMatrix(Vector3f(0, 0, -1), 0, 1.f));
+    // models.push_back(Model::Load("obj/chalkboard/chalkboard.obj", true, true));
+    // modelMatrices.push_back(MakeModelMatrix(Vector3f(0, 0, -1), 0, 1.f));
+
+    // Great Sword
+    models.push_back(Model::Load("obj/great_sword/great_sword.obj", true, true));
+    modelMatrices.push_back(MakeModelMatrix(Vector3f(0, 0.3, -1), 240, 1.f));
 
     // Input
     // models.push_back(Model::Load(modelFilename, true, true));
@@ -116,7 +120,7 @@ int main(int argc, const char* argv[])
 
     // Light
 
-    PointLight pointLight(2, 2, 2);
+    PointLight pointLight(2, 5, 5);
     // PointLight pointLight(0, 3, 3);
 
     // Shadow Mapping
