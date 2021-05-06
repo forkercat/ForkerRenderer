@@ -97,38 +97,38 @@ cmake .. && make
 
 ## Gallery 🖼️
 
-Apex Horizon (also [Dr. Mary Somers](https://www.ea.com/games/apex-legends/about/characters/horizon)), author: Squral
+Apex Horizon (also [Dr. Mary Somers](https://www.ea.com/games/apex-legends/about/characters/horizon)) [Squral]
 
 <img src="https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Horizon.jpg" width="600">
 
-Mary, author: TAs from [GAMES202: Real-time High Quality Rendering](https://sites.cs.ucsb.edu/~lingqi/teaching/games202.html)
+Mary [TAs from [GAMES202: Real-time High Quality Rendering](https://sites.cs.ucsb.edu/~lingqi/teaching/games202.html)]
 
 <img src="https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Gallery_5.jpg" width="600">
 
-Sci-Fi Welding Vehicle, author: Berk Gedik
+Sci-Fi Welding Vehicle [Berk Gedik]
 
 <img src="https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Gallery_2.jpg" width="600">
 
-Cafe Menu Chalkboard, author: Naiyararahman
+Cafe Menu Chalkboard [Naiyararahman]
 
 <img src="https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Chalkboard.jpg" width="600">
 
-Gossblade Greatsword (Monster Hunter Rise), author: taj_tajima
+Gossblade Greatsword (Monster Hunter Rise) [taj_tajima]
 
 <img src="https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_GreatSword.jpg" width="600">
 
-Backpack, author: Berk Gedik
+Backpack [Berk Gedik]
 
 <img src="https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Gallery_3.jpg" width="400">
 
-African Head, author: Vidar Rapp
+African Head [Vidar Rapp]
 
 <img src="https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Gallery_4.jpg" width="400">
 
 
 ## Structure 📁
 
-Approximately **5,000** lines of code:
+About **5,000** lines of code:
 
 - Rendering: `forkergl.h/cpp` (rasterization), `buffer.h/cpp` (framebuffer & z-buffer)
 - Shader: `shader.h`, `phongshader.h`, `pbrshader.h`, `depthshader.h`

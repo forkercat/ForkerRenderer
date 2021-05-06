@@ -194,7 +194,7 @@ private:
 
         // Input Radiance
         Color3 radiance = uPointLight.color;  // ignore distance attenuation
-        radiance = Color3(10.0);
+        // radiance = Color3(10.0);
 
         // Gamma Correction (sRGB -> Linear Space)
         albedo = Pow(albedo, Gamma);

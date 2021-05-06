@@ -14,11 +14,11 @@
 
 /////////////////////////////////////////////////////////////////////////////////
 
-#define ANTI_ALIASING
+// #define ANTI_ALIASING
 #define KERNEL_SIZE 2  // width of output will be (WIDTH / KERNEL_SIZE)
 
-const int   WIDTH = 2560;
-const int   HEIGHT = 1600;
+const int   WIDTH = 1280;
+const int   HEIGHT = 800;
 const Float RATIO = (Float)WIDTH / HEIGHT;
 
 const Float CAMERA_NEAR_PLANE = 0.01f;
@@ -70,8 +70,8 @@ int main(int argc, const char* argv[])
     std::vector<Matrix4x4f>             modelMatrices;
 
     // Plane
-    // models.push_back(Model::Load("obj/plane/plane.obj"));
-    // modelMatrices.push_back(MakeModelMatrix(Vector3f(0, -1, -1), 0, 3.f));
+    models.push_back(Model::Load("obj/plane/plane.obj"));
+    modelMatrices.push_back(MakeModelMatrix(Vector3f(0, -1, -1), 0, 3.f));
 
     // Mary
     // models.push_back(Model::Load("obj/mary/mary.obj", true, true));
@@ -89,8 +89,8 @@ int main(int argc, const char* argv[])
     //     MakeModelMatrix(Vector3f(-0.1, 0.2, -1), rotateDegreeOnY, 0.75f));
 
     // Sci-Fi Cart
-    models.push_back(Model::Load("obj/cart/cart.obj", true, true));
-    modelMatrices.push_back(MakeModelMatrix(Vector3f(0, 0, -1), 180, 1.f));
+    // models.push_back(Model::Load("obj/cart/cart.obj", true, true));
+    // modelMatrices.push_back(MakeModelMatrix(Vector3f(0, 0, -1), 180, 1.f));
 
     // Horizon
     // models.push_back(Model::Load("obj/horizon/horizon.obj", true, true));
@@ -105,24 +105,22 @@ int main(int argc, const char* argv[])
     // modelMatrices.push_back(MakeModelMatrix(Vector3f(0, 0.3, -1), 240, 1.f));
 
     // Input
-    // models.push_back(Model::Load(modelFilename, true, true));
-    // modelMatrices.push_back(
-    //     MakeModelMatrix(Vector3f(0, 0, -1), rotateDegreeOnY, uniformScale));
+    models.push_back(Model::Load(modelFilename, true, true));
+    modelMatrices.push_back(
+        MakeModelMatrix(Vector3f(0, 0, -1), rotateDegreeOnY, uniformScale));
 
     TimeElapsed(stepStopwatch, "Model Loaded");
 
     // Camera
 
     Camera camera(-1, 1, 1, 0, 0, -1);  // LookAt = (0,0,0)
-    // Camera camera(-1, 1, 1, 0, 1, -1);  // LookAt = (0,0,0)
 
-    Camera::ProjectionType projectionType = Camera::Orthographic;
-    // Camera::ProjectionType projectionType = Camera::Perspective;
+    // Camera::ProjectionType projectionType = Camera::Orthographic;
+    Camera::ProjectionType projectionType = Camera::Perspective;
 
     // Light
 
-    PointLight pointLight(-3, 4, 5);
-    // PointLight pointLight(0, 3, 3);
+    PointLight pointLight(2, 5, 5);
 
     // Shadow Mapping
 
