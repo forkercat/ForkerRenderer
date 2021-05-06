@@ -3,7 +3,7 @@
 Implement CPU-based software rasterizer that mimics OpenGL behavior without using any third-party libraries, but use [spdlog](https://github.com/gabime/spdlog)
 for logging though :)
 
-![](https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Head_1.jpg)
+![](https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Head_3.jpg)
 
 ![](https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Head_2.jpg)
 
@@ -41,7 +41,10 @@ cmake .. && make
 - [x] Rasterization
     - [x] Bresenham's Line Algorithm (used and removed)
     - [x] Bounding Box Method (currently used)
-- [x] Shader:
+
+![](https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_PBR.jpg)
+
+- [x] Shading
     - [x] Depth Shading
     - [x] Blinn-Phong Shading
     - [x] PBR Material and Shading
@@ -96,7 +99,7 @@ cmake .. && make
 
 Apex Horizon (also [Dr. Mary Somers](https://www.ea.com/games/apex-legends/about/characters/horizon)), author: Squral
 
-<img src="https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Gallery_1.jpg" width="600">
+<img src="https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Horizon.jpg" width="600">
 
 Mary, author: TAs from [GAMES202: Real-time High Quality Rendering](https://sites.cs.ucsb.edu/~lingqi/teaching/games202.html)
 
@@ -105,6 +108,14 @@ Mary, author: TAs from [GAMES202: Real-time High Quality Rendering](https://site
 Sci-Fi Welding Vehicle, author: Berk Gedik
 
 <img src="https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Gallery_2.jpg" width="600">
+
+Cafe Menu Chalkboard, author: Naiyararahman
+
+<img src="https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Chalkboard.jpg" width="600">
+
+Gossblade Greatsword (Monster Hunter Rise), author: taj_tajima
+
+<img src="https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_GreatSword.jpg" width="600">
 
 Backpack, author: Berk Gedik
 
@@ -172,7 +183,7 @@ Rendering:
 - [Object Files (.obj)](http://paulbourke.net/dataformats/obj/)
 - More and more articles...
 
-Model Attribution:
+Model Credits:
 
 - [Apex Horizon](https://ch.3dexport.com/3dmodel-horizon-apex-legends-321212.htm) by Squral
 - [Sci-Fi Welding Vehicle](https://sketchfab.com/3d-models/sci-fi-welding-vehicle-40a215bf2244434a96f79684160e0e9f) by Berk Gedik
@@ -180,4 +191,7 @@ Model Attribution:
 - [African Head](https://github.com/ssloy/tinyrenderer/) by Vidar Rapp
 - [Diablo Pose](https://github.com/ssloy/tinyrenderer/) by Samuel (arshlevon) Sharit
 - Mary by TAs in [GAMES202: Real-time High Quality Rendering](https://sites.cs.ucsb.edu/~lingqi/teaching/games202.html)
+- [Cafe Menu Chalkboard](https://www.renderhub.com/naiyararahman/chalkboard) by Naiyararahman
+- [Gossblade Greatsword](https://sketchfab.com/3d-models/gossblade-greatsword-e01b657292e749e69a953c9115ec115b) by taj_tajima
 - Brickwall, Plane, Catbox (for debugging) by MYSELF! :)
+
