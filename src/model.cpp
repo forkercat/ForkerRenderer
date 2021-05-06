@@ -56,7 +56,7 @@ std::shared_ptr<Model> Model::Load(const std::string& filename, bool normalized,
 
     // clang-format off
     spdlog::info(
-        "v# {}, f# {}, vt# {}, vn# {}, tg# {}, mesh# {}, mtl# {}, {} (PBR) | normalized: {}, generateTangent: {} flipTexCoordY: {}",
+        "v# {}, f# {}, vt# {}, vn# {}, tg# {}, mesh# {}, mtl# {}, {} (PBR) | normalized: {}, generateTangent: {}, flipTexCoordY: {}",
         model->GetNumVerts(), model->GetNumFaces(), model->m_TexCoords.size(), model->m_Normals.size(), model->m_Tangents.size(), model->m_Meshes.size(),
         model->m_Materials.size(), model->m_PBRMaterials.size(), normalized, generateTangent, flipTexCoordY);
 
@@ -64,10 +64,19 @@ std::shared_ptr<Model> Model::Load(const std::string& filename, bool normalized,
     {
         std::shared_ptr<Mesh> mesh = iter->second;
 
-        spdlog::info("[{:}] f# {:}",
+        spdlog::info("  <<<<  [{:}] f# {:}  >>>>",
                      iter->first, mesh->NumFaces());
-        spdlog::info("Material: {}", *(mesh->GetMaterial()));
-        spdlog::info("PBR Material: {}", *(mesh->GetPBRMaterial()));
+        std::shared_ptr<const PBRMaterial> pbrMaterial = mesh->GetPBRMaterial();
+        if (pbrMaterial->HasMetalnessMap() || pbrMaterial->HasRoughnessMap())
+        {
+            model->m_SupportPBR = true;
+            spdlog::info("PBR Material: {}", *pbrMaterial);
+        }
+        else
+        {
+            model->m_SupportPBR = false;
+            spdlog::info("Material: {}", *(mesh->GetMaterial()));
+        }
     }
     // clang-format on
 
@@ -343,6 +352,7 @@ void Model::loadMaterials(const std::string& directory, const std::string& filen
             Vector3f floats;
             iss >> floats.x >> floats.y >> floats.z;
             m_Materials[materialName]->ka = floats;
+            m_PBRMaterials[materialName]->ka = floats;
         }
         else if (line.compare(0, 3, "Kd ") == 0)  // Kd
         {
@@ -359,12 +369,19 @@ void Model::loadMaterials(const std::string& directory, const std::string& filen
             iss >> floats.x >> floats.y >> floats.z;
             m_Materials[materialName]->ks = floats;
         }
-        else if (line.compare(0, 3, "Ke ") == 0)  // Ke
+        else if (line.compare(0, 3, "Pr ") == 0)  // Pr (roughness)
         {
             iss >> strTrash;
-            Vector3f floats;
-            iss >> floats.x >> floats.y >> floats.z;
-            m_Materials[materialName]->ke = floats;
+            float f;
+            iss >> f;
+            m_PBRMaterials[materialName]->roughness = f;
+        }
+        else if (line.compare(0, 3, "Pm ") == 0)  // Pm (metalness)
+        {
+            iss >> strTrash;
+            float f;
+            iss >> f;
+            m_PBRMaterials[materialName]->metalness = f;
         }
         // Texture Maps
         else if (line.compare(0, 7, "map_Kd ") == 0)  // map_Kd
@@ -386,6 +403,17 @@ void Model::loadMaterials(const std::string& directory, const std::string& filen
             std::string textureFilename = directory + filename;
             loadTexture(textureFilename, m_Materials[materialName]->specularMap,
                         flipVertically);
+        }
+        else if (line.compare(0, 7, "map_Ke ") == 0)  // map_Ke
+        {
+            std::string filename;
+            iss >> strTrash >> filename;
+
+            std::string textureFilename = directory + filename;
+            loadTexture(textureFilename, m_Materials[materialName]->emissiveMap,
+                flipVertically);
+            loadTexture(textureFilename, m_PBRMaterials[materialName]->emissiveMap,
+                flipVertically);
         }
         else if (line.compare(0, 9, "map_Bump ") == 0 ||
                  line.compare(0, 5, "norm ") == 0)  // map_Bump / Normal

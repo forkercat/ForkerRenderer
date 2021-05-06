@@ -44,6 +44,7 @@ public:
     int GetNumFaces() const;
 
     inline bool HasTangents() const { return m_HasTangents; }
+    inline bool SupportPBR() const { return m_SupportPBR; }
 
 private:
     std::map<std::string, std::shared_ptr<Mesh>>     m_Meshes;
@@ -55,6 +56,7 @@ private:
     std::vector<Vector3f> m_Normals;
     std::vector<Vector3f> m_Tangents;
     bool                  m_HasTangents;
+    bool                  m_SupportPBR;
 
     // .obj and .mtl Parsers
     // Supported Format: 'g ' is followed by 'usemtl ', which is followed by 'f ...'

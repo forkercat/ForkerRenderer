@@ -13,7 +13,7 @@ class Buffer;
 #define PERSPECTIVE_CORRECT_INTERPOLATION
 
 // Enable Shadow Mapping (Hard Shadow)
-#define SHADOW_PASS
+// #define SHADOW_PASS
 
 // Enable Soft Shadow
 // #define SOFT_SHADOW_PCF  // Percentage-Closer Filtering (PCF)

@@ -3,12 +3,13 @@
 
 #include "camera.h"
 #include "check.h"
+#include "depthshader.h"
 #include "forkergl.h"
 #include "geometry.h"
 #include "light.h"
 #include "model.h"
+#include "pbrshader.h"
 #include "phongshader.h"
-#include "depthshader.h"
 #include "tgaimage.h"
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -53,6 +54,7 @@ int main(int argc, const char* argv[])
 
     // Spdlog
 
+    spdlog::set_pattern("[%^%l%$] %v");
     spdlog::set_level(spdlog::level::debug);
     spdlog::stopwatch stepStopwatch;
     spdlog::stopwatch totalStopwatch;
@@ -86,10 +88,22 @@ int main(int argc, const char* argv[])
     // modelMatrices.push_back(
     //     MakeModelMatrix(Vector3f(-0.1, 0.2, -1), rotateDegreeOnY, 0.75f));
 
+    // Sci-Fi Cart
+    // models.push_back(Model::Load("obj/cart/cart.obj", true, true));
+    // modelMatrices.push_back(MakeModelMatrix(Vector3f(0, 0, -1), 180, 1.f));
+
+    // Horizon
+    // models.push_back(Model::Load("obj/horizon/horizon.obj", true, true));
+    // modelMatrices.push_back(MakeModelMatrix(Vector3f(0, 0, -1), 180, 1.f));
+
+    // Chalkboard
+    models.push_back(Model::Load("obj/chalkboard/chalkboard.obj", true, true));
+    modelMatrices.push_back(MakeModelMatrix(Vector3f(0, 0, -1), 0, 1.f));
+
     // Input
-    models.push_back(Model::Load(modelFilename, true, true));
-    modelMatrices.push_back(
-        MakeModelMatrix(Vector3f(0, 0, -1), rotateDegreeOnY, uniformScale));
+    // models.push_back(Model::Load(modelFilename, true, true));
+    // modelMatrices.push_back(
+    //     MakeModelMatrix(Vector3f(0, 0, -1), rotateDegreeOnY, uniformScale));
 
     TimeElapsed(stepStopwatch, "Model Loaded");
 
@@ -102,7 +116,8 @@ int main(int argc, const char* argv[])
 
     // Light
 
-    PointLight pointLight(2, 5, 5);
+    PointLight pointLight(2, 2, 2);
+    // PointLight pointLight(0, 3, 3);
 
     // Shadow Mapping
 
@@ -141,34 +156,62 @@ int main(int argc, const char* argv[])
     ForkerGL::ClearColor(Color3(0.12f, 0.12f, 0.12f));
     ForkerGL::RenderMode(ForkerGL::ColorPass);
 
-    // Blinn-Phong Shading
     spdlog::info("");
-    spdlog::info("Color Pass:");
     for (int i = 0; i < models.size(); ++i)
     {
         auto model = models[i];
 
-        BlinnPhongShader bpShader;
-        bpShader.uModelMatrix = modelMatrices[i];
-        bpShader.uViewMatrix = camera.GetViewMatrix();
-        bpShader.uNormalMatrix =
-            MakeNormalMatrix(bpShader.uViewMatrix * bpShader.uModelMatrix);
-        bpShader.uProjectionMatrix =
-            (projectionType == Camera::Orthographic)
-                ? camera.GetOrthographicMatrix(-1.f * RATIO, 1.f * RATIO, -1.f, 1.f,
-                                               CAMERA_NEAR_PLANE, CAMERA_FAR_PLANE)
-                : camera.GetPerspectiveMatrix(45.f, RATIO, CAMERA_NEAR_PLANE,
-                                              CAMERA_FAR_PLANE);
+        if (!model->SupportPBR())
+        {
+            // Blinn-Phong Shading
+            spdlog::info("Color Pass (Blinn-Phong Shading):");
+            BlinnPhongShader bpShader;
+            bpShader.uModelMatrix = modelMatrices[i];
+            bpShader.uViewMatrix = camera.GetViewMatrix();
+            bpShader.uNormalMatrix =
+                MakeNormalMatrix(bpShader.uViewMatrix * bpShader.uModelMatrix);
+            bpShader.uProjectionMatrix =
+                (projectionType == Camera::Orthographic)
+                    ? camera.GetOrthographicMatrix(-1.f * RATIO, 1.f * RATIO, -1.f, 1.f,
+                                                   CAMERA_NEAR_PLANE, CAMERA_FAR_PLANE)
+                    : camera.GetPerspectiveMatrix(45.f, RATIO, CAMERA_NEAR_PLANE,
+                                                  CAMERA_FAR_PLANE);
 
-        // Shader Configuration
-        bpShader.uPointLight = pointLight;
+            // Shader Configuration
+            bpShader.uPointLight = pointLight;
 #ifdef SHADOW_PASS
-        bpShader.uShadowBuffer = ForkerGL::ShadowBuffer;
-        bpShader.uLightSpaceMatrix = lightSpaceMatrix;
+            bpShader.uShadowBuffer = ForkerGL::ShadowBuffer;
+            bpShader.uLightSpaceMatrix = lightSpaceMatrix;
 #endif
+            // Render
+            model->Render(bpShader);
+        }
+        else
+        {
+            // PBR Shading
+            spdlog::info("Color Pass (PBR Shading):");
+            PBRShader pbrShader;
+            pbrShader.uModelMatrix = modelMatrices[i];
+            pbrShader.uViewMatrix = camera.GetViewMatrix();
+            pbrShader.uNormalMatrix =
+                MakeNormalMatrix(pbrShader.uViewMatrix * pbrShader.uModelMatrix);
+            pbrShader.uProjectionMatrix =
+                (projectionType == Camera::Orthographic)
+                    ? camera.GetOrthographicMatrix(-1.f * RATIO, 1.f * RATIO, -1.f,
+                                                   1.f, CAMERA_NEAR_PLANE,
+                                                   CAMERA_FAR_PLANE)
+                    : camera.GetPerspectiveMatrix(45.f, RATIO, CAMERA_NEAR_PLANE,
+                                                  CAMERA_FAR_PLANE);
 
-        // Render
-        model->Render(bpShader);
+            // Shader Configuration
+            pbrShader.uPointLight = pointLight;
+#ifdef SHADOW_PASS
+            pbrShader.uShadowBuffer = ForkerGL::ShadowBuffer;
+            pbrShader.uLightSpaceMatrix = lightSpaceMatrix;
+#endif
+            // Render
+            model->Render(pbrShader);
+        }
         TimeElapsed(stepStopwatch, "Model Rendered");
     }
 

@@ -50,7 +50,7 @@ public:
     inline Float SampleFloat(const Vector2f& coord) const
     {
         Vector2f wrapUV = wrapCoord(coord);
-        return colorFromFiltering(wrapUV)[0] / 255.f;
+        return colorFromFiltering(wrapUV)[2] / 255.f;
     }
 
 private:

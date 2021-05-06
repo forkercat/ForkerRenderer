@@ -9,7 +9,7 @@
 
 struct BlinnPhongShader : public Shader
 {
-    // Interpolating Variables
+    // Interpolated Variables
     Matrix3x3f vPositionCorrectedVS;  // eye space
     Matrix2x3f vTexCoordCorrected;
     Matrix3x3f vNormalCorrected;
@@ -115,7 +115,7 @@ struct BlinnPhongShader : public Shader
 #ifdef PERSPECTIVE_CORRECT_INTERPOLATION
             tangentVS *= w;
 #endif
-            Vector3f T = Normalize(tangentVS);
+            Vector3f T = Normalize(tangentVS + Vector3f(0.001));  // avoid zero division
             // Normal (TBN Matrix)
             T = Normalize(T - Dot(T, N) * N);
             Vector3f   B = Normalize(Cross(N, T));

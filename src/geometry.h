@@ -335,6 +335,11 @@ public:
         return Vector<3, T>(x * inv, y * inv, z * inv);
     }
 
+    Vector<3, T> operator/(const Vector<3, T>& v) const
+    {
+        return Vector<3, T>(x / v.x, y / v.y, z / v.z);
+    }
+
     template <typename U>
     Vector<3, T>& operator*=(U f)
     {
@@ -915,6 +920,15 @@ inline Vector<DIM, T> Clamp01(const Vector<DIM, T>& val)
     Vector<DIM, T> ret;
     for (size_t i = 0; i < DIM; ++i)
         ret[i] = Clamp(val[i], (T) 0, (T) 1);
+    return ret;
+}
+
+template <size_t DIM, typename T>
+inline Vector<DIM, T> Pow(const Vector<DIM, T>& v, T pval)
+{
+    Vector<DIM, T> ret;
+    for (size_t i = 0; i < DIM; ++i)
+        ret[i] = std::pow(v[i], pval);
     return ret;
 }
 

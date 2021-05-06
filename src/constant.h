@@ -30,4 +30,7 @@ static const Float PiOver2 = 1.57079632679489661923;
 static const Float PiOver4 = 0.78539816339744830961;
 static const Float Sqrt2 = 1.41421356237309504880;
 
+static const Float Gamma = 2.2;
+static const Float InvGamma = 1.f / 2.2f;
+
 #endif  // SRC_CONSTANT_H_

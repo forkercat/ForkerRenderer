@@ -63,6 +63,11 @@ inline T Max3(const T& v1, const T& v2, const T& v3)
     return std::max(v1, std::max(v2, v3));
 }
 
+inline Float Pow(Float val, Float pval)
+{
+    return std::pow(val, pval);
+}
+
 inline Float Random01()
 {
     // Old
