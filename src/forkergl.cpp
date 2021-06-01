@@ -4,6 +4,8 @@
 
 #include "forkergl.h"
 
+#include <thread>
+
 #include "color.h"
 
 // Texture Wrapping & Filtering
@@ -82,7 +84,8 @@ struct BoundBox
     {
     }
 
-    static BoundBox GenerateBoundBox(const Point2i points[3], T bufferWidth, T bufferHeight)
+    static BoundBox GenerateBoundBox(const Point2i points[3], T bufferWidth,
+                                     T bufferHeight)
     {
         T minX = Clamp(Min3(points[0].x, points[1].x, points[2].x), 0, bufferWidth - 1);
         T minY = Clamp(Min3(points[0].y, points[1].y, points[2].y), 0, bufferHeight - 1);
@@ -92,29 +95,16 @@ struct BoundBox
     }
 };
 
-// Rasterization
-void ForkerGL::DrawTriangle(const Point4f ndcVerts[3], Shader& shader)
+void ForkerGL::DrawTriangleSubTask(int xMin, int xMax, int yMin, int yMax,
+                                   const Point2i points[3], Shader& shader,
+                                   const Point3f& depths)
 {
-    // Viewport transformation
-    Point2i points[3];  // screen coordinates
-    Point3f depths;     // from 0 to 1
-    for (int i = 0; i < 3; ++i)
+    for (int px = xMin; px <= xMax; ++px)
     {
-        Point3f coord = (viewportMatrix * ndcVerts[i]).xyz;
-        points[i] = Point2i(coord.x, coord.y);
-        depths[i] = coord.z;
-    }
-
-    // Bounding Box
-    int w = (renderMode == ColorPass) ? FrameBuffer.GetWidth() : ShadowBuffer.GetWidth();
-    int h = (renderMode == ColorPass) ? FrameBuffer.GetHeight() : ShadowBuffer.GetHeight();
-    BoundBox<int> bbox = BoundBox<int>::GenerateBoundBox(points, w, h);
-
-    for (int px = bbox.MinX; px <= bbox.MaxX; ++px)
-    {
-        for (int py = bbox.MinY; py <= bbox.MaxY; ++py)
+        for (int py = yMin; py <= yMax; ++py)
         {
-            Vector3f bary = Barycentric(points[0], points[1], points[2], Vector2i(px, py));
+            Vector3f bary =
+                Barycentric(points[0], points[1], points[2], Vector2i(px, py));
 
             // Inside Triangle Test
             if (bary.x < 0) continue;
@@ -142,6 +132,96 @@ void ForkerGL::DrawTriangle(const Point4f ndcVerts[3], Shader& shader)
                 FrameBuffer.Set(px, py, frag);
             else
                 ShadowBuffer.SetValue(px, py, frag.z);
+        }
+    }
+}
+
+#define NUM_THREADS 4
+
+// Rasterization
+void ForkerGL::DrawTriangle(const Point4f ndcVerts[3], Shader& shader)
+{
+    // Viewport transformation
+    Point2i points[3];  // screen coordinates
+    Point3f depths;     // from 0 to 1
+    for (int i = 0; i < 3; ++i)
+    {
+        Point3f coord = (viewportMatrix * ndcVerts[i]).xyz;
+        points[i] = Point2i(coord.x, coord.y);
+        depths[i] = coord.z;
+    }
+
+    // Bounding Box
+    int w = (renderMode == ColorPass) ? FrameBuffer.GetWidth() : ShadowBuffer.GetWidth();
+    int h =
+        (renderMode == ColorPass) ? FrameBuffer.GetHeight() : ShadowBuffer.GetHeight();
+    BoundBox<int> bbox = BoundBox<int>::GenerateBoundBox(points, w, h);
+
+    if (true)
+    {
+        DrawTriangleSubTask(bbox.MinX, bbox.MaxX, bbox.MinY, bbox.MaxY, points, shader,
+                            depths);
+    }
+    else
+    {
+        int numTasks = bbox.MaxY - bbox.MinY + 1;
+
+        if (numTasks < 5)
+        {
+            DrawTriangleSubTask(bbox.MinX, bbox.MaxX, bbox.MinY, bbox.MaxY, points,
+                                shader, depths);
+        }
+        else
+        {
+            std::thread drawThreads[NUM_THREADS];
+
+            int numTaskPerThread = std::round(numTasks / (Float)NUM_THREADS);
+
+
+
+            // allocated threads
+            // int numAllocatedThreads = 0;
+            //
+            // for (int t = 0; t < NUM_THREADS; ++t)
+            // {
+            //     int xStart = Max(bbox.MinX + t * numTaskPerThread, bbox.MinX);
+            //     int xEnd = Min(xStart + numTaskPerThread - 1, bbox.MaxX);
+            //
+            //     drawThreads[t] = std::thread(DrawTriangleSubTask, xStart, xEnd, bbox.MinY, bbox.MaxY, std::ref(points), std::ref(shader), std::ref(depths));
+            //     ++numAllocatedThreads;
+            //
+            //     if (xEnd == bbox.MaxX)
+            //     {
+            //         break;
+            //     }
+            // }
+            //
+            // for (int t = 0; t < numAllocatedThreads; ++t)
+            // {
+            //     drawThreads[t].join();
+            // }
+
+            int start = bbox.MinX;
+            int end = bbox.MaxX;
+
+            drawThreads[0] = std::thread(DrawTriangleSubTask, start, end / NUM_THREADS, bbox.MinY, bbox.MaxY, std::ref(points), std::ref(shader), std::ref(depths));
+
+            drawThreads[1] = std::thread(DrawTriangleSubTask, end / NUM_THREADS + 1, end / NUM_THREADS * 2, bbox.MinY, bbox.MaxY, std::ref(points), std::ref(shader), std::ref(depths));
+
+            drawThreads[2] = std::thread(DrawTriangleSubTask, end / NUM_THREADS * 2 + 1, end / NUM_THREADS * 3, bbox.MinY, bbox.MaxY, std::ref(points), std::ref(shader), std::ref(depths));
+
+            drawThreads[3] = std::thread(DrawTriangleSubTask, end / NUM_THREADS * 3 + 1, end, bbox.MinY, bbox.MaxY, std::ref(points), std::ref(shader), std::ref(depths));
+
+            drawThreads[0].join();
+            drawThreads[1].join();
+            drawThreads[2].join();
+            drawThreads[3].join();
+
+            // Join
+            // for (int t = 0; t < NUM_THREADS; ++t)
+            // {
+            //     drawThreads[t].join();
+            // }
         }
     }
 }

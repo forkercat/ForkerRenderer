@@ -45,6 +45,9 @@ struct ForkerGL
 
     // Rasterization
     static void DrawTriangle(const Point4f ndcVerts[3], Shader& shader);
+
+private:
+    static void DrawTriangleSubTask(int xMin, int xMax, int yMin, int yMax, const Point2i points[3], Shader& shader, const Point3f& depths);
 };
 
 #endif  // _FORKER_GL_H_

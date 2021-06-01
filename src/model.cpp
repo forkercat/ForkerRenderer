@@ -308,7 +308,6 @@ bool Model::loadObjectFile(const std::string& filename, bool flipVertically)
             }
         }
     }
-    in.close();
 
     return true;
 }
@@ -324,7 +323,7 @@ void Model::loadMaterials(const std::string& directory, const std::string& filen
 
     if (in.fail())
     {
-        spdlog::error("Cannot not open the .mtl file: {}", mtlFilename);
+        spdlog::error("Cannot open the .mtl file: {}", mtlFilename);
         return;
     }
 
@@ -456,7 +455,6 @@ void Model::loadMaterials(const std::string& directory, const std::string& filen
                         flipVertically);
         }
     }
-    in.close();
 }
 
 // Load Texture File
