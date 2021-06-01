@@ -1,6 +1,6 @@
 # ForkerRenderer: CPU-Based Software Rasterizer, A Tiny OpenGL 🐼
 
-Implement CPU-based software rasterizer that mimics OpenGL behavior without using any third-party libraries, but use [spdlog](https://github.com/gabime/spdlog)
+Implement a CPU-based software rasterizer that mimics OpenGL behavior without using any third-party libraries, but use [spdlog](https://github.com/gabime/spdlog)
 for logging though :)
 
 ![](https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Head_3.jpg)
@@ -24,6 +24,17 @@ cmake .. && make
 # Usage: <filename> <rotate degree on y-axis>(optional) <scale factor>(optional)
 ./ForkerRenderer ../obj/diablo_pose/diablo_pose.obj -10.0 1.0
 ```
+
+## Future Development 🥺
+
+- Multithreading (some issues/bugs exist)
+- Anti-Aliasing
+- Physically-Based Rendering (PBR)
+  - Improvement
+- Non-Photorealistic Rendering (NPR)
+- Image-Based Lighting (IBL)
+- Global Illumination
+  - Screen Space Ambient Occlusion (SSAO)
 
 ## Features ⭐
 
