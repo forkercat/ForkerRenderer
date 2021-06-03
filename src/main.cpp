@@ -93,8 +93,8 @@ int main(int argc, const char* argv[])
     // modelMatrices.push_back(MakeModelMatrix(Vector3f(0, 0, -1), 180, 1.f));
 
     // Horizon
-    models.push_back(Model::Load("obj/horizon/horizon.obj", true, true));
-    modelMatrices.push_back(MakeModelMatrix(Vector3f(0.015, -3.05, -1), -35, 5.f));
+    // models.push_back(Model::Load("obj/horizon/horizon.obj", true, true));
+    // modelMatrices.push_back(MakeModelMatrix(Vector3f(0.015, -3.05, -1), -35, 5.f));
 
     // Chalkboard
     // models.push_back(Model::Load("obj/chalkboard/chalkboard.obj", true, true));
@@ -105,9 +105,9 @@ int main(int argc, const char* argv[])
     // modelMatrices.push_back(MakeModelMatrix(Vector3f(0, 0.3, -1), 240, 1.f));
 
     // Input
-    // models.push_back(Model::Load(modelFilename, true, true));
-    // modelMatrices.push_back(
-    //     MakeModelMatrix(Vector3f(0, 0, -1), rotateDegreeOnY, uniformScale));
+    models.push_back(Model::Load(modelFilename, true, true));
+    modelMatrices.push_back(
+        MakeModelMatrix(Vector3f(0, 0, -1), rotateDegreeOnY, uniformScale));
 
     TimeElapsed(stepStopwatch, "Model Loaded");
 

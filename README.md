@@ -34,6 +34,7 @@ cmake .. && make
 - Non-Photorealistic Rendering (NPR)
 - Image-Based Lighting (IBL)
 - Global Illumination
+  - RSM
   - Screen Space Ambient Occlusion (SSAO)
 
 ## Features ⭐
