@@ -2,8 +2,7 @@
 // Created by Junhao Wang (@Forkercat) on 2021/5/5.
 //
 
-#ifndef SHADERS_DEPTHSHADER_H_
-#define SHADERS_DEPTHSHADER_H_
+#pragma once
 
 #include "shader.h"
 
@@ -36,5 +35,3 @@ struct DepthShader : public Shader
         return false;
     }
 };
-
-#endif  // SHADERS_DEPTHSHADER_H_

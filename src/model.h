@@ -2,8 +2,7 @@
 // Created by Junhao Wang (@Forkercat) on 2020/12/18.
 //
 
-#ifndef _MODEL_H_
-#define _MODEL_H_
+#pragma once
 
 #include <map>
 #include <memory>
@@ -71,5 +70,3 @@ private:
     // Generate Tangents For TBN Matrix Transformation
     void generateTangents();
 };
-
-#endif  //_MODEL_H_

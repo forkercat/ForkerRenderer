@@ -3,8 +3,7 @@
 // Reference: ssloy/TinyRenderer (mostly unmodified)
 //
 
-#ifndef _TGAIMAGE_H_
-#define _TGAIMAGE_H_
+#pragma once
 
 #include <fstream>
 #include <ostream>
@@ -149,5 +148,3 @@ protected:
     bool loadRleData(std::ifstream& in);
     bool unloadRleData(std::ofstream& out) const;
 };
-
-#endif  // _TGAIMAGE_H_

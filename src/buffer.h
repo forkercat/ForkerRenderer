@@ -2,8 +2,7 @@
 // Created by Junhao Wang (@Forkercat) on 2021/1/5.
 //
 
-#ifndef _BUFFER_H_
-#define _BUFFER_H_
+#pragma once
 
 #include <vector>
 
@@ -71,5 +70,3 @@ private:
     int               m_Width;
     int               m_Height;
 };
-
-#endif  // _BUFFER_H_

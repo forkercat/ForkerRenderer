@@ -2,8 +2,7 @@
 // Created by Junhao Wang (@Forkercat) on 2021/5/5.
 //
 
-#ifndef SHADERS_PBRSHADER_H_
-#define SHADERS_PBRSHADER_H_
+#pragma once
 
 #include "shader.h"
 
@@ -285,5 +284,3 @@ private:
         return f0 + (Vector3f(1.f) - f0) * Pow(OneMinusHdotV, 5.f);
     }
 };
-
-#endif  // SHADERS_PBRSHADER_H_

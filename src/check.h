@@ -5,8 +5,7 @@
 
 #include <spdlog/spdlog.h>
 
-#ifndef _UTIL_CHECK_H_
-#define _UTIL_CHECK_H_
+#pragma once
 
 // CHECK Macro Definitions
 // #define CHECK(x) \
@@ -49,5 +48,3 @@
 #define DCHECK_LE(a, b)
 
 #endif
-
-#endif  // _UTIL_CHECK_H_

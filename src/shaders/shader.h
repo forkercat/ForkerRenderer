@@ -2,8 +2,7 @@
 // Created by Junhao Wang (@Forkercat) on 2020/12/26.
 //
 
-#ifndef SHADERS_SHADER_H_
-#define SHADERS_SHADER_H_
+#pragma once
 
 #include <utility>
 
@@ -30,5 +29,3 @@ struct Shader
     // Fragment Shader
     virtual bool ProcessFragment(const Vector3f& baryCoord, Color3& gl_Color) = 0;
 };
-
-#endif  // SHADERS_SHADER_H_

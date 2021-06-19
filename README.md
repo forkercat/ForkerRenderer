@@ -65,7 +65,7 @@ cmake .. && make
         - F: Fresnel-Schlick approximation
         - G: Smith's method with Schlick-GGX
 
-![](https://bloggg-1254259681.cos.na-siliconvalley.myqcloud.com/ncoig.png)
+![](https://bloggg-1254259681.cos.na-siliconvalley.myqcloud.com/bkh9v.png)
 
 - [x] Light: Point / Directional
   - AreaLight is defined by `AREA_LIGHT_SIZE` in shadow mapping)

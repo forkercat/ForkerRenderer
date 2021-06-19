@@ -3,8 +3,7 @@
 // Reference: ssloy/TinyRenderer and mmp/pbrt-v3
 //
 
-#ifndef GEOMETRY_H_
-#define GEOMETRY_H_
+#pragma once
 
 #include <spdlog/fmt/ostr.h>
 
@@ -993,5 +992,3 @@ Matrix4x4f MakePerspectiveMatrix(Float fov, Float aspectRatio, Float n, Float f)
 Matrix4x4f MakePerspectiveMatrix(Float l, Float r, Float b, Float t, Float n, Float f);
 
 Matrix4x4f MakeOrthographicMatrix(Float l, Float r, Float b, Float t, Float n, Float f);
-
-#endif  // GEOMETRY_H_

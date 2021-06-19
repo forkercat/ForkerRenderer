@@ -2,8 +2,7 @@
 // Created by Junhao Wang (@Forkercat) on 2021/3/27.
 //
 
-#ifndef FORKERPATHTRACER_SRC_COMMON_STRINGPRINT_H_
-#define FORKERPATHTRACER_SRC_COMMON_STRINGPRINT_H_
+#pragma once
 
 /*
     pbrt source code is Copyright(c) 1998-2016
@@ -191,5 +190,3 @@ inline std::string StringPrintf(const char* fmt, Args... args)
 #endif  // __GNUG__
 
 #endif  // PBRT_CORE_STRINGPRINT_H
-
-#endif  // FORKERPATHTRACER_SRC_COMMON_STRINGPRINT_H_

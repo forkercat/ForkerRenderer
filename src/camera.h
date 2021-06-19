@@ -2,8 +2,7 @@
 // Created by Junhao Wang (@Forkercat) on 2020/12/26.
 //
 
-#ifndef _CAMERA_H_
-#define _CAMERA_H_
+#pragma once
 
 #include "geometry.h"
 
@@ -38,5 +37,3 @@ private:
     Point3f  m_LookAtPos;
     Vector3f m_WorldUp;
 };
-
-#endif  // MYSOFTWARERENDERER__CAMERA_H_

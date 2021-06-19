@@ -2,8 +2,7 @@
 // Created by Junhao Wang (@Forkercat) on 2021/4/5.
 //
 
-#ifndef SRC_UTILITY_H_
-#define SRC_UTILITY_H_
+#pragma once
 
 #include <cstdlib>
 #include <random>
@@ -82,5 +81,3 @@ inline Float Random(Float min, Float max)
 {
     return min + (max - min) * Random01();
 }
-
-#endif  // SRC_UTILITY_H_

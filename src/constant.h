@@ -2,8 +2,7 @@
 // Created by Junhao Wang (@Forkercat) on 2021/4/5.
 //
 
-#ifndef SRC_CONSTANT_H_
-#define SRC_CONSTANT_H_
+#pragma once
 
 // Macros
 // #define FLOAT_AS_DOUBLE
@@ -32,5 +31,3 @@ static const Float Sqrt2 = 1.41421356237309504880;
 
 static const Float Gamma = 2.2;
 static const Float InvGamma = 1.f / 2.2f;
-
-#endif  // SRC_CONSTANT_H_

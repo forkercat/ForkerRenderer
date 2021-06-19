@@ -2,8 +2,7 @@
 // Created by Junhao Wang (@Forkercat) on 2021/1/4.
 //
 
-#ifndef LIGHT_H_
-#define LIGHT_H_
+#pragma once
 
 #include "geometry.h"
 #include "tgaimage.h"
@@ -60,5 +59,3 @@ public:
     {
     }
 };
-
-#endif  // LIGHT_H_

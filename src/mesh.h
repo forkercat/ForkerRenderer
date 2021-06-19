@@ -2,8 +2,7 @@
 // Created by Junhao Wang (@Forkercat) on 2021/1/6.
 //
 
-#ifndef _MESH_H_
-#define _MESH_H_
+#pragma once
 
 #include <memory>
 
@@ -64,5 +63,3 @@ private:
     std::vector<int> m_FaceNormalIndices;  // 3 vertices form a triangle
     std::vector<int> m_FaceTangentIndices;
 };
-
-#endif  // _MESH_H_

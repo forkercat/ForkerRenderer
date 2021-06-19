@@ -2,8 +2,7 @@
 // Created by Junhao Wang (@Forkercat) on 2021/4/3.
 //
 
-#ifndef SRC_TEXTURE_H_
-#define SRC_TEXTURE_H_
+#pragma once
 
 #include <cmath>
 
@@ -147,5 +146,3 @@ private:
                         Clamp(imageUV.v, 0, m_Image.GetHeight() - 1));
     }
 };
-
-#endif  // SRC_TEXTURE_H_

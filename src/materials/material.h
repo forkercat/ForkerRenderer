@@ -2,8 +2,7 @@
 // Created by Junhao Wang (@Forkercat) on 2021/1/6.
 //
 
-#ifndef MATERIALS_MATERIAL_H_
-#define MATERIALS_MATERIAL_H_
+#pragma once
 
 #include <spdlog/fmt/ostr.h>
 
@@ -60,5 +59,3 @@ inline std::ostream& operator<<(std::ostream& out, const Material& m)
             (Float)m.ks.x, (Float)m.ks.y, (Float)m.ks.z);
     return out;
 }
-
-#endif  // MATERIALS_MATERIAL_H_

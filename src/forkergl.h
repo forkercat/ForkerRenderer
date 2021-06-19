@@ -2,8 +2,7 @@
 // Created by Junhao Wang (@Forkercat) on 2020/12/26.
 //
 
-#ifndef _FORKER_GL_H_
-#define _FORKER_GL_H_
+#pragma once
 
 #include <vector>
 
@@ -49,5 +48,3 @@ struct ForkerGL
 private:
     static void DrawTriangleSubTask(int xMin, int xMax, int yMin, int yMax, const Point2i points[3], Shader& shader, const Point3f& depths);
 };
-
-#endif  // _FORKER_GL_H_

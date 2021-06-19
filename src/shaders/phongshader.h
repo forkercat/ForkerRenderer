@@ -2,8 +2,7 @@
 // Created by Junhao Wang (@Forkercat) on 2021/5/5.
 //
 
-#ifndef SHADERS_PHONGSHADER_H_
-#define SHADERS_PHONGSHADER_H_
+#pragma once
 
 #include "shader.h"
 
@@ -217,5 +216,3 @@ private:
         return Clamp01(color);
     }
 };
-
-#endif  // SHADERS_PHONGSHADER_H_

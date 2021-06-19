@@ -2,8 +2,7 @@
 // Created by Junhao Wang (@Forkercat) on 2021/5/5.
 //
 
-#ifndef MATERIALS_PBRMATERIAL_H_
-#define MATERIALS_PBRMATERIAL_H_
+#pragma once
 
 #include <spdlog/fmt/ostr.h>
 
@@ -61,5 +60,3 @@ inline std::ostream& operator<<(std::ostream& out, const PBRMaterial& m)
         m.roughness, m.metalness);
     return out;
 }
-
-#endif  // MATERIALS_PBRMATERIAL_H_

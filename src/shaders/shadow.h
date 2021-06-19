@@ -2,8 +2,7 @@
 // Created by Junhao Wang (@Forkercat) on 2021/5/5.
 //
 
-#ifndef SHADERS_SHADOW_H_
-#define SHADERS_SHADOW_H_
+#pragma once
 
 #include "geometry.h"
 
@@ -42,5 +41,3 @@ Float PCSS(const Buffer& shadowMap, const Vector3f& shadowCoord, Float bias);
 Float calculateShadowVisibility(const Buffer&   shadowMap,
                                 const Vector3f& positionLightSpaceNDC,
                                 const Vector3f& normal, const Vector3f& lightDir);
-
-#endif  // SHADERS_SHADOW_H_
