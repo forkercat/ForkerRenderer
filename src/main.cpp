@@ -2,7 +2,6 @@
 #include <spdlog/stopwatch.h>
 
 #include "camera.h"
-#include "check.h"
 #include "depthshader.h"
 #include "forkergl.h"
 #include "geometry.h"
@@ -120,7 +119,7 @@ int main(int argc, const char* argv[])
 
     // Light
 
-    PointLight pointLight(2, 5, 5);
+    PointLight pointLight(2, 5, 5, Vector3f(1.f));
 
     // Shadow Mapping
 
@@ -171,8 +170,7 @@ int main(int argc, const char* argv[])
             BlinnPhongShader bpShader;
             bpShader.uModelMatrix = modelMatrices[i];
             bpShader.uViewMatrix = camera.GetViewMatrix();
-            bpShader.uNormalMatrix =
-                MakeNormalMatrix(bpShader.uViewMatrix * bpShader.uModelMatrix);
+            bpShader.uNormalMatrix = MakeNormalMatrix(bpShader.uModelMatrix);
             bpShader.uProjectionMatrix =
                 (projectionType == Camera::Orthographic)
                     ? camera.GetOrthographicMatrix(-1.f * RATIO, 1.f * RATIO, -1.f, 1.f,
@@ -182,6 +180,7 @@ int main(int argc, const char* argv[])
 
             // Shader Configuration
             bpShader.uPointLight = pointLight;
+            bpShader.uEyePos = camera.GetPosition();
 #ifdef SHADOW_PASS
             bpShader.uShadowBuffer = ForkerGL::ShadowBuffer;
             bpShader.uLightSpaceMatrix = lightSpaceMatrix;
@@ -196,18 +195,17 @@ int main(int argc, const char* argv[])
             PBRShader pbrShader;
             pbrShader.uModelMatrix = modelMatrices[i];
             pbrShader.uViewMatrix = camera.GetViewMatrix();
-            pbrShader.uNormalMatrix =
-                MakeNormalMatrix(pbrShader.uViewMatrix * pbrShader.uModelMatrix);
+            pbrShader.uNormalMatrix = MakeNormalMatrix(pbrShader.uModelMatrix);
             pbrShader.uProjectionMatrix =
                 (projectionType == Camera::Orthographic)
-                    ? camera.GetOrthographicMatrix(-1.f * RATIO, 1.f * RATIO, -1.f,
-                                                   1.f, CAMERA_NEAR_PLANE,
-                                                   CAMERA_FAR_PLANE)
+                    ? camera.GetOrthographicMatrix(-1.f * RATIO, 1.f * RATIO, -1.f, 1.f,
+                                                   CAMERA_NEAR_PLANE, CAMERA_FAR_PLANE)
                     : camera.GetPerspectiveMatrix(45.f, RATIO, CAMERA_NEAR_PLANE,
                                                   CAMERA_FAR_PLANE);
 
             // Shader Configuration
             pbrShader.uPointLight = pointLight;
+            pbrShader.uEyePos = camera.GetPosition();
 #ifdef SHADOW_PASS
             pbrShader.uShadowBuffer = ForkerGL::ShadowBuffer;
             pbrShader.uLightSpaceMatrix = lightSpaceMatrix;

@@ -21,6 +21,7 @@ struct Shader
     std::shared_ptr<const Mesh> mesh;
 
     Shader() : mesh(nullptr) { }
+    virtual ~Shader() { }
 
     // Use Shader Program (set which mesh to shade on)
     void Use(std::shared_ptr<const Mesh> m) { mesh = m; }

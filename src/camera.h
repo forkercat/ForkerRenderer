@@ -25,6 +25,8 @@ public:
     void SetPosition(Float x, Float y, Float z);
     void SetLookAtPos(Float x, Float y, Float z);
 
+    Point3f GetPosition() const { return m_EyePos; }
+
     Matrix4x4f GetViewMatrix();
     Matrix4x4f GetPerspectiveMatrix(Float fov, Float aspectRatio, Float n, Float f);
     Matrix4x4f GetPerspectiveMatrix(Float l, Float r, Float b, Float t, Float n, Float f);

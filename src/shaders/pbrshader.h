@@ -9,16 +9,15 @@
 struct PBRShader : public Shader
 {
     // Interpolated Variables
-    Matrix3x3f vPositionCorrectedVS;  // eye space
+    Matrix3x3f vPositionCorrectedWS;  // world space
     Matrix2x3f vTexCoordCorrected;
-    Matrix3x3f vNormalCorrected;
-    Matrix3x3f vTangentCorrected;
+    Matrix3x3f vNormalCorrectedWS;
+    Matrix3x3f vTangentCorrectedWS;
 
     // Vertex (out) -> Fragment (in)
-    Matrix3x3f v2fPositionsVS;
+    Matrix3x3f v2fPositionsWS;
     Matrix2x3f v2fTexCoords;
     Vector3f   v2fOneOverWs;
-    Point3f    v2fLightPositionVS;
 
     // Uniform Variables
     Matrix4x4f uModelMatrix;
@@ -26,6 +25,7 @@ struct PBRShader : public Shader
     Matrix4x4f uProjectionMatrix;
     Matrix3x3f uNormalMatrix;
     PointLight uPointLight;
+    Point3f    uEyePos;
 
     // For Shadow Pass
     Buffer     uShadowBuffer;
@@ -42,17 +42,16 @@ struct PBRShader : public Shader
 
         // TexCoord, Normal, Tangent
         Vector2f texCoord = mesh->TexCoord(faceIdx, vertIdx);
-        Vector3f normalVS = uNormalMatrix * mesh->Normal(faceIdx, vertIdx);
-        Vector3f tangentVS;
+        Vector3f normalWS = uNormalMatrix * mesh->Normal(faceIdx, vertIdx);
+        Vector3f tangentWS;
         if (mesh->GetModel()->HasTangents())
         {
-            tangentVS = uNormalMatrix * mesh->Tangent(faceIdx, vertIdx);
+            tangentWS = uNormalMatrix * mesh->Tangent(faceIdx, vertIdx);
         }
 
         // Vertex -> Fragment
-        v2fPositionsVS.SetCol(vertIdx, positionVS.xyz);
+        v2fPositionsWS.SetCol(vertIdx, positionWS.xyz);
         v2fTexCoords.SetCol(vertIdx, texCoord);
-        v2fLightPositionVS = (uViewMatrix * Vector4f(uPointLight.position, 1.f)).xyz;
 
         // Shadow Mapping
 #ifdef SHADOW_PASS
@@ -64,19 +63,20 @@ struct PBRShader : public Shader
 #ifdef PERSPECTIVE_CORRECT_INTERPOLATION
         Float oneOverW = 1.f / positionCS.w;
         v2fOneOverWs[vertIdx] = oneOverW;  // 1/w for 3 vertices
-        positionVS *= oneOverW;
+        positionWS *= oneOverW;
         texCoord *= oneOverW;
-        normalVS *= oneOverW;
-        if (mesh->GetModel()->HasTangents()) tangentVS *= oneOverW;
+        normalWS *= oneOverW;
+        if (mesh->GetModel()->HasTangents()) tangentWS *= oneOverW;
 #ifdef SHADOW_PASS
         positionLightSpaceNDC *= oneOverW;
 #endif  // SHADOW_PASS
 #endif
         // Varying
         vTexCoordCorrected.SetCol(vertIdx, texCoord);
-        vPositionCorrectedVS.SetCol(vertIdx, positionVS.xyz);
-        vNormalCorrected.SetCol(vertIdx, normalVS);
-        if (mesh->GetModel()->HasTangents()) vTangentCorrected.SetCol(vertIdx, tangentVS);
+        vPositionCorrectedWS.SetCol(vertIdx, positionWS.xyz);
+        vNormalCorrectedWS.SetCol(vertIdx, normalWS);
+        if (mesh->GetModel()->HasTangents())
+            vTangentCorrectedWS.SetCol(vertIdx, tangentWS);
 #ifdef SHADOW_PASS
         vPositionLightSpaceNDC.SetCol(vertIdx, positionLightSpaceNDC.xyz);
 #endif
@@ -94,28 +94,28 @@ struct PBRShader : public Shader
         std::shared_ptr<const PBRMaterial> pbrMaterial = mesh->GetPBRMaterial();
 
         // Interpolation
-        Point3f  positionVS = vPositionCorrectedVS * baryCoord;
+        Point3f  positionWS = vPositionCorrectedWS * baryCoord;
         Vector2f texCoord = vTexCoordCorrected * baryCoord;
-        Vector3f normalVS = vNormalCorrected * baryCoord;
+        Vector3f normalWS = vNormalCorrectedWS * baryCoord;
 
         // PCI
 #ifdef PERSPECTIVE_CORRECT_INTERPOLATION
         Float w = 1.f / Dot(v2fOneOverWs, baryCoord);
-        positionVS *= w;
+        positionWS *= w;
         texCoord *= w;
-        normalVS *= w;
+        normalWS *= w;
 #endif
 
-        Vector3f N = Normalize(normalVS);
+        Vector3f N = Normalize(normalWS);  // World Space
         Vector3f normal;
 
         if (mesh->GetModel()->HasTangents() && pbrMaterial->HasNormalMap())
         {
-            Vector3f tangentVS = vTangentCorrected * baryCoord;
+            Vector3f tangentWS = vTangentCorrectedWS * baryCoord;
 #ifdef PERSPECTIVE_CORRECT_INTERPOLATION
-            tangentVS *= w;
+            tangentWS *= w;
 #endif
-            Vector3f T = Normalize(tangentVS + Vector3f(0.001));  // avoid zero division
+            Vector3f T = Normalize(tangentWS + Vector3f(0.001));  // avoid zero division
             // Normal (TBN Matrix)
             T = Normalize(T - Dot(T, N) * N);
             Vector3f   B = Normalize(Cross(N, T));
@@ -136,8 +136,8 @@ struct PBRShader : public Shader
         // return false;
 
         // Directions
-        Vector3f lightDir = Normalize(v2fLightPositionVS - positionVS);
-        Vector3f viewDir = Normalize(-positionVS);  // eye pos is [0, 0, 0]
+        Vector3f lightDir = Normalize(uPointLight.position - positionWS);
+        Vector3f viewDir = Normalize(uEyePos - positionWS);
         Vector3f halfwayDir = Normalize(lightDir + viewDir);
 
         // Shadow Mapping
