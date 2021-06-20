@@ -5,19 +5,7 @@
 #include "mesh.h"
 
 #include "forkergl.h"
-#include "model.h"
 #include "shader.h"
-
-// Copy Constructor
-Mesh::Mesh(const Mesh& m)
-    : m_Model(m.m_Model),
-      m_Material(m.m_Material),
-      m_PBRMaterial(m.m_PBRMaterial),
-      m_FaceVertIndices(m.m_FaceVertIndices),
-      m_FaceTexCoordIndices(m.m_FaceTexCoordIndices),
-      m_FaceNormalIndices(m.m_FaceNormalIndices)
-{
-}
 
 void Mesh::Draw(Shader& shader) const
 {
@@ -46,25 +34,25 @@ int Mesh::NumFaces() const
 Vector3f Mesh::Vert(int faceIdx, int vertIdx) const
 {
     int index = m_FaceVertIndices[faceIdx * 3 + vertIdx];
-    return GetModel()->GetVert(index);
+    return GetModel().GetVert(index);
 }
 
 Vector2f Mesh::TexCoord(int faceIdx, int vertIdx) const
 {
     int index = m_FaceTexCoordIndices[faceIdx * 3 + vertIdx];
-    return GetModel()->GetTexCoord(index);
+    return GetModel().GetTexCoord(index);
 }
 
 Vector3f Mesh::Normal(int faceIdx, int vertIdx) const
 {
     int index = m_FaceNormalIndices[faceIdx * 3 + vertIdx];
-    return Normalize(GetModel()->GetNormal(index));
+    return Normalize(GetModel().GetNormal(index));
 }
 
 Vector3f Mesh::Tangent(int faceIdx, int vertIdx) const
 {
     int index = m_FaceTangentIndices[faceIdx * 3 + vertIdx];
-    return Normalize(GetModel()->GetTangent(index));
+    return Normalize(GetModel().GetTangent(index));
 }
 
 int Mesh::GetVertIndex(int faceIdx, int vertIdx) const

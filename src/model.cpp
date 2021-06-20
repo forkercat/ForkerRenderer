@@ -13,22 +13,15 @@
 
 #include "forkergl.h"
 #include "shader.h"
-
-const std::string WHITESPACE = " \n\r\t\f\v";
-
-std::string ltrim(const std::string& s)
-{
-    size_t start = s.find_first_not_of(WHITESPACE);
-    return (start == std::string::npos) ? "" : s.substr(start);
-}
+#include "utility.h"
 
 /////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<Model> Model::Load(const std::string& filename, bool normalized, bool generateTangent,
-            bool flipTexCoordY)
+std::unique_ptr<Model> Model::Load(const std::string& filename, bool normalized,
+                                   bool generateTangent, bool flipTexCoordY)
 {
     // Init Model
-    std::shared_ptr<Model> model = std::make_shared<Model>();
+    std::unique_ptr<Model> model = std::make_unique<Model>();
 
     model->m_Meshes.clear();
     model->m_Materials.clear();
@@ -37,7 +30,7 @@ std::shared_ptr<Model> Model::Load(const std::string& filename, bool normalized,
     model->m_TexCoords.clear();
     model->m_Normals.clear();
 
-    spdlog::info("Model File: {}", filename);
+    spdlog::info("--> [Model] {}", filename);
 
     model->m_HasTangents = generateTangent;
 
@@ -56,66 +49,44 @@ std::shared_ptr<Model> Model::Load(const std::string& filename, bool normalized,
 
     // clang-format off
     spdlog::info(
-        "v# {}, f# {}, vt# {}, vn# {}, tg# {}, mesh# {}, mtl# {}, {} (PBR) | normalized: {}, generateTangent: {}, flipTexCoordY: {}",
+        "-----> v# {}, f# {}, vt# {}, vn# {}, tg# {}, mesh# {}, mtl# {} | normalized[{}] generateTangent[{}], flipTexCoordY[{}]",
         model->GetNumVerts(), model->GetNumFaces(), model->m_TexCoords.size(), model->m_Normals.size(), model->m_Tangents.size(), model->m_Meshes.size(),
-        model->m_Materials.size(), model->m_PBRMaterials.size(), normalized, generateTangent, flipTexCoordY);
+        model->m_Materials.size(), normalized ? "o" : "x", generateTangent ? "o" : "x", flipTexCoordY ? "o" : "x");
 
     for (auto iter = model->m_Meshes.begin(); iter != model->m_Meshes.end(); ++iter)
     {
-        std::shared_ptr<Mesh> mesh = iter->second;
+        const Mesh& mesh = *(iter->second);
 
-        spdlog::info("  <<<<  [{:}] f# {:}  >>>>",
-                     iter->first, mesh->NumFaces());
-        std::shared_ptr<const PBRMaterial> pbrMaterial = mesh->GetPBRMaterial();
+        std::shared_ptr<const PBRMaterial> pbrMaterial = mesh.GetPBRMaterial();
+
         if (pbrMaterial->HasMetalnessMap() || pbrMaterial->HasRoughnessMap())
         {
             model->m_SupportPBR = true;
-            spdlog::info("PBR Material: {}", *pbrMaterial);
+            spdlog::info("-----> [{:}] f# {:} | PBR[o] {}", iter->first, mesh.NumFaces(), *pbrMaterial);
         }
         else
         {
             model->m_SupportPBR = false;
-            spdlog::info("Material: {}", *(mesh->GetMaterial()));
+            spdlog::info("-----> [{:}] f# {:} | PBR[x] {}", iter->first, mesh.NumFaces(), *(mesh.GetMaterial()));
         }
     }
     // clang-format on
 
-    spdlog::info("------------------------------------------------------------");
-
-    return model;
-}
-
-// Copy Constructor
-Model::Model(const Model& m)
-    : m_Meshes(m.m_Meshes),
-      m_Materials(m.m_Materials),
-      m_PBRMaterials(m.m_PBRMaterials),
-      m_Verts(m.m_Verts),
-      m_TexCoords(m.m_TexCoords),
-      m_Normals(m.m_Normals)
-{
-    // Update Mesh's pointers
-    for (auto iter = m_Meshes.begin(); iter != m_Meshes.end(); ++iter)
-    {
-        std::shared_ptr<Mesh> mesh = iter->second;
-
-        mesh->SetModel(shared_from_this());
-        mesh->SetMaterial(mesh->GetMaterial());
-        mesh->SetPBRMaterial(mesh->GetPBRMaterial());
-    }
+    /* Actually std::move() is not needed because of copy elision */
+    return std::move(model);
 }
 
 /////////////////////////////////////////////////////////////////////////////////
 
-void Model::Render(Shader& shader)
+void Model::Render(Shader& shader) const
 {
     spdlog::stopwatch stopwatch;
     // For each mesh
     for (auto iter = m_Meshes.begin(); iter != m_Meshes.end(); ++iter)
     {
-        std::shared_ptr<Mesh> mesh = iter->second;
+        const Mesh& mesh = *(iter->second);
 
-        mesh->Draw(shader);
+        mesh.Draw(shader);
 
         spdlog::info("--> [{}] Time Used: {:.6} Seconds", iter->first, stopwatch);
         stopwatch.reset();
@@ -124,38 +95,13 @@ void Model::Render(Shader& shader)
 
 /////////////////////////////////////////////////////////////////////////////////
 
-Vector3f Model::GetVert(int index) const
-{
-    return m_Verts[index];
-}
-
-Vector2f Model::GetTexCoord(int index) const
-{
-    return m_TexCoords[index];
-}
-
-Vector3f Model::GetNormal(int index) const
-{
-    return m_Normals[index];
-}
-
-Vector3f Model::GetTangent(int index) const
-{
-    return m_Tangents[index];
-}
-
-int Model::GetNumVerts() const
-{
-    return (int)m_Verts.size();
-}
-
 int Model::GetNumFaces() const
 {
     int total = 0;
     for (auto iter = m_Meshes.begin(); iter != m_Meshes.end(); ++iter)
     {
-        std::shared_ptr<Mesh> mesh = iter->second;
-        total += mesh->NumFaces();
+        const Mesh& mesh = *(iter->second);
+        total += mesh.NumFaces();
     }
     return total;
 }
@@ -216,7 +162,7 @@ bool Model::loadObjectFile(const std::string& filename, bool flipVertically)
     while (!in.eof())          // for each line
     {
         std::getline(in, line);
-        line = ltrim(line);
+        line = Ltrim(line);
         std::istringstream iss(line.c_str());
 
         // Trash
@@ -269,7 +215,7 @@ bool Model::loadObjectFile(const std::string& filename, bool flipVertically)
         else if (line.compare(0, 2, "g ") == 0)  // g
         {
             iss >> chTrash >> meshName;
-            m_Meshes[meshName] = std::make_shared<Mesh>(shared_from_this());
+            m_Meshes[meshName] = std::make_unique<Mesh>(*this);
         }
         else if (line.compare(0, 7, "usemtl ") == 0)  // usemtl
         {
@@ -288,23 +234,23 @@ bool Model::loadObjectFile(const std::string& filename, bool flipVertically)
                 vertices.push_back(Vector3i(--v, --t, --n));
             }
 
-            std::shared_ptr<Mesh> mesh = m_Meshes[meshName];
+            Mesh& mesh = *m_Meshes[meshName];
             for (int i = 1; i < vertices.size() - 1; ++i)
             {
                 // First Vertex
-                mesh->AddVertIndex(vertices[0].x);
-                mesh->AddTexCoordIndex(vertices[0].y);
-                mesh->AddNormalIndex(vertices[0].z);
+                mesh.AddVertIndex(vertices[0].x);
+                mesh.AddTexCoordIndex(vertices[0].y);
+                mesh.AddNormalIndex(vertices[0].z);
 
                 // Second Vertex
-                mesh->AddVertIndex(vertices[i].x);
-                mesh->AddTexCoordIndex(vertices[i].y);
-                mesh->AddNormalIndex(vertices[i].z);
+                mesh.AddVertIndex(vertices[i].x);
+                mesh.AddTexCoordIndex(vertices[i].y);
+                mesh.AddNormalIndex(vertices[i].z);
 
                 // Third Vertex
-                mesh->AddVertIndex(vertices[i + 1].x);
-                mesh->AddTexCoordIndex(vertices[i + 1].y);
-                mesh->AddNormalIndex(vertices[i + 1].z);
+                mesh.AddVertIndex(vertices[i + 1].x);
+                mesh.AddTexCoordIndex(vertices[i + 1].y);
+                mesh.AddNormalIndex(vertices[i + 1].z);
             }
         }
     }
@@ -332,7 +278,7 @@ void Model::loadMaterials(const std::string& directory, const std::string& filen
     while (!in.eof())
     {
         std::getline(in, line);
-        line = ltrim(line);
+        line = Ltrim(line);
         std::istringstream iss(line.c_str());
 
         // Trash
@@ -482,23 +428,23 @@ void Model::generateTangents()
     m_Tangents = std::vector<Vector3f>(m_Verts.size(), Vector3f(0.f));
     for (auto iter = m_Meshes.begin(); iter != m_Meshes.end(); ++iter)
     {
-        std::shared_ptr<Mesh> mesh = iter->second;
-        for (int f = 0; f < mesh->NumFaces(); ++f)
+        Mesh& mesh = *(iter->second);
+        for (int f = 0; f < mesh.NumFaces(); ++f)
         {
-            int      indexP0 = mesh->GetVertIndex(f, 0);
-            int      indexP1 = mesh->GetVertIndex(f, 1);
-            int      indexP2 = mesh->GetVertIndex(f, 2);
-            Vector3f edge1 = mesh->Vert(f, 1) - mesh->Vert(f, 0);
-            Vector3f edge2 = mesh->Vert(f, 2) - mesh->Vert(f, 0);
-            Vector2f deltaUv1 = mesh->TexCoord(f, 1) - mesh->TexCoord(f, 0);
-            Vector2f deltaUv2 = mesh->TexCoord(f, 2) - mesh->TexCoord(f, 0);
+            int      indexP0 = mesh.GetVertIndex(f, 0);
+            int      indexP1 = mesh.GetVertIndex(f, 1);
+            int      indexP2 = mesh.GetVertIndex(f, 2);
+            Vector3f edge1 = mesh.Vert(f, 1) - mesh.Vert(f, 0);
+            Vector3f edge2 = mesh.Vert(f, 2) - mesh.Vert(f, 0);
+            Vector2f deltaUv1 = mesh.TexCoord(f, 1) - mesh.TexCoord(f, 0);
+            Vector2f deltaUv2 = mesh.TexCoord(f, 2) - mesh.TexCoord(f, 0);
             Float    det = deltaUv1.s * deltaUv2.t - deltaUv2.s * deltaUv1.t;
             if (det == 0.f)
             {
                 // spdlog::error("det = 0");
-                mesh->AddTangentIndex(indexP0);
-                mesh->AddTangentIndex(indexP1);
-                mesh->AddTangentIndex(indexP2);
+                mesh.AddTangentIndex(indexP0);
+                mesh.AddTangentIndex(indexP1);
+                mesh.AddTangentIndex(indexP2);
                 continue;
             }
             Float    inv = 1.f / det;
@@ -509,9 +455,9 @@ void Model::generateTangents()
             m_Tangents[indexP0] += T;
             m_Tangents[indexP1] += T;
             m_Tangents[indexP2] += T;
-            mesh->AddTangentIndex(indexP0);
-            mesh->AddTangentIndex(indexP1);
-            mesh->AddTangentIndex(indexP2);
+            mesh.AddTangentIndex(indexP0);
+            mesh.AddTangentIndex(indexP1);
+            mesh.AddTangentIndex(indexP2);
         }
     }
 

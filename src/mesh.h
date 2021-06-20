@@ -18,10 +18,10 @@ class Model;
 class Mesh : public std::enable_shared_from_this<Mesh>
 {
 public:
-    Mesh(const std::shared_ptr<const Model>& model) : m_Model(model) { }
+    Mesh(const Model& model) : m_Model(model) { }
 
     // Copy Constructor
-    Mesh(const Mesh& m);
+    explicit Mesh(const Mesh& m) = delete;
 
     // Model will call it in its Render()
     void Draw(Shader& shader) const;
@@ -35,14 +35,13 @@ public:
     int      GetVertIndex(int faceIdx, int vertIdx) const;
 
     // Helper
-    std::shared_ptr<const Model>       GetModel() const { return m_Model.lock(); }
+    const Model&                       GetModel() const { return m_Model; }
     std::shared_ptr<const Material>    GetMaterial() const { return m_Material.lock(); };
     std::shared_ptr<const PBRMaterial> GetPBRMaterial() const
     {
         return m_PBRMaterial.lock();
     }
 
-    void SetModel(std::shared_ptr<const Model> m) { m_Model = m; };
     void SetMaterial(std::shared_ptr<const Material> m) { m_Material = m; }
     void SetPBRMaterial(std::shared_ptr<const PBRMaterial> m) { m_PBRMaterial = m; }
 
@@ -53,7 +52,7 @@ public:
 
 private:
     // Model and material are set right after Mesh creation
-    std::weak_ptr<const Model>       m_Model;
+    const Model&                     m_Model;
     std::weak_ptr<const Material>    m_Material;
     std::weak_ptr<const PBRMaterial> m_PBRMaterial;
 

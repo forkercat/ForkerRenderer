@@ -1,0 +1,13 @@
+# Test Scene
+
+# Light (type, point/dir, position, color)
+light point 2 5 5 1 1 1
+
+# Camera (type, position, lookAt)
+camera perspective -1 1 1 0 0 -1
+
+# Models (filepath, position, rotate_y, uniform scale)
+model obj/plane/plane.obj 0 -1 -1 0 3
+
+
+# model obj
