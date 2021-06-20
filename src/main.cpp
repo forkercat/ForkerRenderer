@@ -9,6 +9,7 @@
 #include "model.h"
 #include "pbrshader.h"
 #include "phongshader.h"
+#include "scene.h"
 #include "tgaimage.h"
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -34,22 +35,14 @@ int main(int argc, const char* argv[])
 {
     // Input
 
-    if (argc < 2 || argc > 4)
+    if (argc != 2)
     {
-        std::cerr << "Required: 1 - 3 arguments, but given " << argc - 1 << std::endl;
-        std::cerr << "Usage: ./ForkerRenderer obj/model/model.obj"
-                     " <RotateDegreeOnY = 0.0> <Scale = 1.0>"
-                  << std::endl;
+        std::cerr << "Required: 1 argument, but given " << argc - 1 << std::endl;
+        std::cerr << "Usage: ./ForkerRenderer <scene file>" << std::endl;
         return 1;
     }
-    std::string modelFilename = argv[1];
-    Float       rotateDegreeOnY = (argc >= 3) ? std::stof(argv[2]) : 0.f;
-    Float       uniformScale = (argc >= 4) ? std::stof(argv[3]) : 1.f;
-    if (uniformScale == 0.f)
-    {
-        std::cerr << "Scale factor should not be 0" << std::endl;
-        return -1;
-    }
+
+    std::string sceneFileName = argv[1];
 
     // Spdlog
 
@@ -64,62 +57,23 @@ int main(int argc, const char* argv[])
     ForkerGL::TextureWrapMode(Texture::NoWrap);     // or Repeat, ClampedToEdge, etc
     ForkerGL::TextureFilterMode(Texture::Nearest);  // or Linear
 
-    // Model
-    std::vector<std::shared_ptr<Model>> models;
-    std::vector<Matrix4x4f>             modelMatrices;
+    // Scene
 
-    // Plane
-    models.push_back(Model::Load("obj/plane/plane.obj"));
-    modelMatrices.push_back(MakeModelMatrix(Vector3f(0, -1, -1), 0, 3.f));
+    Scene scene(sceneFileName);
 
-    // Mary
-    // models.push_back(Model::Load("obj/mary/mary.obj", true, true));
-    // modelMatrices.push_back(
-    //     MakeModelMatrix(Vector3f(0.05, 0, -1), rotateDegreeOnY, uniformScale));
+    const PointLight& pl = scene.GetPointLight();
 
-    // Cyborg
-    // models.push_back(Model::Load("obj/cyborg/cyborg.obj", true,
-    // true)); modelMatrices.push_back(
-    //     MakeModelMatrix(Vector3f(0, 0, -1), rotateDegreeOnY, uniformScale));
+    const Camera& cam = scene.GetCamera();
 
-    // Cat Box (Texture Wrapping Testing)
-    // models.push_back(Model::Load("obj/catbox/catbox.obj", true, false));
-    // modelMatrices.push_back(
-    //     MakeModelMatrix(Vector3f(-0.1, 0.2, -1), rotateDegreeOnY, 0.75f));
-
-    // Sci-Fi Cart
-    // models.push_back(Model::Load("obj/cart/cart.obj", true, true));
-    // modelMatrices.push_back(MakeModelMatrix(Vector3f(0, 0, -1), 180, 1.f));
-
-    // Horizon
-    // models.push_back(Model::Load("obj/horizon/horizon.obj", true, true));
-    // modelMatrices.push_back(MakeModelMatrix(Vector3f(0.015, -3.05, -1), -35, 5.f));
-
-    // Chalkboard
-    // models.push_back(Model::Load("obj/chalkboard/chalkboard.obj", true, true));
-    // modelMatrices.push_back(MakeModelMatrix(Vector3f(0, 0, -1), 180, 1.f));
-
-    // Great Sword
-    // models.push_back(Model::Load("obj/great_sword/great_sword.obj", true, true));
-    // modelMatrices.push_back(MakeModelMatrix(Vector3f(0, 0.3, -1), 240, 1.f));
-
-    // Input
-    models.push_back(Model::Load(modelFilename, true, true));
-    modelMatrices.push_back(
-        MakeModelMatrix(Vector3f(0, 0, -1), rotateDegreeOnY, uniformScale));
-
-    TimeElapsed(stepStopwatch, "Model Loaded");
+    TimeElapsed(stepStopwatch, "Scene Loaded");
 
     // Camera
 
-    Camera camera(-1, 1, 1, 0, 0, -1);  // LookAt = (0,0,0)
-
-    // Camera::ProjectionType projectionType = Camera::Orthographic;
-    Camera::ProjectionType projectionType = Camera::Perspective;
+    const Camera& camera = scene.GetCamera();
 
     // Light
 
-    PointLight pointLight(2, 5, 5, Vector3f(1.f));
+    const PointLight& pointLight = scene.GetPointLight();  // ignore dir light
 
     // Shadow Mapping
 
@@ -136,16 +90,16 @@ int main(int argc, const char* argv[])
         SHADOW_VIEW_SIZE, SHADOW_NEAR_PLANE, SHADOW_FAR_PLANE);
     Matrix4x4f lightSpaceMatrix = projMatrixSM * viewMatrixSM;
 
-    for (int i = 0; i < models.size(); ++i)
+    for (int i = 0; i < scene.GetModelCount(); ++i)
     {
-        auto model = models[i];
+        const auto& model = scene.GetModel(i);
 
         // Depth Shading
         DepthShader depthShader;
-        depthShader.uModelMatrix = modelMatrices[i];
+        depthShader.uModelMatrix = scene.GetModelMatrix(i);
         depthShader.uLightSpaceMatrix = lightSpaceMatrix;
         // Render
-        model->Render(depthShader);
+        model.Render(depthShader);
     }
     ForkerGL::ShadowBuffer.GenerateGrayImage(false).WriteTgaFile(
         "output/output_shadowmap.tga");
@@ -159,20 +113,20 @@ int main(int argc, const char* argv[])
     ForkerGL::RenderMode(ForkerGL::ColorPass);
 
     spdlog::info("");
-    for (int i = 0; i < models.size(); ++i)
+    for (int i = 0; i < scene.GetModelCount(); ++i)
     {
-        auto model = models[i];
+        const auto& model = scene.GetModel(i);
 
-        if (!model->SupportPBR())
+        if (!model.SupportPBR())
         {
             // Blinn-Phong Shading
             spdlog::info("Color Pass (Blinn-Phong Shading):");
             BlinnPhongShader bpShader;
-            bpShader.uModelMatrix = modelMatrices[i];
+            bpShader.uModelMatrix = scene.GetModelMatrix(i);
             bpShader.uViewMatrix = camera.GetViewMatrix();
             bpShader.uNormalMatrix = MakeNormalMatrix(bpShader.uModelMatrix);
             bpShader.uProjectionMatrix =
-                (projectionType == Camera::Orthographic)
+                (scene.GetProjectionType() == Camera::Orthographic)
                     ? camera.GetOrthographicMatrix(-1.f * RATIO, 1.f * RATIO, -1.f, 1.f,
                                                    CAMERA_NEAR_PLANE, CAMERA_FAR_PLANE)
                     : camera.GetPerspectiveMatrix(45.f, RATIO, CAMERA_NEAR_PLANE,
@@ -186,18 +140,18 @@ int main(int argc, const char* argv[])
             bpShader.uLightSpaceMatrix = lightSpaceMatrix;
 #endif
             // Render
-            model->Render(bpShader);
+            model.Render(bpShader);
         }
         else
         {
             // PBR Shading
             spdlog::info("Color Pass (PBR Shading):");
             PBRShader pbrShader;
-            pbrShader.uModelMatrix = modelMatrices[i];
+            pbrShader.uModelMatrix = scene.GetModelMatrix(i);
             pbrShader.uViewMatrix = camera.GetViewMatrix();
             pbrShader.uNormalMatrix = MakeNormalMatrix(pbrShader.uModelMatrix);
             pbrShader.uProjectionMatrix =
-                (projectionType == Camera::Orthographic)
+                (scene.GetProjectionType() == Camera::Orthographic)
                     ? camera.GetOrthographicMatrix(-1.f * RATIO, 1.f * RATIO, -1.f, 1.f,
                                                    CAMERA_NEAR_PLANE, CAMERA_FAR_PLANE)
                     : camera.GetPerspectiveMatrix(45.f, RATIO, CAMERA_NEAR_PLANE,
@@ -211,7 +165,7 @@ int main(int argc, const char* argv[])
             pbrShader.uLightSpaceMatrix = lightSpaceMatrix;
 #endif
             // Render
-            model->Render(pbrShader);
+            model.Render(pbrShader);
         }
         TimeElapsed(stepStopwatch, "Model Rendered");
     }

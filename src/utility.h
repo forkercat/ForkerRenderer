@@ -11,6 +11,12 @@
 
 // Utility Inline Functions
 
+inline std::string Ltrim(const std::string& s)
+{
+    size_t start = s.find_first_not_of(" \n\r\t\f\v");
+    return (start == std::string::npos) ? "" : s.substr(start);
+}
+
 inline Float Lerp(Float t, Float v1, Float v2)
 {
     return (1 - t) * v1 + t * v2;

@@ -1,13 +1,36 @@
 # Test Scene
 
-# Light (type, point/dir, position, color)
+# Light (type: point/dir, position, color)
 light point 2 5 5 1 1 1
 
-# Camera (type, position, lookAt)
-camera perspective -1 1 1 0 0 -1
+# Camera (type: persp/ortho, position, lookAt)
+camera persp -1 1 1 0 0 -1
 
 # Models (filepath, position, rotate_y, uniform scale)
-model obj/plane/plane.obj 0 -1 -1 0 3
 
+# Plane
+model obj/plane/plane.obj false false 0 -1 -1 0 3
 
-# model obj
+# Mary
+model obj/mary/mary.obj true true 0.05 0 -1 -10 1
+
+# Diablo
+# model obj/diablo_pose/diablo_pose.obj true true 0 0 0 -10 1
+
+# Cyborg
+# model obj/cyborg/cyborg.obj true true 0 0 -1 -10 1
+
+# Cat Box
+# model obj/catbox/catbox.obj true false -0.1 0.2 -1 -10 0.75
+
+# Sci-Cart
+# model obj/cart/cart.obj true true 0 0 -1 180 1
+
+# Horizon
+# model obj/horizon/horizon.obj true true 0.015 -3.05 -1 -35 -5.0
+
+# Chalkboard
+# model obj/chalkboard/chalkboard.obj true true 0 0 -1 180 1
+
+# Great Sword
+# model obj/great_sword/great_sword.obj true true 0 0.3 -1 240 1

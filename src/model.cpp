@@ -30,7 +30,7 @@ std::unique_ptr<Model> Model::Load(const std::string& filename, bool normalized,
     model->m_TexCoords.clear();
     model->m_Normals.clear();
 
-    spdlog::info("--> [Model] {}", filename);
+    spdlog::info("  [Model] {}", filename);
 
     model->m_HasTangents = generateTangent;
 
@@ -49,7 +49,7 @@ std::unique_ptr<Model> Model::Load(const std::string& filename, bool normalized,
 
     // clang-format off
     spdlog::info(
-        "-----> v# {}, f# {}, vt# {}, vn# {}, tg# {}, mesh# {}, mtl# {} | normalized[{}] generateTangent[{}], flipTexCoordY[{}]",
+        "     v# {}, f# {}, vt# {}, vn# {}, tg# {}, mesh# {}, mtl# {} | normalized[{}] generateTangent[{}], flipTexCoordY[{}]",
         model->GetNumVerts(), model->GetNumFaces(), model->m_TexCoords.size(), model->m_Normals.size(), model->m_Tangents.size(), model->m_Meshes.size(),
         model->m_Materials.size(), normalized ? "o" : "x", generateTangent ? "o" : "x", flipTexCoordY ? "o" : "x");
 
@@ -62,12 +62,12 @@ std::unique_ptr<Model> Model::Load(const std::string& filename, bool normalized,
         if (pbrMaterial->HasMetalnessMap() || pbrMaterial->HasRoughnessMap())
         {
             model->m_SupportPBR = true;
-            spdlog::info("-----> [{:}] f# {:} | PBR[o] {}", iter->first, mesh.NumFaces(), *pbrMaterial);
+            spdlog::info("     [{:}] f# {:} | PBR[o] {}", iter->first, mesh.NumFaces(), *pbrMaterial);
         }
         else
         {
             model->m_SupportPBR = false;
-            spdlog::info("-----> [{:}] f# {:} | PBR[x] {}", iter->first, mesh.NumFaces(), *(mesh.GetMaterial()));
+            spdlog::info("     [{:}] f# {:} | PBR[x] {}", iter->first, mesh.NumFaces(), *(mesh.GetMaterial()));
         }
     }
     // clang-format on
@@ -88,7 +88,7 @@ void Model::Render(Shader& shader) const
 
         mesh.Draw(shader);
 
-        spdlog::info("--> [{}] Time Used: {:.6} Seconds", iter->first, stopwatch);
+        spdlog::info("  [{}] Time Used: {:.6} Seconds", iter->first, stopwatch);
         stopwatch.reset();
     }
 }

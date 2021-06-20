@@ -21,8 +21,8 @@ cd ForkerRenderer
 mkdir build && cd build
 cmake .. && make
 
-# Usage: <filename> <rotate degree on y-axis>(optional) <scale factor>(optional)
-./ForkerRenderer ../obj/diablo_pose/diablo_pose.obj -10.0 1.0
+# Usage: <scene filename>
+./ForkerRenderer ../scenes/test.scene
 ```
 
 ## Future Development 🥺
@@ -31,11 +31,9 @@ cmake .. && make
 - Anti-Aliasing
 - Physically-Based Rendering (PBR)
   - Improvement
-- Non-Photorealistic Rendering (NPR)
-- Image-Based Lighting (IBL)
 - Global Illumination
-  - RSM
   - Screen Space Ambient Occlusion (SSAO)
+  - Screen Space Reflection (SSR) aka. Realtime Ray Tracing
 
 ## Features ⭐
 
@@ -46,6 +44,20 @@ cmake .. && make
     - [x] Support `Ka`, `Kd`, `Ks`, `map_Kd`, `map_Ks`, `map_Ke`, `map_Bump`, `map_Ao`, `map_Pr`, `map_Pm`
     - [x] Position vertex normalization
     - [x] Auto triangulation
+- [x] Parsing scene files `*.scene`
+
+```shell
+# Test Scene
+# Light (type: point/dir, position, color)
+light point 2 5 5 1 1 1
+# Camera (type: persp/ortho, position, lookAt)
+camera persp -1 1 1 0 0 -1
+# Models (filepath, position, rotate_y, uniform scale)
+model obj/plane/plane.obj false false 0 -1 -1 0 3
+# Mary
+model obj/mary/mary.obj true true 0.05 0 -1 -10 1
+```
+
 - [x] Geometry Template Class
     - Vector: `Vector2f`, `Vector3f`, `Vector4f`, `Vector4i`, ...
     - Matrix: `Matrix3f`, `Matrix4f`, `Matrix3x4f`, ...
@@ -102,10 +114,11 @@ cmake .. && make
 #endif
 ```
 - [x] Anti-Aliasing (AA)
-  - [x] Trivial anti-aliasing `#define ANTI_ALIASING`
+  - [x] SSAA: Trivial anti-aliasing `#define ANTI_ALIASING`
   - [ ] MSAA
-  - [ ] TSA
-- [ ] Screen Space Ambient Occlusion (SSAO)
+- [ ] Global Illuminations
+  - [ ] Screen Space Ambient Occlusion (SSAO)
+  - [ ] Screen Space Reflection (SSR) aka. Realtime Ray Tracing
 
 ## Gallery 🖼️
 
@@ -145,6 +158,7 @@ About **5,000** lines of code:
 - Rendering: `forkergl.h/cpp` (rasterization), `buffer.h/cpp` (framebuffer & z-buffer)
 - Shader: `shader.h`, `phongshader.h`, `pbrshader.h`, `depthshader.h`
 - Shadow: `shadow.h/cpp`
+- Scene: `scene.h/cpp`, `scenes/test.scene`
 - Model: `model.h/cpp`, `mesh.h/cpp`, `material.h`, `pbrmaterial.h`, `texture.h`
 - Camera: `camera.h/cpp`
 - Light: `light.h`
@@ -155,21 +169,27 @@ About **5,000** lines of code:
 ## Console Output 📜
 
 ```console
-$ ./ForkerRenderer obj/diablo_pose/diablo_pose.obj -10
-[info] Model File: obj/diablo_pose/diablo_pose.obj
-[info] v# 2519, f# 5022, vt# 3263, vn# 2519, tg# 2519, mesh# 1, mtl# 1 | normalized: true, generateTangent: true, flipTexCoordY: true
-[info] [Diablo_Pose] f#  5022 | map_Kd[o] map_Ks[o] map_Bump[o] map_Ao[x] | Ka(0.10, 0.10, 0.10), Kd(0.81, 0.81, 0.81), Ks(0.20, 0.20, 0.20)
+$ ./ForkerRenderer scenes/test.scene
+[info] Scene File: scenes/test.scene
+[info]   [Point Light] position: [ 2.00000000, 5.00000000, 5.00000000 ], color: [ 1.00000000, 1.00000000, 1.00000000 ]
+[info]   [Camera] position: [ -1.00000000, 1.00000000, 1.00000000 ], lookAt: [ 0.00000000, 0.00000000, -1.00000000 ]
+[info]   [Model] obj/diablo_pose/diablo_pose.obj
+[info]      v# 2519, f# 5022, vt# 3263, vn# 2519, tg# 2519, mesh# 1, mtl# 1 | normalized[o] generateTangent[o], flipTexCoordY[o]
+[info]      [Diablo_Pose] f# 5022 | PBR[x] map_Kd[o] map_Ks[o] map_Ke[x] map_Bump[o] | Ka(0.10, 0.10, 0.10), Kd(0.81, 0.81, 0.81), Ks(0.20, 0.20, 0.20)
 [info] ------------------------------------------------------------
-[info] <Time Used: 0.381728 Seconds (Model Loaded)>
-[info] 
+[info] <Time Used: 0.764056 Seconds (Scene Loaded)>
+
 [info] Shadow Pass:
-[info] --> [Diablo_Pose] Time Used: 0.155560 Seconds
+[info]   [Diablo_Pose] Time Used: 0.123933 Seconds
 [info] Output TGA File: output/output_shadowmap.tga
-[info] <Time Used: 0.768311 Seconds (Shadow Mapping Finished)>
-[info] 
-[info] Color Pass:
-[info] --> [Diablo_Pose] Time Used: 3.55731 Seconds
-[info] <Time Used: 3.56657 Seconds (Model Rendered)>
+[info] ------------------------------------------------------------
+[info] <Time Used: 0.288814 Seconds (Shadow Mapping Finished)>
+
+[info] Color Pass (Blinn-Phong Shading):
+[info]   [Diablo_Pose] Time Used: 4.18738 Seconds
+[info] ------------------------------------------------------------
+[info] <Time Used: 4.28942 Seconds (Model Rendered)>
+
 [info] Output TGA File: output/output_framebuffer.tga
 [info] Output TGA File: output/output_zbuffer.tga
 ```

@@ -44,7 +44,7 @@ struct BlinnPhongShader : public Shader
         Vector2f texCoord = mesh->TexCoord(faceIdx, vertIdx);
         Vector3f normalWS = uNormalMatrix * mesh->Normal(faceIdx, vertIdx);
         Vector3f tangentWS;
-        if (mesh->GetModel()->HasTangents())
+        if (mesh->GetModel().HasTangents())
         {
             tangentWS = uNormalMatrix * mesh->Tangent(faceIdx, vertIdx);
         }
@@ -66,7 +66,7 @@ struct BlinnPhongShader : public Shader
         positionWS *= oneOverW;
         texCoord *= oneOverW;
         normalWS *= oneOverW;
-        if (mesh->GetModel()->HasTangents()) tangentWS *= oneOverW;
+        if (mesh->GetModel().HasTangents()) tangentWS *= oneOverW;
 #ifdef SHADOW_PASS
         positionLightSpaceNDC *= oneOverW;
 #endif  // SHADOW_PASS
@@ -75,7 +75,7 @@ struct BlinnPhongShader : public Shader
         vTexCoordCorrected.SetCol(vertIdx, texCoord);
         vPositionCorrectedWS.SetCol(vertIdx, positionWS.xyz);
         vNormalCorrectedWS.SetCol(vertIdx, normalWS);
-        if (mesh->GetModel()->HasTangents())
+        if (mesh->GetModel().HasTangents())
             vTangentCorrectedWS.SetCol(vertIdx, tangentWS);
 #ifdef SHADOW_PASS
         vPositionLightSpaceNDC.SetCol(vertIdx, positionLightSpaceNDC.xyz);
@@ -108,7 +108,7 @@ struct BlinnPhongShader : public Shader
         Vector3f N = Normalize(normalWS);  // World Space
         Vector3f normal;
 
-        if (mesh->GetModel()->HasTangents() && material->HasNormalMap())
+        if (mesh->GetModel().HasTangents() && material->HasNormalMap())
         {
             Vector3f tangentWS = vTangentCorrectedWS * baryCoord;
 #ifdef PERSPECTIVE_CORRECT_INTERPOLATION

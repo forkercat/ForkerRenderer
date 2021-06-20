@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <string>
+
 // Macros
 // #define FLOAT_AS_DOUBLE
 

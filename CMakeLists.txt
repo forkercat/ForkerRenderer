@@ -14,6 +14,7 @@ add_executable(ForkerRenderer
     src/buffer.cpp
     src/forkergl.cpp
     src/camera.cpp
+    src/scene.cpp
     # Shaders
     src/shaders/shadow.cpp
     # Main
