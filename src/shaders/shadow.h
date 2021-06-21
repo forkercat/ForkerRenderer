@@ -11,10 +11,7 @@ class Buffer;
 // Enable Perspective Correct Mapping (PCI)
 #define PERSPECTIVE_CORRECT_INTERPOLATION
 
-// Enable Shadow Mapping (Hard Shadow)
-#define SHADOW_PASS
-
-// Enable Soft Shadow
+// Enable Soft Shadow (Comment out both for hard shadow)
 // #define SOFT_SHADOW_PCF  // Percentage-Closer Filtering (PCF)
 #define SOFT_SHADOW_PCSS  // Percentage-Closer Soft Shadow (PCSS)
 
@@ -25,19 +22,25 @@ class Buffer;
 #define PCSS_BLOCKER_SEARCH_FILTER_SIZE 0.005
 #define AREA_LIGHT_SIZE 2.5f
 
-Float sampleShadowMap(const Buffer& shadowMap, const Vector2f& uv);
+namespace Shadow
+{
+void SetShadowStatus(bool status);
+bool GetShadowStatus();
 
-Float hardShadow(const Buffer& shadowMap, const Vector3f& shadowCoord, Float bias);
+Float SampleShadowMap(const Buffer& shadowMap, const Vector2f& uv);
+
+Float HardShadow(const Buffer& shadowMap, const Vector3f& shadowCoord, Float bias);
 
 // PCF
 Float PCF(const Buffer& shadowMap, const Vector3f& shadowCoord, Float bias,
           Float filterSize);
 
 // PCSS
-Float findAverageBlockDepth(const Buffer& shadowMap, const Vector3f& shadowCoord,
+Float FindAverageBlockDepth(const Buffer& shadowMap, const Vector3f& shadowCoord,
                             Float bias);
 Float PCSS(const Buffer& shadowMap, const Vector3f& shadowCoord, Float bias);
 
-Float calculateShadowVisibility(const Buffer&   shadowMap,
+Float CalculateShadowVisibility(const Buffer&   shadowMap,
                                 const Vector3f& positionLightSpaceNDC,
                                 const Vector3f& normal, const Vector3f& lightDir);
+}  // namespace Shadow

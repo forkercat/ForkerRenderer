@@ -53,10 +53,13 @@ struct BlinnPhongShader : public Shader
         v2fTexCoords.SetCol(vertIdx, texCoord);
 
         // Shadow Mapping
-#ifdef SHADOW_PASS
-        Point4f positionLightSpaceNDC = uLightSpaceMatrix * positionWS;
-        positionLightSpaceNDC /= positionLightSpaceNDC.w;
-#endif
+        bool    isShadowOn = Shadow::GetShadowStatus();
+        Point4f positionLightSpaceNDC;
+        if (isShadowOn)
+        {
+            positionLightSpaceNDC = uLightSpaceMatrix * positionWS;
+            positionLightSpaceNDC /= positionLightSpaceNDC.w;
+        }
 
         // PCI
 #ifdef PERSPECTIVE_CORRECT_INTERPOLATION
@@ -66,9 +69,7 @@ struct BlinnPhongShader : public Shader
         texCoord *= oneOverW;
         normalWS *= oneOverW;
         if (mesh->GetModel().HasTangents()) tangentWS *= oneOverW;
-#ifdef SHADOW_PASS
-        positionLightSpaceNDC *= oneOverW;
-#endif  // SHADOW_PASS
+        if (isShadowOn) positionLightSpaceNDC *= oneOverW;
 #endif
         // Varying
         vTexCoordCorrected.SetCol(vertIdx, texCoord);
@@ -76,9 +77,7 @@ struct BlinnPhongShader : public Shader
         vNormalCorrectedWS.SetCol(vertIdx, normalWS);
         if (mesh->GetModel().HasTangents())
             vTangentCorrectedWS.SetCol(vertIdx, tangentWS);
-#ifdef SHADOW_PASS
-        vPositionLightSpaceNDC.SetCol(vertIdx, positionLightSpaceNDC.xyz);
-#endif
+        if (isShadowOn) vPositionLightSpaceNDC.SetCol(vertIdx, positionLightSpaceNDC.xyz);
 
         // Perspective Division
         Point4f positionNDC = positionCS / positionCS.w;
@@ -139,14 +138,15 @@ struct BlinnPhongShader : public Shader
 
         // Shadow Mapping
         Float visibility = 0.f;
-#ifdef SHADOW_PASS
-        Point3f positionLightSpaceNDC = vPositionLightSpaceNDC * baryCoord;
+        if (Shadow::GetShadowStatus())
+        {
+            Point3f positionLightSpaceNDC = vPositionLightSpaceNDC * baryCoord;
 #ifdef PERSPECTIVE_CORRECT_INTERPOLATION
-        positionLightSpaceNDC *= w;
+            positionLightSpaceNDC *= w;
 #endif
-        visibility = calculateShadowVisibility(ForkerGL::ShadowBuffer,
-                                               positionLightSpaceNDC, normal, lightDir);
-#endif
+            visibility = Shadow::CalculateShadowVisibility(
+                ForkerGL::ShadowBuffer, positionLightSpaceNDC, normal, lightDir);
+        }
 
         // Blinn-Phong Shading
         gl_Color = calculateLight(lightDir, halfwayDir, normal, texCoord, visibility);
@@ -202,13 +202,14 @@ private:
         specular = specular * lightColor;
 
         // Shadow Mapping
-#ifdef SHADOW_PASS
-        Float shadowIntensity = 0.6f;
-        Float shadow = (1 - visibility) * shadowIntensity;
-        visibility = 1 - shadow;
-        diffuse *= visibility;
-        specular *= visibility;
-#endif
+        if (Shadow::GetShadowStatus())
+        {
+            Float shadowIntensity = 0.6f;
+            Float shadow = (1 - visibility) * shadowIntensity;
+            visibility = 1 - shadow;
+            diffuse *= visibility;
+            specular *= visibility;
+        }
 
         // Combine
         Color3 color = ambient + diffuse + specular;

@@ -24,6 +24,10 @@ public:
     int   GetHeight() const { return m_Height; }
     Float GetRatio() const { return Float(m_Width) / m_Height; }
 
+    // SSAA
+    bool IsSSAAOn() const { return m_SSAA; }
+    int  GetSSAAKernelSize() const { return m_SSAAKernelSize; }
+
     // Light
     const PointLight& GetPointLight() const
     {
@@ -57,6 +61,8 @@ public:
 private:
     int                                 m_Width;
     int                                 m_Height;
+    bool                                m_SSAA;
+    int                                 m_SSAAKernelSize;
     std::unique_ptr<PointLight>         m_PointLight;
     std::unique_ptr<DirLight>           m_DirLight;
     std::unique_ptr<Camera>             m_Camera;

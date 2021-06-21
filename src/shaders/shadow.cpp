@@ -6,7 +6,21 @@
 
 #include "buffer.h"
 
-Float sampleShadowMap(const Buffer& shadowMap, const Vector2f& uv)
+static bool s_IsShadowOn = true;
+
+namespace Shadow
+{
+void SetShadowStatus(bool status)
+{
+    s_IsShadowOn = status;
+}
+
+bool GetShadowStatus()
+{
+    return s_IsShadowOn;
+}
+
+Float SampleShadowMap(const Buffer& shadowMap, const Vector2f& uv)
 {
     // Fix region out of map
     if (uv.x < 0.f || uv.x > 1.f || uv.y < 0.f || uv.y > 1.f) return Infinity;
@@ -21,10 +35,10 @@ Float sampleShadowMap(const Buffer& shadowMap, const Vector2f& uv)
 }
 
 // Hard Shadow
-Float hardShadow(const Buffer& shadowMap, const Vector3f& shadowCoord, Float bias)
+Float HardShadow(const Buffer& shadowMap, const Vector3f& shadowCoord, Float bias)
 {
     Float visibility;
-    Float sampledDepth = sampleShadowMap(shadowMap, shadowCoord.xy);
+    Float sampledDepth = SampleShadowMap(shadowMap, shadowCoord.xy);
     Float currentDepth = shadowCoord.z;
     visibility = (currentDepth <= sampledDepth + bias) ? 1.f : 0.f;
     return visibility;
@@ -40,7 +54,7 @@ Float PCF(const Buffer& shadowMap, const Vector3f& shadowCoord, Float bias,
     for (int i = 0; i < PCF_NUM_SAMPLES; ++i)
     {
         Vector2f uv = shadowCoord.xy + RandomVectorInUnitDisk().xy * filterSize;
-        Float    sampleDepth = sampleShadowMap(shadowMap, uv);
+        Float    sampleDepth = SampleShadowMap(shadowMap, uv);
 
         if (currentDepth <= sampleDepth + bias) visibility += invPCFNumSamples;
     }
@@ -48,7 +62,7 @@ Float PCF(const Buffer& shadowMap, const Vector3f& shadowCoord, Float bias,
     return visibility;
 }
 
-Float findAverageBlockDepth(const Buffer& shadowMap, const Vector3f& shadowCoord,
+Float FindAverageBlockDepth(const Buffer& shadowMap, const Vector3f& shadowCoord,
                             Float bias)
 {
     Float blockerDepth = 0.f;
@@ -60,7 +74,7 @@ Float findAverageBlockDepth(const Buffer& shadowMap, const Vector3f& shadowCoord
     {
         Vector2f uv = shadowCoord.xy +
                       RandomVectorInUnitDisk().xy * PCSS_BLOCKER_SEARCH_FILTER_SIZE;
-        Float sampleDepth = sampleShadowMap(shadowMap, uv);
+        Float sampleDepth = SampleShadowMap(shadowMap, uv);
 
         if (currentDepth > sampleDepth + bias)  // is blocker
         {
@@ -79,7 +93,7 @@ Float PCSS(const Buffer& shadowMap, const Vector3f& shadowCoord, Float bias)
 {
     // 1. Average blocker depth
     Float dReceiver = shadowCoord.z;
-    Float dBlocker = findAverageBlockDepth(shadowMap, shadowCoord, bias);
+    Float dBlocker = FindAverageBlockDepth(shadowMap, shadowCoord, bias);
 
     if (dBlocker < Epsilon) return 1.f;
 
@@ -92,7 +106,7 @@ Float PCSS(const Buffer& shadowMap, const Vector3f& shadowCoord, Float bias)
 }
 
 // Calculate Shadow Component
-Float calculateShadowVisibility(const Buffer&   shadowMap,
+Float CalculateShadowVisibility(const Buffer&   shadowMap,
                                 const Vector3f& positionLightSpaceNDC,
                                 const Vector3f& normal, const Vector3f& lightDir)
 {
@@ -105,14 +119,15 @@ Float calculateShadowVisibility(const Buffer&   shadowMap,
 
 #ifdef SOFT_SHADOW_PCF
     // Percentage-Closer Filtering (PCF)
-    visibility = PCF(uShadowBuffer, shadowCoord, bias, PCF_FILTER_SIZE);
+    visibility = PCF(shadowMap, shadowCoord, bias, PCF_FILTER_SIZE);
 #elif defined(SOFT_SHADOW_PCSS)
     // Percentage-Closer Soft Shadow (PCSS)
     visibility = PCSS(shadowMap, shadowCoord, bias);
 #else
     // Hard Shadow
-    visibility = hardShadow(uShadowBuffer, shadowCoord, bias);
+    visibility = HardShadow(shadowMap, shadowCoord, bias);
 #endif
 
     return visibility;
 }
+}  // namespace Shadow

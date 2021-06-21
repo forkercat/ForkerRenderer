@@ -8,12 +8,13 @@
 #include "depthshader.h"
 #include "forkergl.h"
 #include "geometry.h"
+#include "geometryshader.h"
 #include "light.h"
 #include "model.h"
 #include "pbrshader.h"
 #include "phongshader.h"
-#include "geometryshader.h"
 #include "scene.h"
+#include "shadow.h"
 
 namespace Render
 {
@@ -26,5 +27,5 @@ void DoGeometryPass(const Scene& scene);
 void DoLightingPass(const Scene& scene);
 
 // Anti-Aliasing
-void DoSSAA();
+void DoSSAA(const Scene& scene);
 }  // namespace Render

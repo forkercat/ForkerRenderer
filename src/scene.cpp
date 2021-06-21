@@ -13,6 +13,7 @@
 #include "light.h"
 #include "model.h"
 #include "utility.h"
+#include "shadow.h"
 
 const static int s_DefaultWidth = 1280;
 const static int s_DefaultHeight = 800;
@@ -20,6 +21,8 @@ const static int s_DefaultHeight = 800;
 Scene::Scene(const std::string& filename)
     : m_Width(s_DefaultWidth),
       m_Height(s_DefaultHeight),
+      m_SSAA(false),
+      m_SSAAKernelSize(2),
       m_PointLight(nullptr),
       m_DirLight(nullptr),
       m_Camera(nullptr),
@@ -57,6 +60,20 @@ Scene::Scene(const std::string& filename)
         {
             iss >> strTrash >> m_Width >> m_Height;
             spdlog::info("  [Screen] {} x {}", m_Width, m_Height);
+        }
+        else if (line.compare(0, 5, "ssaa ") == 0)  // SSAA
+        {
+            std::string status;
+            iss >> strTrash >> status >> m_SSAAKernelSize;
+            m_SSAA = (status == "on");
+            spdlog::info("  [SSAA] {} (x{})", status, m_SSAAKernelSize);
+        }
+        else if (line.compare(0, 7, "shadow ") == 0)  // Shadow
+        {
+            std::string status;
+            iss >> strTrash >> status;
+            Shadow::SetShadowStatus(status == "on");
+            spdlog::info("  [Shadow] {} (PCSS)", status);
         }
         else if (line.compare(0, 6, "light ") == 0)  // light
         {

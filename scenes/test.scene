@@ -3,6 +3,12 @@
 # Screen Size
 screen 1280 800
 
+# Anti-Aliasing
+ssaa off 2
+
+# Shadow (PCSS)
+shadow on
+
 # Light (type: point/dir, position, color)
 light point 2 5 5 1 1 1
 

@@ -98,7 +98,7 @@ model obj/mary/mary.obj true true 0.05 0 -1 -10 1
 ![](https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Shadow.jpg)
 
 - [x] Shadow Effect
-  - [x] Hard Shadow: Shadow Mapping `#define SHADOW_PASS`
+  - [x] Hard Shadow: Shadow Mapping (set `shadow on` in `test.scene` and comment out below macros)
   - [x] Soft Shadow:
     - [x] Percentage-Closer Filtering (PCF) `#define SOFT_SHADOW_PCF`
     - [x] Percentage-Closer Soft Shadow (PCSS) `#define SOFT_SHADOW_PCSS`
@@ -111,11 +111,11 @@ model obj/mary/mary.obj true true 0.05 0 -1 -10 1
     visibility = PCSS(uShadowBuffer, shadowCoord, bias);
 #else
     // Hard Shadow
-    visibility = hardShadow(uShadowBuffer, shadowCoord, bias);
+    visibility = HardShadow(uShadowBuffer, shadowCoord, bias);
 #endif
 ```
 - [x] Anti-Aliasing (AA)
-  - [x] SSAA: Super Sampling Anti-Aliasing `#define ANTI_ALIASING` in `render.cpp`
+  - [x] SSAA: Super Sampling Anti-Aliasing (set `ssaa on` in `test.scene`)
   - [ ] MSAA
 - [ ] G-Buffer & Deferred Shading
 - [ ] Global Illuminations
@@ -175,6 +175,8 @@ About **5,000** lines of code:
 $ ./ForkerRenderer scenes/test.scene
 [info] Scene File: scenes/test.scene
 [info]   [Screen] 1280 x 800
+[info]   [SSAA] off (x2)
+[info]   [Shadow] on (PCSS)
 [info]   [Point Light] position: [ 2.00000000, 5.00000000, 5.00000000 ], color: [ 1.00000000, 1.00000000, 1.00000000 ]
 [info]   [Camera] position: [ -1.00000000, 1.00000000, 1.00000000 ], lookAt: [ 0.00000000, 0.00000000, -1.00000000 ]
 [info]   [Model] obj/diablo_pose/diablo_pose.obj

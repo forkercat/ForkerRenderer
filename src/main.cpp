@@ -52,7 +52,7 @@ int main(int argc, const char* argv[])
     TimeElapsed(stepStopwatch, "Lighting Pass");
 
     // Anti-Aliasing
-    Render::DoSSAA();
+    Render::DoSSAA(scene);
     TimeElapsed(stepStopwatch, "Anti-Aliasing");
 
     // Output
