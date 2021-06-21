@@ -1,5 +1,8 @@
 # Test Scene
 
+# Screen Size
+screen 1280 800
+
 # Light (type: point/dir, position, color)
 light point 2 5 5 1 1 1
 

@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <spdlog/stopwatch.h>
+
 #include <cstdlib>
 #include <random>
 
@@ -15,6 +17,13 @@ inline std::string Ltrim(const std::string& s)
 {
     size_t start = s.find_first_not_of(" \n\r\t\f\v");
     return (start == std::string::npos) ? "" : s.substr(start);
+}
+
+inline void TimeElapsed(spdlog::stopwatch& sw, std::string note = "")
+{
+    spdlog::info("------------------------------------------------------------");
+    spdlog::info("<Time Used: {:.6} Seconds ({})>\n", sw, note);
+    sw.reset();
 }
 
 inline Float Lerp(Float t, Float v1, Float v2)

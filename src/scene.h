@@ -19,6 +19,11 @@ class Scene
 public:
     explicit Scene(const std::string& filename);
 
+    // Screen Size
+    int   GetWidth() const { return m_Width; }
+    int   GetHeight() const { return m_Height; }
+    Float GetRatio() const { return Float(m_Width) / m_Height; }
+
     // Light
     const PointLight& GetPointLight() const
     {
@@ -50,6 +55,8 @@ public:
     Matrix4x4f GetModelMatrix(int index) const { return m_ModelMatrices[index]; }
 
 private:
+    int                                 m_Width;
+    int                                 m_Height;
     std::unique_ptr<PointLight>         m_PointLight;
     std::unique_ptr<DirLight>           m_DirLight;
     std::unique_ptr<Camera>             m_Camera;

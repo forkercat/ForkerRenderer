@@ -7,6 +7,7 @@
 #include <thread>
 
 #include "color.h"
+#include "tgaimage.h"
 
 // Texture Wrapping & Filtering
 Texture::WrapMode   ForkerGL::TextureWrapping = Texture::WrapMode::NoWrap;
@@ -18,8 +19,12 @@ Buffer ForkerGL::DepthBuffer;
 Buffer ForkerGL::ShadowBuffer;
 Buffer ForkerGL::ShadowDepthBuffer;
 
+// Images
+TGAImage ForkerGL::AntiAliasedImage;
+
 // Matrix
 Matrix4x4f viewportMatrix = Matrix4x4f::Identity();
+Matrix4x4f lightSpaceMatrix = Matrix4x4f::Identity();
 
 // RenderMode
 enum ForkerGL::RenderMode renderMode = ForkerGL::ColorPass;
@@ -67,6 +72,16 @@ void ForkerGL::Viewport(int x, int y, int w, int h)
     // for z
     viewportMatrix[2][2] = 1 / 2.f;
     viewportMatrix[2][3] = 1 / 2.f;
+}
+
+void ForkerGL::SetLightSpaceMatrix(const Matrix4x4f& matrix)
+{
+    lightSpaceMatrix = matrix;
+}
+
+Matrix4x4f ForkerGL::GetLightSpaceMatrix()
+{
+    return lightSpaceMatrix;
 }
 
 void ForkerGL::RenderMode(enum RenderMode mode)

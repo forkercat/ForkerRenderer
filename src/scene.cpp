@@ -14,8 +14,13 @@
 #include "model.h"
 #include "utility.h"
 
+const static int s_DefaultWidth = 1280;
+const static int s_DefaultHeight = 800;
+
 Scene::Scene(const std::string& filename)
-    : m_PointLight(nullptr),
+    : m_Width(s_DefaultWidth),
+      m_Height(s_DefaultHeight),
+      m_PointLight(nullptr),
       m_DirLight(nullptr),
       m_Camera(nullptr),
       m_Models(),
@@ -43,11 +48,15 @@ Scene::Scene(const std::string& filename)
         std::istringstream iss(line.c_str());
 
         // Trash
-        char        chTrash;
         std::string strTrash;
         if (line.compare(0, 1, "#") == 0)  // comments
         {
             continue;
+        }
+        else if (line.compare(0, 7, "screen ") == 0)  // screen
+        {
+            iss >> strTrash >> m_Width >> m_Height;
+            spdlog::info("  [Screen] {} x {}", m_Width, m_Height);
         }
         else if (line.compare(0, 6, "light ") == 0)  // light
         {
@@ -143,6 +152,4 @@ Scene::Scene(const std::string& filename)
             m_ModelMatrices.push_back(MakeModelMatrix(position, rotateY, uniformScale));
         }
     }
-
-    spdlog::info("------------------------------------------------------------");
 }

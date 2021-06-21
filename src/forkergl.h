@@ -11,6 +11,8 @@
 #include "shader.h"
 #include "texture.h"
 
+class TGAImage;
+
 struct ForkerGL
 {
     ForkerGL() = delete;
@@ -34,17 +36,24 @@ struct ForkerGL
     static Buffer ShadowBuffer;
     static Buffer ShadowDepthBuffer;
 
+    // Images
+    static TGAImage AntiAliasedImage;
+
     static void InitFrameBuffers(int width, int height);
     static void InitShadowBuffers(int width, int height);
 
     // Update Status
-    static void ClearColor(const Color3& color);
-    static void Viewport(int x, int y, int w, int h);
-    static void RenderMode(enum RenderMode mode);
+    static void       ClearColor(const Color3& color);
+    static void       Viewport(int x, int y, int w, int h);
+    static void       SetLightSpaceMatrix(const Matrix4x4f& matrix);
+    static Matrix4x4f GetLightSpaceMatrix();
+    static void       RenderMode(enum RenderMode mode);
 
     // Rasterization
     static void DrawTriangle(const Point4f ndcVerts[3], Shader& shader);
 
 private:
-    static void DrawTriangleSubTask(int xMin, int xMax, int yMin, int yMax, const Point2i points[3], Shader& shader, const Point3f& depths);
+    static void DrawTriangleSubTask(int xMin, int xMax, int yMin, int yMax,
+                                    const Point2i points[3], Shader& shader,
+                                    const Point3f& depths);
 };
