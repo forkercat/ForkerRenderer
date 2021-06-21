@@ -27,10 +27,9 @@ cmake .. && make
 
 ## Future Development 🥺
 
-- Multithreading (some issues/bugs exist)
-- Anti-Aliasing
 - Physically-Based Rendering (PBR)
   - Improvement
+- G-Buffer & Deferred Shading
 - Global Illumination
   - Screen Space Ambient Occlusion (SSAO)
   - Screen Space Reflection (SSR) aka. Realtime Ray Tracing
@@ -48,6 +47,8 @@ cmake .. && make
 
 ```shell
 # Test Scene
+# Screen
+screen 1280 800
 # Light (type: point/dir, position, color)
 light point 2 5 5 1 1 1
 # Camera (type: persp/ortho, position, lookAt)
@@ -114,8 +115,9 @@ model obj/mary/mary.obj true true 0.05 0 -1 -10 1
 #endif
 ```
 - [x] Anti-Aliasing (AA)
-  - [x] SSAA: Trivial anti-aliasing `#define ANTI_ALIASING`
+  - [x] SSAA: Super Sampling Anti-Aliasing `#define ANTI_ALIASING` in `render.cpp`
   - [ ] MSAA
+- [ ] G-Buffer & Deferred Shading
 - [ ] Global Illuminations
   - [ ] Screen Space Ambient Occlusion (SSAO)
   - [ ] Screen Space Reflection (SSR) aka. Realtime Ray Tracing
@@ -155,7 +157,8 @@ African Head [Vidar Rapp]
 
 About **5,000** lines of code:
 
-- Rendering: `forkergl.h/cpp` (rasterization), `buffer.h/cpp` (framebuffer & z-buffer)
+- Rendering: `render.h/cpp` (rendering functions), `forkergl.h/cpp` (rasterization)
+- Buffer: `buffer.h/cpp` (framebuffer & z-buffer)
 - Shader: `shader.h`, `phongshader.h`, `pbrshader.h`, `depthshader.h`
 - Shadow: `shadow.h/cpp`
 - Scene: `scene.h/cpp`, `scenes/test.scene`
@@ -164,34 +167,47 @@ About **5,000** lines of code:
 - Light: `light.h`
 - Color: `color.h`
 - Geometry: `geometry.h/cpp`
-- Utility: `tgaimage.h/cpp`, `check.h`, `utility.h`, `constant.h`, `stringprint.h` (PBRT-v3)
+- Utility: `tgaimage.h/cpp`, `output.h/cpp`, `check.h`, `utility.h`, `constant.h`, `stringprint.h` (PBRT-v3)
 
 ## Console Output 📜
 
 ```console
 $ ./ForkerRenderer scenes/test.scene
 [info] Scene File: scenes/test.scene
+[info]   [Screen] 1280 x 800
 [info]   [Point Light] position: [ 2.00000000, 5.00000000, 5.00000000 ], color: [ 1.00000000, 1.00000000, 1.00000000 ]
 [info]   [Camera] position: [ -1.00000000, 1.00000000, 1.00000000 ], lookAt: [ 0.00000000, 0.00000000, -1.00000000 ]
 [info]   [Model] obj/diablo_pose/diablo_pose.obj
 [info]      v# 2519, f# 5022, vt# 3263, vn# 2519, tg# 2519, mesh# 1, mtl# 1 | normalized[o] generateTangent[o], flipTexCoordY[o]
 [info]      [Diablo_Pose] f# 5022 | PBR[x] map_Kd[o] map_Ks[o] map_Ke[x] map_Bump[o] | Ka(0.10, 0.10, 0.10), Kd(0.81, 0.81, 0.81), Ks(0.20, 0.20, 0.20)
 [info] ------------------------------------------------------------
-[info] <Time Used: 0.764056 Seconds (Scene Loaded)>
+[info] <Time Used: 0.737825 Seconds (Scene Loaded)>
 
 [info] Shadow Pass:
-[info]   [Diablo_Pose] Time Used: 0.123933 Seconds
-[info] Output TGA File: output/output_shadowmap.tga
+[info]   [Status] Enabled
+[info]   [Diablo_Pose] Time Used: 0.311203 Seconds
 [info] ------------------------------------------------------------
-[info] <Time Used: 0.288814 Seconds (Shadow Mapping Finished)>
+[info] <Time Used: 0.460671 Seconds (Shadow Pass)>
 
-[info] Color Pass (Blinn-Phong Shading):
-[info]   [Diablo_Pose] Time Used: 4.18738 Seconds
+[info] Lighting Pass (Blinn-Phong):
+[info]   [Diablo_Pose] Time Used: 15.2718 Seconds
 [info] ------------------------------------------------------------
-[info] <Time Used: 4.28942 Seconds (Model Rendered)>
+[info] <Time Used: 15.5920 Seconds (Lighting Pass)>
+
+[info] Anti-Aliasing (SSAA):
+[info]   [Status] Enabled
+[info]   [Kernel Size] 2
+[info]   [Sampling Size] 2560 x 1600
+[info]   [Output Size] 1280 x 800
+[info] ------------------------------------------------------------
+[info] <Time Used: 0.827486 Seconds (Anti-Aliasing)>
 
 [info] Output TGA File: output/output_framebuffer.tga
+[info] Output TGA File: output/output_framebuffer_SSAA.tga
+[info] Output TGA File: output/output_shadowmap.tga
 [info] Output TGA File: output/output_zbuffer.tga
+[info] ------------------------------------------------------------
+[info] <Time Used: 18.8501 Seconds (Total)>
 ```
 
 ## Reference 📚

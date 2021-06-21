@@ -59,7 +59,6 @@ int main(int argc, const char* argv[])
     Output::OutputSSAAImage();
     Output::OutputShadowBuffer();
     Output::OutputZBuffer();
-
     TimeElapsed(totalStopwatch, "Total");
 
     return 0;

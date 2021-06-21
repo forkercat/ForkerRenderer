@@ -21,9 +21,27 @@ static const Float s_SSAA_KernelSize = 2;
 namespace Render
 {
 
+inline int GetWidth(const Scene& scene)
+{
+#ifdef ANTI_ALIASING
+    return scene.GetWidth() * s_SSAA_KernelSize;
+#else
+    return scene.GetWidth();
+#endif
+}
+
+inline int GetHeight(const Scene& scene)
+{
+#ifdef ANTI_ALIASING
+    return scene.GetHeight() * s_SSAA_KernelSize;
+#else
+    return scene.GetHeight();
+#endif
+}
+
 void Preconfigure(const Scene& scene)
 {
-    ForkerGL::Viewport(0, 0, scene.GetWidth(), scene.GetHeight());
+    ForkerGL::Viewport(0, 0, GetWidth(scene), GetHeight(scene));
     ForkerGL::TextureWrapMode(Texture::NoWrap);     // or Repeat, ClampedToEdge, etc
     ForkerGL::TextureFilterMode(Texture::Nearest);  // or Linear
 }
@@ -34,7 +52,7 @@ void DoShadowPass(const Scene& scene)
 #ifdef SHADOW_PASS
     spdlog::info("  [Status] Enabled");
     // Buffer Configuration
-    ForkerGL::InitShadowBuffers(scene.GetWidth(), scene.GetHeight());
+    ForkerGL::InitShadowBuffers(GetWidth(scene), GetHeight(scene));
     ForkerGL::RenderMode(ForkerGL::ShadowPass);
 
     // Matrix
@@ -67,7 +85,7 @@ void DoGeometryPass(const Scene& scene)
 
 void DoLightingPass(const Scene& scene)
 {
-    ForkerGL::InitFrameBuffers(scene.GetWidth(), scene.GetHeight());
+    ForkerGL::InitFrameBuffers(GetWidth(scene), GetHeight(scene));
     ForkerGL::ClearColor(Color3(0.12f, 0.12f, 0.12f));
     ForkerGL::RenderMode(ForkerGL::ColorPass);
 
@@ -138,13 +156,16 @@ void DoSSAA()
 #ifdef ANTI_ALIASING
     spdlog::info("  [Status] Enabled");
     const TGAImage& framebufferImage = ForkerGL::FrameBuffer.GenerateImage();
-    int             outputWidth = framebufferImage.GetWidth() / s_SSAA_KernelSize;
-    int             outputHeight = framebufferImage.GetHeight() / s_SSAA_KernelSize;
+    TGAImage        antiAliasedImage(framebufferImage.GetWidth() / s_SSAA_KernelSize,
+                              framebufferImage.GetHeight() / s_SSAA_KernelSize,
+                              TGAImage::RGB);
 
-    spdlog::info("Kernel Size: {} Output Size: {} x {}", s_SSAA_KernelSize, outputWidth,
-                 outputHeight);
+    spdlog::info("  [Kernel Size] {}", s_SSAA_KernelSize);
+    spdlog::info("  [Sampling Size] {} x {}", framebufferImage.GetWidth(),
+                 framebufferImage.GetHeight());
+    spdlog::info("  [Output Size] {} x {}", antiAliasedImage.GetWidth(),
+                 antiAliasedImage.GetHeight());
 
-    TGAImage antiAliasedImage(outputWidth, outputHeight, TGAImage::RGB);
     for (int x = 0; x < antiAliasedImage.GetWidth(); ++x)
     {
         for (int y = 0; y < antiAliasedImage.GetHeight(); ++y)
