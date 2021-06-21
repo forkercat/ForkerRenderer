@@ -28,7 +28,6 @@ struct PBRShader : public Shader
     Point3f    uEyePos;
 
     // For Shadow Pass
-    Buffer     uShadowBuffer;
     Matrix4x4f uLightSpaceMatrix;
     Matrix3x3f vPositionLightSpaceNDC;
 
@@ -147,8 +146,8 @@ struct PBRShader : public Shader
 #ifdef PERSPECTIVE_CORRECT_INTERPOLATION
         positionLightSpaceNDC *= w;
 #endif
-        visibility = calculateShadowVisibility(uShadowBuffer, positionLightSpaceNDC,
-                                               normal, lightDir);
+        visibility = calculateShadowVisibility(ForkerGL::ShadowBuffer,
+                                               positionLightSpaceNDC, normal, lightDir);
 #endif
 
         // Physically-Based Shading

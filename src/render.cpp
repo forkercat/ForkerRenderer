@@ -6,7 +6,7 @@
 
 #include <spdlog/spdlog.h>
 
-#define ANTI_ALIASING
+// #define ANTI_ALIASING
 
 static const Float s_ShadowViewSize = 3.0f;
 static const Float s_ShadowNearPlane = 0.1f;
@@ -52,7 +52,8 @@ void DoShadowPass(const Scene& scene)
 #ifdef SHADOW_PASS
     spdlog::info("  [Status] Enabled");
     // Buffer Configuration
-    ForkerGL::InitShadowBuffers(GetWidth(scene), GetHeight(scene));
+    ForkerGL::InitShadowBuffer(GetWidth(scene), GetHeight(scene));
+    ForkerGL::InitShadowDepthBuffer(GetWidth(scene), GetHeight(scene));
     ForkerGL::RenderMode(ForkerGL::ShadowPass);
 
     // Matrix
@@ -81,13 +82,40 @@ void DoShadowPass(const Scene& scene)
 
 void DoGeometryPass(const Scene& scene)
 {
+    ForkerGL::InitGeometryBuffers(GetWidth(scene), GetHeight(scene));
+    ForkerGL::InitDepthBuffer(GetWidth(scene), GetHeight(scene));
+    ForkerGL::RenderMode(ForkerGL::GeometryPass);
+
+    Float ratio = scene.GetRatio();
+
+    for (int i = 0; i < scene.GetModelCount(); ++i)
+    {
+        const auto& model = scene.GetModel(i);
+
+        // Geometry Pass
+        spdlog::info("Geometry Pass:");
+        GeometryShader geometryShader;
+        geometryShader.uModelMatrix = scene.GetModelMatrix(i);
+        geometryShader.uViewMatrix = scene.GetCamera().GetViewMatrix();
+        geometryShader.uNormalMatrix = MakeNormalMatrix(geometryShader.uModelMatrix);
+        geometryShader.uProjectionMatrix =
+            (scene.GetProjectionType() == Camera::Orthographic)
+                ? scene.GetCamera().GetOrthographicMatrix(-1.f * ratio, 1.f * ratio, -1.f,
+                                                          1.f, s_CameraNearPlane,
+                                                          s_CameraFarPlane)
+                : scene.GetCamera().GetPerspectiveMatrix(45.f, ratio, s_CameraNearPlane,
+                                                         s_CameraFarPlane);
+        // Render
+        model.Render(geometryShader);
+    }
 }
 
 void DoLightingPass(const Scene& scene)
 {
-    ForkerGL::InitFrameBuffers(GetWidth(scene), GetHeight(scene));
+    ForkerGL::InitFrameBuffer(GetWidth(scene), GetHeight(scene));
+    ForkerGL::InitDepthBuffer(GetWidth(scene), GetHeight(scene));
     ForkerGL::ClearColor(Color3(0.12f, 0.12f, 0.12f));
-    ForkerGL::RenderMode(ForkerGL::ColorPass);
+    ForkerGL::RenderMode(ForkerGL::LightingPass);
 
     Float ratio = scene.GetRatio();
 
@@ -115,7 +143,6 @@ void DoLightingPass(const Scene& scene)
             bpShader.uPointLight = scene.GetPointLight();
             bpShader.uEyePos = scene.GetCamera().GetPosition();
 #ifdef SHADOW_PASS
-            bpShader.uShadowBuffer = ForkerGL::ShadowBuffer;
             bpShader.uLightSpaceMatrix = ForkerGL::GetLightSpaceMatrix();
 #endif
             // Render
@@ -141,7 +168,6 @@ void DoLightingPass(const Scene& scene)
             pbrShader.uPointLight = scene.GetPointLight();
             pbrShader.uEyePos = scene.GetCamera().GetPosition();
 #ifdef SHADOW_PASS
-            pbrShader.uShadowBuffer = ForkerGL::ShadowBuffer;
             pbrShader.uLightSpaceMatrix = ForkerGL::GetLightSpaceMatrix();
 #endif
             // Render

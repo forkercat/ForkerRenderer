@@ -8,16 +8,22 @@
 
 #include "color.h"
 #include "tgaimage.h"
+#include "geometryshader.h"
 
 // Texture Wrapping & Filtering
 Texture::WrapMode   ForkerGL::TextureWrapping = Texture::WrapMode::NoWrap;
 Texture::FilterMode ForkerGL::TextureFiltering = Texture::FilterMode::Nearest;
 
 // Buffers
-Buffer ForkerGL::FrameBuffer;
+Buffer ForkerGL::FrameBuffer;  // Lighting Pass
 Buffer ForkerGL::DepthBuffer;
-Buffer ForkerGL::ShadowBuffer;
+Buffer ForkerGL::ShadowBuffer;  // Shadow Pass
 Buffer ForkerGL::ShadowDepthBuffer;
+Buffer ForkerGL::DepthGBuffer;  // Geometry Pass
+Buffer ForkerGL::NormalGBuffer;
+Buffer ForkerGL::WorldPosGBuffer;
+
+
 
 // Images
 TGAImage ForkerGL::AntiAliasedImage;
@@ -27,7 +33,7 @@ Matrix4x4f viewportMatrix = Matrix4x4f::Identity();
 Matrix4x4f lightSpaceMatrix = Matrix4x4f::Identity();
 
 // RenderMode
-enum ForkerGL::RenderMode renderMode = ForkerGL::ColorPass;
+enum ForkerGL::RenderMode renderMode = ForkerGL::LightingPass;
 
 // Texture Wrap Mode & Filter Mode
 void ForkerGL::TextureWrapMode(Texture::WrapMode wrapMode)
@@ -41,16 +47,31 @@ void ForkerGL::TextureFilterMode(Texture::FilterMode filterMode)
 }
 
 // Buffer Initialization
-void ForkerGL::InitFrameBuffers(int width, int height)
+void ForkerGL::InitFrameBuffer(int width, int height)
 {
     FrameBuffer = Buffer(width, height, Buffer::Zero);
+}
+
+void ForkerGL::InitDepthBuffer(int width, int height)
+{
     DepthBuffer = Buffer(width, height, Buffer::MaxFloat32);
 }
 
-void ForkerGL::InitShadowBuffers(int width, int height)
+void ForkerGL::InitShadowBuffer(int width, int height)
 {
     ShadowBuffer = Buffer(width, height, Buffer::Zero);
+}
+
+void ForkerGL::InitShadowDepthBuffer(int width, int height)
+{
     ShadowDepthBuffer = Buffer(width, height, Buffer::MaxFloat32);
+}
+
+void ForkerGL::InitGeometryBuffers(int width, int height)
+{
+    DepthGBuffer = Buffer(width, height, Buffer::MaxFloat32);
+    NormalGBuffer = Buffer(width, height, Buffer::Zero);
+    WorldPosGBuffer = Buffer(width, height, Buffer::Zero);
 }
 
 // Status Configuration
@@ -126,13 +147,18 @@ void ForkerGL::DrawTriangleSubTask(int xMin, int xMax, int yMin, int yMax,
 
             // Depth Test
             Float currentDepth = Dot(bary, depths);
-            if (renderMode ==
-                ColorPass)  // distinguish between render color or just depth value
+
+            if (renderMode == GeometryPass)
             {
                 if (currentDepth >= DepthBuffer.GetValue(px, py)) continue;
                 DepthBuffer.SetValue(px, py, currentDepth);
             }
-            else
+            else if (renderMode == LightingPass)
+            {
+                if (currentDepth >= DepthBuffer.GetValue(px, py)) continue;
+                DepthBuffer.SetValue(px, py, currentDepth);  // Update
+            }
+            else if (renderMode == ShadowPass)
             {
                 if (currentDepth >= ShadowDepthBuffer.GetValue(px, py)) continue;
                 ShadowDepthBuffer.SetValue(px, py, currentDepth);
@@ -143,10 +169,22 @@ void ForkerGL::DrawTriangleSubTask(int xMin, int xMax, int yMin, int yMax,
             bool   discard = shader.ProcessFragment(bary, frag);
             if (discard) continue;
 
-            if (renderMode == ColorPass)
+            if (renderMode == GeometryPass)
+            {
+                // Do Nothing
+                GeometryShader& geometryShader = dynamic_cast<GeometryShader&>(shader);
+                NormalGBuffer.Set(px, py, geometryShader.outNormalWS);
+                WorldPosGBuffer.Set(px, py, geometryShader.outPositionWS);
+                DepthGBuffer.SetValue(px, py, currentDepth);
+            }
+            else if (renderMode == LightingPass)
+            {
                 FrameBuffer.Set(px, py, frag);
-            else
+            }
+            else if (renderMode == ShadowPass)
+            {
                 ShadowBuffer.SetValue(px, py, frag.z);
+            }
         }
     }
 }
@@ -167,12 +205,16 @@ void ForkerGL::DrawTriangle(const Point4f ndcVerts[3], Shader& shader)
     }
 
     // Bounding Box
-    int w = (renderMode == ColorPass) ? FrameBuffer.GetWidth() : ShadowBuffer.GetWidth();
-    int h =
-        (renderMode == ColorPass) ? FrameBuffer.GetHeight() : ShadowBuffer.GetHeight();
+    int w = (renderMode == LightingPass || renderMode == GeometryPass)
+                ? DepthBuffer.GetWidth()
+                : ShadowBuffer.GetWidth();
+    int h = (renderMode == LightingPass || renderMode == GeometryPass)
+                ? DepthBuffer.GetHeight()
+                : ShadowBuffer.GetHeight();
+
     BoundBox<int> bbox = BoundBox<int>::GenerateBoundBox(points, w, h);
 
-    if (true)
+    if (true)  // single thread
     {
         DrawTriangleSubTask(bbox.MinX, bbox.MaxX, bbox.MinY, bbox.MaxY, points, shader,
                             depths);

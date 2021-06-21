@@ -24,7 +24,7 @@ model obj/mary/mary.obj true true 0.05 0 -1 -10 1
 # model obj/cyborg/cyborg.obj true true 0 0 -1 -10 1
 
 # Cat Box
-# model obj/catbox/catbox.obj true false -0.1 0.2 -1 -10 0.75
+# model obj/catbox/catbox.obj true false 0 0 0 0 0.3
 
 # Sci-Cart
 # model obj/cart/cart.obj true true 0 0 -1 180 1
@@ -37,3 +37,9 @@ model obj/mary/mary.obj true true 0.05 0 -1 -10 1
 
 # Great Sword
 # model obj/great_sword/great_sword.obj true true 0 0.3 -1 240 1
+
+# Backpack
+# model obj/backpack/backpack.obj true true 0 0 0 -1 0.5
+
+# African Head
+# model obj/african_head/head.obj true true 0 0 0 -1 0.5

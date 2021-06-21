@@ -11,21 +11,19 @@ namespace Output
 
 void OutputFrameBuffer()
 {
-    ForkerGL::FrameBuffer.GenerateImage().WriteTgaFile("output/output_framebuffer.tga");
+    ForkerGL::FrameBuffer.GenerateImage().WriteTgaFile("output/framebuffer.tga");
 }
 
 void OutputZBuffer()
 {
-    ForkerGL::DepthBuffer.GenerateGrayImage(false).WriteTgaFile(
-        "output/output_zbuffer.tga");
+    ForkerGL::DepthBuffer.GenerateGrayImage().WriteTgaFile("output/zbuffer.tga");
 }
 
 void OutputShadowBuffer()
 {
     if (ForkerGL::ShadowBuffer.GetWidth() != 0)
     {
-        ForkerGL::ShadowBuffer.GenerateGrayImage(false).WriteTgaFile(
-            "output/output_shadowmap.tga");
+        ForkerGL::ShadowBuffer.GenerateGrayImage().WriteTgaFile("output/shadowmap.tga");
     }
 }
 
@@ -33,7 +31,33 @@ void OutputSSAAImage()
 {
     if (ForkerGL::AntiAliasedImage.GetWidth() != 0)
     {
-        ForkerGL::AntiAliasedImage.WriteTgaFile("output/output_framebuffer_SSAA.tga");
+        ForkerGL::AntiAliasedImage.WriteTgaFile("output/framebuffer_SSAA.tga");
+    }
+}
+
+void OutputDepthGBuffer()
+{
+    if (ForkerGL::DepthGBuffer.GetWidth() != 0)
+    {
+        ForkerGL::DepthGBuffer.GenerateGrayImage().WriteTgaFile(
+            "output/gbuffer_depth.tga");
+    }
+}
+
+void OutputNormalGBuffer()
+{
+    if (ForkerGL::NormalGBuffer.GetWidth() != 0)
+    {
+        ForkerGL::NormalGBuffer.GenerateImage().WriteTgaFile("output/gbuffer_normal.tga");
+    }
+}
+
+void OutputWorldPosGBuffer()
+{
+    if (ForkerGL::WorldPosGBuffer.GetWidth() != 0)
+    {
+        ForkerGL::WorldPosGBuffer.GenerateImage().WriteTgaFile(
+            "output/gbuffer_worldpos.tga");
     }
 }
 

@@ -19,7 +19,8 @@ struct ForkerGL
 
     enum RenderMode
     {
-        ColorPass,
+        GeometryPass,
+        LightingPass,
         ShadowPass
     };
 
@@ -35,12 +36,18 @@ struct ForkerGL
     static Buffer DepthBuffer;
     static Buffer ShadowBuffer;
     static Buffer ShadowDepthBuffer;
+    static Buffer DepthGBuffer;
+    static Buffer NormalGBuffer;
+    static Buffer WorldPosGBuffer;
 
     // Images
     static TGAImage AntiAliasedImage;
 
-    static void InitFrameBuffers(int width, int height);
-    static void InitShadowBuffers(int width, int height);
+    static void InitFrameBuffer(int width, int height);
+    static void InitDepthBuffer(int width, int height);
+    static void InitShadowBuffer(int width, int height);
+    static void InitShadowDepthBuffer(int width, int height);
+    static void InitGeometryBuffers(int width, int height);
 
     // Update Status
     static void       ClearColor(const Color3& color);

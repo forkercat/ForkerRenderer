@@ -12,6 +12,7 @@
 #include "model.h"
 #include "pbrshader.h"
 #include "phongshader.h"
+#include "geometryshader.h"
 #include "scene.h"
 
 namespace Render

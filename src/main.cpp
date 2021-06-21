@@ -45,6 +45,7 @@ int main(int argc, const char* argv[])
 
     // Geometry Pass
     Render::DoGeometryPass(scene);
+    TimeElapsed(stepStopwatch, "Geometry Pass");
 
     // Lighting Pass
     Render::DoLightingPass(scene);
@@ -59,6 +60,9 @@ int main(int argc, const char* argv[])
     Output::OutputSSAAImage();
     Output::OutputShadowBuffer();
     Output::OutputZBuffer();
+    Output::OutputDepthGBuffer();
+    Output::OutputNormalGBuffer();
+    Output::OutputWorldPosGBuffer();
     TimeElapsed(totalStopwatch, "Total");
 
     return 0;

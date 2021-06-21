@@ -5,6 +5,7 @@
 #pragma once
 
 #include <utility>
+#include <memory>
 
 #include "buffer.h"
 #include "color.h"
@@ -14,6 +15,7 @@
 #include "model.h"
 #include "tgaimage.h"
 #include "shadow.h"
+#include "forkergl.h"
 
 // Abstract Class
 struct Shader
