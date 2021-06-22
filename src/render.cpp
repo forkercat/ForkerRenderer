@@ -195,6 +195,9 @@ void DoGeometryPass(const Scene& scene)
 void DoLightingPass(const Scene& scene)
 {
     spdlog::info("Lighting Pass (Deferred):");
+
+    // TODO
+
     TimeElapsed(stepStopwatch, "Lighting Pass");
 }
 

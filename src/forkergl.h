@@ -43,10 +43,10 @@ struct ForkerGL
     static Buffer DepthBuffer;
     static Buffer ShadowBuffer;
     static Buffer ShadowDepthBuffer;
-    static Buffer DepthGBuffer;
-    static Buffer NormalGBuffer;
+    static Buffer NormalGBuffer;  // G-Buffers
     static Buffer WorldPosGBuffer;
     static Buffer AlbedoGBuffer;
+    static Buffer EmissiveGBuffer;
     static Buffer ParamGBuffer;
     static Buffer ShadingTypeGBuffer;
 

@@ -179,7 +179,7 @@ private:
         Color3 albedo = pbrMaterial->HasBaseColorMap() ? baseColorMap->Sample(texCoord)
                                                        : pbrMaterial->albedo;
         Color3 emissive =
-            pbrMaterial->HasEmssiveMap() ? emissiveMap->Sample(texCoord) : Color3(0.f);
+            pbrMaterial->HasEmssiveMap() ? emissiveMap->Sample(texCoord) : pbrMaterial->ke;
 
         Float roughness = pbrMaterial->HasRoughnessMap()
                               ? roughnessMap->SampleFloat(texCoord)

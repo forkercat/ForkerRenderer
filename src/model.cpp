@@ -314,6 +314,14 @@ void Model::loadMaterials(const std::string& directory, const std::string& filen
             iss >> floats.x >> floats.y >> floats.z;
             m_Materials[materialName]->ks = floats;
         }
+        else if (line.compare(0, 3, "Ke ") == 0)  // Ke
+        {
+            iss >> strTrash;
+            Vector3f floats;
+            iss >> floats.x >> floats.y >> floats.z;
+            m_Materials[materialName]->ke = floats;
+            m_PBRMaterials[materialName]->ke = floats;
+        }
         else if (line.compare(0, 3, "Pr ") == 0)  // Pr (roughness)
         {
             iss >> strTrash;

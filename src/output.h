@@ -11,7 +11,7 @@ void OutputZBuffer();
 void OutputShadowBuffer();
 void OutputSSAAImage();
 // G-Buffers
-void OutputDepthGBuffer();
 void OutputNormalGBuffer();
 void OutputWorldPosGBuffer();
+void OutputAlbedoGBuffer();
 }  // namespace Output

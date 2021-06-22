@@ -28,6 +28,10 @@ struct GeometryShader : public Shader
     // Extra Output
     Vector3f outNormalWS;
     Vector3f outPositionWS;
+    Color3   outAlbedo;  // Diffuse
+    Color3   outEmissive;
+    Vector3f outParam;        // Specular
+    Float    outShadingType;  // PBR or Non-PBR
 
     Point4f ProcessVertex(int faceIdx, int vertIdx) override
     {
@@ -115,6 +119,57 @@ struct GeometryShader : public Shader
         // Output Geometry Info
         outNormalWS = normal;
         outPositionWS = positionWS;
+
+        if (mesh->GetModel().SupportPBR())
+        {
+            // PBR Material
+            std::shared_ptr<const PBRMaterial> pbrMaterial = mesh->GetPBRMaterial();
+            std::shared_ptr<const Texture>     baseColorMap = pbrMaterial->baseColorMap;
+            std::shared_ptr<const Texture>     metalnessMap = pbrMaterial->metalnessMap;
+            std::shared_ptr<const Texture>     roughnessMap = pbrMaterial->roughnessMap;
+            std::shared_ptr<const Texture>     aoMap = pbrMaterial->ambientOcclusionMap;
+            std::shared_ptr<const Texture>     emissiveMap = pbrMaterial->emissiveMap;
+
+            Color3 albedo = pbrMaterial->HasBaseColorMap()
+                                ? baseColorMap->Sample(texCoord)
+                                : pbrMaterial->albedo;
+            Color3 emissive = pbrMaterial->HasEmssiveMap() ? emissiveMap->Sample(texCoord)
+                                                           : material->ke;
+            Float  roughness = pbrMaterial->HasRoughnessMap()
+                                   ? roughnessMap->SampleFloat(texCoord)
+                                   : pbrMaterial->roughness;
+            Float  metalness = pbrMaterial->HasMetalnessMap()
+                                   ? metalnessMap->SampleFloat(texCoord)
+                                   : pbrMaterial->metalness;
+            Float  ao = pbrMaterial->HasAmbientOcclusionMap()
+                            ? aoMap->SampleFloat(texCoord)
+                            : 1.f;
+            outAlbedo = albedo;
+            outEmissive = emissive;
+            outParam = Vector3f(ao, metalness, roughness);
+            outShadingType = 1.f;  // PBR
+        }
+        else
+        {
+            // Material
+            std::shared_ptr<const Material> material = mesh->GetMaterial();
+            std::shared_ptr<const Texture>  diffuseMap = material->diffuseMap;
+            std::shared_ptr<const Texture>  specularMap = material->specularMap;
+            std::shared_ptr<const Texture>  emissiveMap = material->emissiveMap;
+
+            Color3 emissive =
+                material->HasEmissiveMap() ? emissiveMap->Sample(texCoord) : material->ke;
+            Color3 diffuseColor =
+                material->HasDiffuseMap() ? diffuseMap->Sample(texCoord) : material->kd;
+            Float ambient = material->ka.r;
+            Float specular = material->ks.r;
+            Float shininess = material->HasSpecularMap() ? specularMap->SampleFloat(texCoord) + 5 : 1.f;
+
+            outAlbedo = diffuseColor;
+            outEmissive = emissive;
+            outParam = Vector3f(ambient, specular, shininess);
+            outShadingType = 0.f;  // Non-PBR
+        }
 
         return false;  // do not discard
     }

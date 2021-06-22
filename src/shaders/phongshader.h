@@ -162,6 +162,7 @@ private:
         std::shared_ptr<const Material> material = mesh->GetMaterial();
         std::shared_ptr<const Texture>  diffuseMap = material->diffuseMap;
         std::shared_ptr<const Texture>  specularMap = material->specularMap;
+        std::shared_ptr<const Texture>  emissiveMap = material->emissiveMap;
 
         Color3 lightColor = uPointLight.color;
 
@@ -200,6 +201,7 @@ private:
         ambient = ambient * lightColor;
         diffuse = diffuse * lightColor;
         specular = specular * lightColor;
+        Color3 emissive = material->HasEmissiveMap() ? emissiveMap->Sample(texCoord) : material->ke;
 
         // Shadow Mapping
         if (Shadow::GetShadowStatus())
@@ -212,7 +214,7 @@ private:
         }
 
         // Combine
-        Color3 color = ambient + diffuse + specular;
+        Color3 color = ambient + diffuse + specular + emissive;
         return Clamp01(color);
     }
 };

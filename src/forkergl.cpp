@@ -19,10 +19,10 @@ Buffer ForkerGL::FrameBuffer;  // Lighting Pass & Forward Pass
 Buffer ForkerGL::DepthBuffer;
 Buffer ForkerGL::ShadowBuffer;  // Shadow Pass
 Buffer ForkerGL::ShadowDepthBuffer;
-Buffer ForkerGL::DepthGBuffer;  // Geometry Pass
-Buffer ForkerGL::NormalGBuffer;
+Buffer ForkerGL::NormalGBuffer;  // Geometry Pass
 Buffer ForkerGL::WorldPosGBuffer;
 Buffer ForkerGL::AlbedoGBuffer;
+Buffer ForkerGL::EmissiveGBuffer;
 Buffer ForkerGL::ParamGBuffer;
 Buffer ForkerGL::ShadingTypeGBuffer;
 
@@ -71,10 +71,10 @@ void ForkerGL::InitShadowDepthBuffer(int width, int height)
 
 void ForkerGL::InitGeometryBuffers(int width, int height)
 {
-    DepthGBuffer = Buffer(width, height, Buffer::MaxFloat32);
     NormalGBuffer = Buffer(width, height, Buffer::Zero);
     WorldPosGBuffer = Buffer(width, height, Buffer::Zero);
     AlbedoGBuffer = Buffer(width, height, Buffer::Zero);
+    EmissiveGBuffer = Buffer(width, height, Buffer::Zero);
     ParamGBuffer = Buffer(width, height, Buffer::Zero);
     ShadingTypeGBuffer = Buffer(width, height, Buffer::Zero);
 }
@@ -175,7 +175,7 @@ void ForkerGL::DrawTriangleSubTask(int xMin, int xMax, int yMin, int yMax,
             }
             else if (passType == LightingPass)
             {
-                // TODO
+                // Do nothing
             }
             else if (passType == ShadowPass)
             {
@@ -198,11 +198,14 @@ void ForkerGL::DrawTriangleSubTask(int xMin, int xMax, int yMin, int yMax,
                 GeometryShader& geometryShader = dynamic_cast<GeometryShader&>(shader);
                 NormalGBuffer.Set(px, py, geometryShader.outNormalWS);
                 WorldPosGBuffer.Set(px, py, geometryShader.outPositionWS);
-                DepthGBuffer.SetValue(px, py, currentDepth);
+                AlbedoGBuffer.Set(px, py, geometryShader.outAlbedo);
+                EmissiveGBuffer.Set(px, py, geometryShader.outEmissive);
+                ParamGBuffer.Set(px, py, geometryShader.outParam);
+                ShadingTypeGBuffer.SetValue(px, py, geometryShader.outShadingType);
             }
             else if (passType == LightingPass)
             {
-                // TODO
+                // Do nothing
             }
             else if (passType == ShadowPass)
             {

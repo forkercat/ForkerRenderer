@@ -35,15 +35,6 @@ void OutputSSAAImage()
     }
 }
 
-void OutputDepthGBuffer()
-{
-    if (ForkerGL::DepthGBuffer.GetWidth() != 0)
-    {
-        ForkerGL::DepthGBuffer.GenerateGrayImage().WriteTgaFile(
-            "output/gbuffer_depth.tga");
-    }
-}
-
 void OutputNormalGBuffer()
 {
     if (ForkerGL::NormalGBuffer.GetWidth() != 0)
@@ -58,6 +49,15 @@ void OutputWorldPosGBuffer()
     {
         ForkerGL::WorldPosGBuffer.GenerateImage().WriteTgaFile(
             "output/gbuffer_worldpos.tga");
+    }
+}
+
+void OutputAlbedoGBuffer()
+{
+    if (ForkerGL::AlbedoGBuffer.GetWidth() != 0)
+    {
+        ForkerGL::AlbedoGBuffer.GenerateImage().WriteTgaFile(
+            "output/gbuffer_albedo.tga");
     }
 }
 

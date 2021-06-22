@@ -35,7 +35,7 @@ model obj/mary/mary.obj true true 0.05 0 -1 -10 1
 # Cat Box
 # model obj/catbox/catbox.obj true false 0 0 0 0 0.3
 
-# Sci-Cart
+# Sci-Fi Cart
 # model obj/cart/cart.obj true true 0 0 -1 180 1
 
 # Horizon
