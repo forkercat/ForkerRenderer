@@ -149,59 +149,48 @@ struct BlinnPhongShader : public Shader
         }
 
         // Blinn-Phong Shading
-        gl_Color = calculateLight(lightDir, halfwayDir, normal, texCoord, visibility);
+        std::shared_ptr<const Texture> diffuseMap = material->diffuseMap;
+        std::shared_ptr<const Texture> specularMap = material->specularMap;
+        std::shared_ptr<const Texture> emissiveMap = material->emissiveMap;
+
+        Color3 diffuseColor =
+            material->HasDiffuseMap() ? diffuseMap->Sample(texCoord) : material->kd;
+        Color3 emissive =
+            material->HasEmissiveMap() ? emissiveMap->Sample(texCoord) : material->ke;
+        Float shininess = 1.f;
+        if (material->HasSpecularMap())
+            shininess = specularMap->SampleFloat(texCoord) + 5;
+        Vector3f param(material->ka.x, material->ks.x, shininess);
+
+        gl_Color = CalculateLight(lightDir, halfwayDir, normal, visibility, diffuseColor,
+                                  emissive, param, uPointLight.color);
 
         return false;  // do not discard
     }
 
-private:
-    Color3 calculateLight(const Vector3f& lightDir, const Vector3f& halfwayDir,
-                          const Vector3f& normal, const Vector2f& texCoord,
-                          Float visibility)
+    static Color3 CalculateLight(const Vector3f& lightDir, const Vector3f& halfwayDir,
+                                 const Vector3f& normal, Float visibility,
+                                 const Color3& diffuseColor, const Color3& emissive,
+                                 const Vector3f& param, const Color3& lightColor)
     {
-        std::shared_ptr<const Material> material = mesh->GetMaterial();
-        std::shared_ptr<const Texture>  diffuseMap = material->diffuseMap;
-        std::shared_ptr<const Texture>  specularMap = material->specularMap;
-        std::shared_ptr<const Texture>  emissiveMap = material->emissiveMap;
+        // Gamma Correction (sRGB -> Linear Space)
+        Color3 diffuseColorLinear = Pow(diffuseColor, Gamma);
+        Color3 emissiveLinear = Pow(emissive, Gamma);
 
-        Color3 lightColor = uPointLight.color;
+        Float ka = param.x;
+        Float ks = param.y;
+        Float shininess = param.z;
 
         // Diffuse
         Float diff = Max(0.f, Dot(lightDir, normal));
 
         // Specular
-        Float spec = Max(0.f, Dot(halfwayDir, normal));
-        if (material->HasSpecularMap())
-        {
-            Float specularity = specularMap->SampleFloat(texCoord);  // type 1
-            // Float specularity = specularMap->SampleFloat(texCoord) * 255.f;  // type 2
-            // spec *= specularity;  // type 1 - intensity
-            spec = std::pow(spec, specularity + 5);  // type 2 - shininess
-        }
-        else
-        {
-            spec = std::pow(spec, 1.0);
-        }
+        Float spec = std::pow(Max(0.f, Dot(halfwayDir, normal)), shininess);
 
         // Color of Shading Component
-        Color3 ambient, diffuse, specular;
-        if (material->HasDiffuseMap())
-        {
-            Color3 diffuseColor = diffuseMap->Sample(texCoord);
-            ambient = material->ka * diffuseColor;
-            diffuse = diff * diffuseColor;
-        }
-        else
-        {
-            ambient = material->ka;  // white
-            diffuse = diff * material->kd;
-        }
-        specular = material->ks * spec;
-
-        ambient = ambient * lightColor;
-        diffuse = diffuse * lightColor;
-        specular = specular * lightColor;
-        Color3 emissive = material->HasEmissiveMap() ? emissiveMap->Sample(texCoord) : material->ke;
+        Color3 ambient = Color3(ka) * diffuseColorLinear;
+        Color3 diffuse = diffuseColorLinear * diff;
+        Color3 specular = Color3(ks) * spec;
 
         // Shadow Mapping
         if (Shadow::GetShadowStatus())
@@ -214,7 +203,11 @@ private:
         }
 
         // Combine
-        Color3 color = ambient + diffuse + specular + emissive;
+        Color3 color = (ambient + diffuse + specular + emissiveLinear) * lightColor;
+
+        // Gamma Correction
+        color = Pow(color, InvGamma);
+
         return Clamp01(color);
     }
 };

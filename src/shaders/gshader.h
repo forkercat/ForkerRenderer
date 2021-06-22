@@ -25,9 +25,14 @@ struct GShader : public Shader
     Matrix4x4f uProjectionMatrix;
     Matrix3x3f uNormalMatrix;
 
+    // For Shadow Pass
+    Matrix4x4f uLightSpaceMatrix;
+    Matrix3x3f vPositionLightSpaceNDC;
+
     // Extra Output
     Vector3f outNormalWS;
     Vector3f outPositionWS;
+    Vector3f outLightSpaceNDC;
     Color3   outAlbedo;  // Diffuse
     Color3   outEmissive;
     Vector3f outParam;        // Specular
@@ -53,6 +58,15 @@ struct GShader : public Shader
         v2fPositionsWS.SetCol(vertIdx, positionWS.xyz);
         v2fTexCoords.SetCol(vertIdx, texCoord);
 
+        // Shadow Mapping
+        bool    isShadowOn = Shadow::GetShadowStatus();
+        Point4f positionLightSpaceNDC;
+        if (isShadowOn)
+        {
+            positionLightSpaceNDC = uLightSpaceMatrix * positionWS;
+            positionLightSpaceNDC /= positionLightSpaceNDC.w;
+        }
+
         // PCI
 #ifdef PERSPECTIVE_CORRECT_INTERPOLATION
         Float oneOverW = 1.f / positionCS.w;
@@ -61,6 +75,7 @@ struct GShader : public Shader
         texCoord *= oneOverW;
         normalWS *= oneOverW;
         if (mesh->GetModel().HasTangents()) tangentWS *= oneOverW;
+        if (isShadowOn) positionLightSpaceNDC *= oneOverW;
 #endif
 
         // Varying
@@ -69,6 +84,7 @@ struct GShader : public Shader
         vNormalCorrectedWS.SetCol(vertIdx, normalWS);
         if (mesh->GetModel().HasTangents())
             vTangentCorrectedWS.SetCol(vertIdx, tangentWS);
+        if (isShadowOn) vPositionLightSpaceNDC.SetCol(vertIdx, positionLightSpaceNDC.xyz);
 
         // Perspective Division
         Point4f positionNDC = positionCS / positionCS.w;
@@ -116,6 +132,16 @@ struct GShader : public Shader
             normal = N;
         }
 
+        // Light Space NDC Info
+        if (Shadow::GetShadowStatus())
+        {
+            Point3f positionLightSpaceNDC = vPositionLightSpaceNDC * baryCoord;
+#ifdef PERSPECTIVE_CORRECT_INTERPOLATION
+            positionLightSpaceNDC *= w;
+#endif
+            outLightSpaceNDC = positionLightSpaceNDC;
+        }
+
         // Output Geometry Info
         outNormalWS = normal;
         outPositionWS = positionWS;
@@ -144,6 +170,7 @@ struct GShader : public Shader
             Float  ao = pbrMaterial->HasAmbientOcclusionMap()
                             ? aoMap->SampleFloat(texCoord)
                             : 1.f;
+
             outAlbedo = albedo;
             outEmissive = emissive;
             outParam = Vector3f(ao, metalness, roughness);

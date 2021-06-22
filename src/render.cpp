@@ -186,6 +186,7 @@ void DoGeometryPass(const Scene& scene)
                                                           s_CameraFarPlane)
                 : scene.GetCamera().GetPerspectiveMatrix(45.f, ratio, s_CameraNearPlane,
                                                          s_CameraFarPlane);
+        geometryShader.uLightSpaceMatrix = ForkerGL::GetLightSpaceMatrix();
         // Render
         model.Render(geometryShader);
     }
@@ -196,7 +197,7 @@ void DoLightingPass(const Scene& scene)
 {
     spdlog::info("Lighting Pass (Deferred):");
 
-    // TODO
+    ForkerGL::DrawScreenSpacePixels(scene);
 
     TimeElapsed(stepStopwatch, "Lighting Pass");
 }

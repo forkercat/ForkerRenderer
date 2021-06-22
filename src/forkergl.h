@@ -11,6 +11,7 @@
 #include "shader.h"
 #include "texture.h"
 
+class Scene;
 class TGAImage;
 
 struct ForkerGL
@@ -45,6 +46,7 @@ struct ForkerGL
     static Buffer ShadowDepthBuffer;
     static Buffer NormalGBuffer;  // G-Buffers
     static Buffer WorldPosGBuffer;
+    static Buffer LightSpaceNDCPosGBuffer;
     static Buffer AlbedoGBuffer;
     static Buffer EmissiveGBuffer;
     static Buffer ParamGBuffer;
@@ -70,6 +72,7 @@ struct ForkerGL
 
     // Rasterization
     static void DrawTriangle(const Point4f ndcVerts[3], Shader& shader);
+    static void DrawScreenSpacePixels(const Scene& scene);
 
 private:
     static void DrawTriangleSubTask(int xMin, int xMax, int yMin, int yMax,

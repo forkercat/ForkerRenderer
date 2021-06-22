@@ -9,6 +9,7 @@
 #include "color.h"
 #include "gshader.h"
 #include "tgaimage.h"
+#include "scene.h"
 
 // Texture Wrapping & Filtering
 Texture::WrapMode   ForkerGL::TextureWrapping = Texture::WrapMode::NoWrap;
@@ -21,6 +22,7 @@ Buffer ForkerGL::ShadowBuffer;  // Shadow Pass
 Buffer ForkerGL::ShadowDepthBuffer;
 Buffer ForkerGL::NormalGBuffer;  // Geometry Pass
 Buffer ForkerGL::WorldPosGBuffer;
+Buffer ForkerGL::LightSpaceNDCPosGBuffer;
 Buffer ForkerGL::AlbedoGBuffer;
 Buffer ForkerGL::EmissiveGBuffer;
 Buffer ForkerGL::ParamGBuffer;
@@ -73,6 +75,8 @@ void ForkerGL::InitGeometryBuffers(int width, int height)
 {
     NormalGBuffer = Buffer(width, height, Buffer::Zero);
     WorldPosGBuffer = Buffer(width, height, Buffer::Zero);
+    if (Shadow::GetShadowStatus())
+        LightSpaceNDCPosGBuffer = Buffer(width, height, Buffer::Zero);
     AlbedoGBuffer = Buffer(width, height, Buffer::Zero);
     EmissiveGBuffer = Buffer(width, height, Buffer::Zero);
     ParamGBuffer = Buffer(width, height, Buffer::Zero);
@@ -198,6 +202,8 @@ void ForkerGL::DrawTriangleSubTask(int xMin, int xMax, int yMin, int yMax,
                 GShader& geometryShader = dynamic_cast<GShader&>(shader);
                 NormalGBuffer.Set(px, py, geometryShader.outNormalWS);
                 WorldPosGBuffer.Set(px, py, geometryShader.outPositionWS);
+                if (Shadow::GetShadowStatus())
+                    LightSpaceNDCPosGBuffer.Set(px, py, geometryShader.outLightSpaceNDC);
                 AlbedoGBuffer.Set(px, py, geometryShader.outAlbedo);
                 EmissiveGBuffer.Set(px, py, geometryShader.outEmissive);
                 ParamGBuffer.Set(px, py, geometryShader.outParam);
@@ -303,4 +309,10 @@ void ForkerGL::DrawTriangle(const Point4f ndcVerts[3], Shader& shader)
             // }
         }
     }
+}
+
+void ForkerGL::DrawScreenSpacePixels(const Scene& scene)
+{
+    // TODO
+
 }

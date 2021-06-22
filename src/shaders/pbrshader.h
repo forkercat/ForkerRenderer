@@ -151,35 +151,17 @@ struct PBRShader : public Shader
         }
 
         // Physically-Based Shading
-        gl_Color =
-            calculateLight(lightDir, viewDir, halfwayDir, normal, texCoord, visibility);
-
-        return false;  // do not discard
-    }
-
-private:
-    Color3 calculateLight(const Vector3f& lightDir, const Vector3f& viewDir,
-                          const Vector3f& halfwayDir, const Vector3f& normal,
-                          const Vector2f& texCoord, Float visibility)
-    {
-        // Dot, Dot, Dot
-        Float NdotV = Max(Dot(normal, viewDir), 0.f);
-        Float NdotL = Max(Dot(normal, lightDir), 0.f);
-        Float NdotH = Max(Dot(normal, halfwayDir), 0.f);
-        Float HdotV = Max(Dot(halfwayDir, viewDir), 0.f);
-
         // Texture Sampling
-        std::shared_ptr<const PBRMaterial> pbrMaterial = mesh->GetPBRMaterial();
-        std::shared_ptr<const Texture>     baseColorMap = pbrMaterial->baseColorMap;
-        std::shared_ptr<const Texture>     metalnessMap = pbrMaterial->metalnessMap;
-        std::shared_ptr<const Texture>     roughnessMap = pbrMaterial->roughnessMap;
-        std::shared_ptr<const Texture>     aoMap = pbrMaterial->ambientOcclusionMap;
-        std::shared_ptr<const Texture>     emissiveMap = pbrMaterial->emissiveMap;
+        std::shared_ptr<const Texture> baseColorMap = pbrMaterial->baseColorMap;
+        std::shared_ptr<const Texture> metalnessMap = pbrMaterial->metalnessMap;
+        std::shared_ptr<const Texture> roughnessMap = pbrMaterial->roughnessMap;
+        std::shared_ptr<const Texture> aoMap = pbrMaterial->ambientOcclusionMap;
+        std::shared_ptr<const Texture> emissiveMap = pbrMaterial->emissiveMap;
 
         Color3 albedo = pbrMaterial->HasBaseColorMap() ? baseColorMap->Sample(texCoord)
                                                        : pbrMaterial->albedo;
-        Color3 emissive =
-            pbrMaterial->HasEmssiveMap() ? emissiveMap->Sample(texCoord) : pbrMaterial->ke;
+        Color3 emissive = pbrMaterial->HasEmssiveMap() ? emissiveMap->Sample(texCoord)
+                                                       : pbrMaterial->ke;
 
         Float roughness = pbrMaterial->HasRoughnessMap()
                               ? roughnessMap->SampleFloat(texCoord)
@@ -189,18 +171,41 @@ private:
                               : pbrMaterial->metalness;
         Float ao =
             pbrMaterial->HasAmbientOcclusionMap() ? aoMap->SampleFloat(texCoord) : 1.f;
-
-        // Input Radiance
-        Color3 radiance = uPointLight.color;  // ignore distance attenuation
-        // radiance = Color3(10.0);
+        Vector3f param(ao, metalness, roughness);
 
         // Gamma Correction (sRGB -> Linear Space)
         albedo = Pow(albedo, Gamma);
         emissive = Pow(emissive, Gamma);
 
+        gl_Color = CalculateLight(lightDir, viewDir, halfwayDir, normal, visibility,
+                                  albedo, emissive, param, uPointLight.color);
+
+        return false;  // do not discard
+    }
+
+    static Color3 CalculateLight(const Vector3f& lightDir, const Vector3f& viewDir,
+                                 const Vector3f& halfwayDir, const Vector3f& normal,
+                                 Float visibility, const Color3& albedo,
+                                 const Color3& emissive, const Vector3f& param,
+                                 const Color3& lightRadiance)
+    {
+        // Gamma Correction (sRGB -> Linear Space)
+        Color3 albedoLinear = Pow(albedoLinear, Gamma);
+        Color3 emissiveLinear = Pow(emissiveLinear, Gamma);
+
+        Float ao = param.x;
+        Float metalness = param.y;
+        Float roughness = param.z;
+
+        // Dot, Dot, Dot
+        Float NdotV = Max(Dot(normal, viewDir), 0.f);
+        Float NdotL = Max(Dot(normal, lightDir), 0.f);
+        Float NdotH = Max(Dot(normal, halfwayDir), 0.f);
+        Float HdotV = Max(Dot(halfwayDir, viewDir), 0.f);
+
         // Reflectance Equation
         Color3 F0 = Vector3f(0.04f);  // average base reflectivity
-        F0 = Lerp(metalness, F0, albedo);
+        F0 = Lerp(metalness, F0, albedoLinear);
 
         // Cook-Torrance BRDF
         Float    NDF = distributionGGX(NdotH, roughness);  // D
@@ -219,10 +224,10 @@ private:
         kd *= 1.f - metalness;  // only non-metallic material has diffuse lighting
 
         // BRDF
-        Vector3f brdf = kd * albedo * InvPi + specular;
+        Vector3f brdf = kd * albedoLinear * InvPi + specular;
 
         // Outgoing Radiance
-        Color3 Lo = brdf * radiance * NdotL;
+        Color3 Lo = brdf * lightRadiance * NdotL;
 
         // Shadow Mapping
         if (Shadow::GetShadowStatus())
@@ -236,11 +241,11 @@ private:
         Color3 color = Lo;
 
         // Ambient
-        Color3 ambient = Color3(0.03) * albedo * ao;
+        Color3 ambient = Color3(0.03) * albedoLinear * ao;
         color += ambient;
 
         // Emissive
-        color += emissive;
+        color += emissiveLinear;
 
         // HDR Tonemapping
         color = color / (color + Color3(1.f));
@@ -251,6 +256,7 @@ private:
         return Clamp01(color);
     }
 
+private:
     static Float distributionGGX(Float NdotH, Float roughness)
     {
         Float a = roughness * roughness;  // roughness^2 is better
