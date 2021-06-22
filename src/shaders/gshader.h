@@ -6,7 +6,7 @@
 
 #include "shader.h"
 
-struct GeometryShader : public Shader
+struct GShader : public Shader
 {
     // Interpolated Variables
     Matrix3x3f vPositionCorrectedWS;  // world space

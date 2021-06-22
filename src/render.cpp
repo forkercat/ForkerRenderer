@@ -175,7 +175,7 @@ void DoGeometryPass(const Scene& scene)
 
         // Geometry Pass
         spdlog::info("Geometry Pass (Deferred):");
-        GeometryShader geometryShader;
+        GShader geometryShader;
         geometryShader.uModelMatrix = scene.GetModelMatrix(i);
         geometryShader.uViewMatrix = scene.GetCamera().GetViewMatrix();
         geometryShader.uNormalMatrix = MakeNormalMatrix(geometryShader.uModelMatrix);

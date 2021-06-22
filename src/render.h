@@ -8,7 +8,7 @@
 #include "depthshader.h"
 #include "forkergl.h"
 #include "geometry.h"
-#include "geometryshader.h"
+#include "gshader.h"
 #include "light.h"
 #include "model.h"
 #include "pbrshader.h"

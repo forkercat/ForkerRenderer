@@ -7,7 +7,7 @@
 #include <thread>
 
 #include "color.h"
-#include "geometryshader.h"
+#include "gshader.h"
 #include "tgaimage.h"
 
 // Texture Wrapping & Filtering
@@ -195,7 +195,7 @@ void ForkerGL::DrawTriangleSubTask(int xMin, int xMax, int yMin, int yMax,
             else if (passType == GeometryPass)
             {
                 // Do Nothing
-                GeometryShader& geometryShader = dynamic_cast<GeometryShader&>(shader);
+                GShader& geometryShader = dynamic_cast<GShader&>(shader);
                 NormalGBuffer.Set(px, py, geometryShader.outNormalWS);
                 WorldPosGBuffer.Set(px, py, geometryShader.outPositionWS);
                 AlbedoGBuffer.Set(px, py, geometryShader.outAlbedo);
