@@ -175,43 +175,37 @@ About **5,000** lines of code:
 
 ```console
 $ ./ForkerRenderer scenes/test.scene
-[info] Scene File: scenes/test.scene
+[info] Scene File: 'scenes/test.scene'
+[info]   [Mode] Forward Rendering
 [info]   [Screen] 1280 x 800
-[info]   [SSAA] off (x2)
-[info]   [Shadow] on (PCSS)
 [info]   [Point Light] position: [ 2.00000000, 5.00000000, 5.00000000 ], color: [ 1.00000000, 1.00000000, 1.00000000 ]
 [info]   [Camera] position: [ -1.00000000, 1.00000000, 1.00000000 ], lookAt: [ 0.00000000, 0.00000000, -1.00000000 ]
-[info]   [Model] obj/diablo_pose/diablo_pose.obj
+[info]   [Model] 'obj/diablo_pose/diablo_pose.obj'
 [info]      v# 2519, f# 5022, vt# 3263, vn# 2519, tg# 2519, mesh# 1, mtl# 1 | normalized[o] generateTangent[o], flipTexCoordY[o]
 [info]      [Diablo_Pose] f# 5022 | PBR[x] map_Kd[o] map_Ks[o] map_Ke[x] map_Bump[o] | Ka(0.10, 0.10, 0.10), Kd(0.81, 0.81, 0.81), Ks(0.20, 0.20, 0.20)
+[info]   [Config] SSAA(x2)[off] shadow[on]
 [info] ------------------------------------------------------------
-[info] <Time Used: 0.737825 Seconds (Scene Loaded)>
+[info] Time Used: 0.714729 Seconds (Scene Loaded)
 
 [info] Shadow Pass:
 [info]   [Status] Enabled
-[info]   [Diablo_Pose] Time Used: 0.311203 Seconds
+[info]   [Diablo_Pose] Time Used: 0.106988 Seconds
 [info] ------------------------------------------------------------
-[info] <Time Used: 0.460671 Seconds (Shadow Pass)>
+[info] Time Used: 0.858756 Seconds (Shadow Pass)
 
-[info] Lighting Pass (Blinn-Phong):
-[info]   [Diablo_Pose] Time Used: 15.2718 Seconds
+[info] Forward Pass (Blinn-Phong):
+[info]   [Diablo_Pose] Time Used: 3.92819 Seconds
 [info] ------------------------------------------------------------
-[info] <Time Used: 15.5920 Seconds (Lighting Pass)>
+[info] Time Used: 3.97755 Seconds (Forward Pass)
 
 [info] Anti-Aliasing (SSAA):
-[info]   [Status] Enabled
-[info]   [Kernel Size] 2
-[info]   [Sampling Size] 2560 x 1600
-[info]   [Output Size] 1280 x 800
+[info]   [Status] Disabled
 [info] ------------------------------------------------------------
-[info] <Time Used: 0.827486 Seconds (Anti-Aliasing)>
+[info] Time Used: 4.87400e-06 Seconds (Anti-Aliasing)
 
-[info] Output TGA File: output/output_framebuffer.tga
-[info] Output TGA File: output/output_framebuffer_SSAA.tga
-[info] Output TGA File: output/output_shadowmap.tga
-[info] Output TGA File: output/output_zbuffer.tga
-[info] ------------------------------------------------------------
-[info] <Time Used: 18.8501 Seconds (Total)>
+[info] Output TGA File: 'output/framebuffer.tga'
+[info] Output TGA File: 'output/shadowmap.tga'
+[info] Output TGA File: 'output/zbuffer.tga'
 ```
 
 ## Reference 📚

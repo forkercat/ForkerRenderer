@@ -46,7 +46,7 @@ int main(int argc, const char* argv[])
     Output::OutputSSAAImage();
     Output::OutputShadowBuffer();
     Output::OutputZBuffer();
-    Output::OutputDepthGBuffer();
+    Output::OutputDepthGBuffer();  // if not empty
     Output::OutputNormalGBuffer();
     Output::OutputWorldPosGBuffer();
 
