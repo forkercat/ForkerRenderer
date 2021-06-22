@@ -22,7 +22,7 @@ inline std::string Ltrim(const std::string& s)
 inline void TimeElapsed(spdlog::stopwatch& sw, std::string note = "")
 {
     spdlog::info("------------------------------------------------------------");
-    spdlog::info("<Time Used: {:.6} Seconds ({})>\n", sw, note);
+    spdlog::info("Time Used: {:.6} Seconds ({})\n", sw, note);
     sw.reset();
 }
 

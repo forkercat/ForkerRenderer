@@ -21,8 +21,12 @@ namespace Render
 // Configure
 void Preconfigure(const Scene& scene);
 
+// Render
+void Render(const Scene& scene);
+
 // Pass
 void DoShadowPass(const Scene& scene);
+void DoForwardPass(const Scene& scene);
 void DoGeometryPass(const Scene& scene);
 void DoLightingPass(const Scene& scene);
 

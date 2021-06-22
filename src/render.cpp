@@ -13,6 +13,8 @@ static const Float s_ShadowFarPlane = 20.f;
 static const Float s_CameraNearPlane = 0.01f;
 static const Float s_CameraFarPlane = 20.f;
 
+static spdlog::stopwatch stepStopwatch;
+
 namespace Render
 {
 
@@ -35,6 +37,26 @@ void Preconfigure(const Scene& scene)
     ForkerGL::TextureFilterMode(Texture::Nearest);  // or Linear
 }
 
+void Render(const Scene& scene)
+{
+    // Shadow Pass
+    Render::DoShadowPass(scene);
+
+    // Forward Rendering
+    if (ForkerGL::GetRenderMode() == ForkerGL::Forward)
+    {
+        DoForwardPass(scene);
+    }
+    // Deferred Rendering
+    else
+    {
+        DoGeometryPass(scene);
+        DoLightingPass(scene);
+    }
+    // Anti-Aliasing
+    DoSSAA(scene);
+}
+
 void DoShadowPass(const Scene& scene)
 {
     spdlog::info("Shadow Pass:");
@@ -45,7 +67,7 @@ void DoShadowPass(const Scene& scene)
         // Buffer Configuration
         ForkerGL::InitShadowBuffer(GetWidth(scene), GetHeight(scene));
         ForkerGL::InitShadowDepthBuffer(GetWidth(scene), GetHeight(scene));
-        ForkerGL::RenderMode(ForkerGL::ShadowPass);
+        ForkerGL::SetPassType(ForkerGL::ShadowPass);
 
         // Matrix
         Matrix4x4f viewMatrixSM =
@@ -71,13 +93,79 @@ void DoShadowPass(const Scene& scene)
     {
         spdlog::info("  [Status] Disabled");
     }
+    TimeElapsed(stepStopwatch, "Shadow Pass");
+}
+
+void DoForwardPass(const Scene& scene)
+{
+    ForkerGL::InitFrameBuffer(GetWidth(scene), GetHeight(scene));
+    ForkerGL::InitDepthBuffer(GetWidth(scene), GetHeight(scene));
+    ForkerGL::ClearColor(Color3(0.12f, 0.12f, 0.12f));
+    ForkerGL::SetPassType(ForkerGL::ForwardPass);
+
+    Float ratio = scene.GetRatio();
+
+    for (int i = 0; i < scene.GetModelCount(); ++i)
+    {
+        const auto& model = scene.GetModel(i);
+
+        if (!model.SupportPBR())
+        {
+            // Blinn-Phong Shading
+            spdlog::info("Forward Pass (Blinn-Phong):");
+            BlinnPhongShader bpShader;
+            bpShader.uModelMatrix = scene.GetModelMatrix(i);
+            bpShader.uViewMatrix = scene.GetCamera().GetViewMatrix();
+            bpShader.uNormalMatrix = MakeNormalMatrix(bpShader.uModelMatrix);
+            bpShader.uProjectionMatrix =
+                (scene.GetProjectionType() == Camera::Orthographic)
+                ? scene.GetCamera().GetOrthographicMatrix(
+                    -1.f * ratio, 1.f * ratio, -1.f, 1.f, s_CameraNearPlane,
+                    s_CameraFarPlane)
+                : scene.GetCamera().GetPerspectiveMatrix(
+                    45.f, ratio, s_CameraNearPlane, s_CameraFarPlane);
+
+            // Shader Configuration
+            bpShader.uPointLight = scene.GetPointLight();
+            bpShader.uEyePos = scene.GetCamera().GetPosition();
+            if (Shadow::GetShadowStatus())
+                bpShader.uLightSpaceMatrix = ForkerGL::GetLightSpaceMatrix();
+            // Render
+            model.Render(bpShader);
+        }
+        else
+        {
+            // PBR Shading
+            spdlog::info("Forward Pass (PBR):");
+            PBRShader pbrShader;
+            pbrShader.uModelMatrix = scene.GetModelMatrix(i);
+            pbrShader.uViewMatrix = scene.GetCamera().GetViewMatrix();
+            pbrShader.uNormalMatrix = MakeNormalMatrix(pbrShader.uModelMatrix);
+            pbrShader.uProjectionMatrix =
+                (scene.GetProjectionType() == Camera::Orthographic)
+                ? scene.GetCamera().GetOrthographicMatrix(
+                    -1.f * ratio, 1.f * ratio, -1.f, 1.f, s_CameraNearPlane,
+                    s_CameraFarPlane)
+                : scene.GetCamera().GetPerspectiveMatrix(
+                    45.f, ratio, s_CameraNearPlane, s_CameraFarPlane);
+
+            // Shader Configuration
+            pbrShader.uPointLight = scene.GetPointLight();
+            pbrShader.uEyePos = scene.GetCamera().GetPosition();
+            if (Shadow::GetShadowStatus())
+                pbrShader.uLightSpaceMatrix = ForkerGL::GetLightSpaceMatrix();
+            // Render
+            model.Render(pbrShader);
+        }
+    }
+    TimeElapsed(stepStopwatch, "Forward Pass");
 }
 
 void DoGeometryPass(const Scene& scene)
 {
     ForkerGL::InitGeometryBuffers(GetWidth(scene), GetHeight(scene));
     ForkerGL::InitDepthBuffer(GetWidth(scene), GetHeight(scene));
-    ForkerGL::RenderMode(ForkerGL::GeometryPass);
+    ForkerGL::SetPassType(ForkerGL::GeometryPass);
 
     Float ratio = scene.GetRatio();
 
@@ -86,7 +174,7 @@ void DoGeometryPass(const Scene& scene)
         const auto& model = scene.GetModel(i);
 
         // Geometry Pass
-        spdlog::info("Geometry Pass:");
+        spdlog::info("Geometry Pass (Deferred):");
         GeometryShader geometryShader;
         geometryShader.uModelMatrix = scene.GetModelMatrix(i);
         geometryShader.uViewMatrix = scene.GetCamera().GetViewMatrix();
@@ -101,70 +189,13 @@ void DoGeometryPass(const Scene& scene)
         // Render
         model.Render(geometryShader);
     }
+    TimeElapsed(stepStopwatch, "Geometry Pass");
 }
 
 void DoLightingPass(const Scene& scene)
 {
-    ForkerGL::InitFrameBuffer(GetWidth(scene), GetHeight(scene));
-    ForkerGL::InitDepthBuffer(GetWidth(scene), GetHeight(scene));
-    ForkerGL::ClearColor(Color3(0.12f, 0.12f, 0.12f));
-    ForkerGL::RenderMode(ForkerGL::LightingPass);
-
-    Float ratio = scene.GetRatio();
-
-    for (int i = 0; i < scene.GetModelCount(); ++i)
-    {
-        const auto& model = scene.GetModel(i);
-
-        if (!model.SupportPBR())
-        {
-            // Blinn-Phong Shading
-            spdlog::info("Lighting Pass (Blinn-Phong):");
-            BlinnPhongShader bpShader;
-            bpShader.uModelMatrix = scene.GetModelMatrix(i);
-            bpShader.uViewMatrix = scene.GetCamera().GetViewMatrix();
-            bpShader.uNormalMatrix = MakeNormalMatrix(bpShader.uModelMatrix);
-            bpShader.uProjectionMatrix =
-                (scene.GetProjectionType() == Camera::Orthographic)
-                    ? scene.GetCamera().GetOrthographicMatrix(
-                          -1.f * ratio, 1.f * ratio, -1.f, 1.f, s_CameraNearPlane,
-                          s_CameraFarPlane)
-                    : scene.GetCamera().GetPerspectiveMatrix(
-                          45.f, ratio, s_CameraNearPlane, s_CameraFarPlane);
-
-            // Shader Configuration
-            bpShader.uPointLight = scene.GetPointLight();
-            bpShader.uEyePos = scene.GetCamera().GetPosition();
-            if (Shadow::GetShadowStatus())
-                bpShader.uLightSpaceMatrix = ForkerGL::GetLightSpaceMatrix();
-            // Render
-            model.Render(bpShader);
-        }
-        else
-        {
-            // PBR Shading
-            spdlog::info("Lighting Pass (PBR):");
-            PBRShader pbrShader;
-            pbrShader.uModelMatrix = scene.GetModelMatrix(i);
-            pbrShader.uViewMatrix = scene.GetCamera().GetViewMatrix();
-            pbrShader.uNormalMatrix = MakeNormalMatrix(pbrShader.uModelMatrix);
-            pbrShader.uProjectionMatrix =
-                (scene.GetProjectionType() == Camera::Orthographic)
-                    ? scene.GetCamera().GetOrthographicMatrix(
-                          -1.f * ratio, 1.f * ratio, -1.f, 1.f, s_CameraNearPlane,
-                          s_CameraFarPlane)
-                    : scene.GetCamera().GetPerspectiveMatrix(
-                          45.f, ratio, s_CameraNearPlane, s_CameraFarPlane);
-
-            // Shader Configuration
-            pbrShader.uPointLight = scene.GetPointLight();
-            pbrShader.uEyePos = scene.GetCamera().GetPosition();
-            if (Shadow::GetShadowStatus())
-                pbrShader.uLightSpaceMatrix = ForkerGL::GetLightSpaceMatrix();
-            // Render
-            model.Render(pbrShader);
-        }
-    }
+    spdlog::info("Lighting Pass (Deferred):");
+    TimeElapsed(stepStopwatch, "Lighting Pass");
 }
 
 void DoSSAA(const Scene& scene)
@@ -218,6 +249,7 @@ void DoSSAA(const Scene& scene)
     {
         spdlog::info("  [Status] Disabled");
     }
+    TimeElapsed(stepStopwatch, "Anti-Aliasing");
 }
 
 }  // namespace Render

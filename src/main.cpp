@@ -10,7 +10,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 static spdlog::stopwatch stepStopwatch;
-static spdlog::stopwatch totalStopwatch;
 
 static void InitSpdLog()
 {
@@ -39,21 +38,8 @@ int main(int argc, const char* argv[])
     // Preconfiguration
     Render::Preconfigure(scene);
 
-    // Shadow Pass
-    Render::DoShadowPass(scene);
-    TimeElapsed(stepStopwatch, "Shadow Pass");
-
-    // Geometry Pass
-    Render::DoGeometryPass(scene);
-    TimeElapsed(stepStopwatch, "Geometry Pass");
-
-    // Lighting Pass
-    Render::DoLightingPass(scene);
-    TimeElapsed(stepStopwatch, "Lighting Pass");
-
-    // Anti-Aliasing
-    Render::DoSSAA(scene);
-    TimeElapsed(stepStopwatch, "Anti-Aliasing");
+    // Render
+    Render::Render(scene);
 
     // Output
     Output::OutputFrameBuffer();
@@ -63,7 +49,6 @@ int main(int argc, const char* argv[])
     Output::OutputDepthGBuffer();
     Output::OutputNormalGBuffer();
     Output::OutputWorldPosGBuffer();
-    TimeElapsed(totalStopwatch, "Total");
 
     return 0;
 }

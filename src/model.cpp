@@ -30,7 +30,7 @@ std::unique_ptr<Model> Model::Load(const std::string& filename, bool normalized,
     model->m_TexCoords.clear();
     model->m_Normals.clear();
 
-    spdlog::info("  [Model] {}", filename);
+    spdlog::info("  [Model] \'{}\'", filename);
 
     model->m_HasTangents = generateTangent;
 
@@ -269,7 +269,7 @@ void Model::loadMaterials(const std::string& directory, const std::string& filen
 
     if (in.fail())
     {
-        spdlog::error("Cannot open the .mtl file: {}", mtlFilename);
+        spdlog::error("Cannot open the .mtl file: \'{}\'", mtlFilename);
         return;
     }
 

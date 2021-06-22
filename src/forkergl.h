@@ -19,6 +19,13 @@ struct ForkerGL
 
     enum RenderMode
     {
+        Forward,
+        Deferred
+    };
+
+    enum PassType
+    {
+        ForwardPass,
         GeometryPass,
         LightingPass,
         ShadowPass
@@ -39,6 +46,9 @@ struct ForkerGL
     static Buffer DepthGBuffer;
     static Buffer NormalGBuffer;
     static Buffer WorldPosGBuffer;
+    static Buffer AlbedoGBuffer;
+    static Buffer ParamGBuffer;
+    static Buffer ShadingTypeGBuffer;
 
     // Images
     static TGAImage AntiAliasedImage;
@@ -54,7 +64,9 @@ struct ForkerGL
     static void       Viewport(int x, int y, int w, int h);
     static void       SetLightSpaceMatrix(const Matrix4x4f& matrix);
     static Matrix4x4f GetLightSpaceMatrix();
-    static void       RenderMode(enum RenderMode mode);
+    static void       SetRenderMode(enum RenderMode mode);
+    static RenderMode       GetRenderMode();
+    static void             SetPassType(enum PassType type);
 
     // Rasterization
     static void DrawTriangle(const Point4f ndcVerts[3], Shader& shader);

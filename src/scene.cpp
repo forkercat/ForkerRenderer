@@ -10,10 +10,11 @@
 #include <sstream>
 
 #include "color.h"
+#include "forkergl.h"
 #include "light.h"
 #include "model.h"
-#include "utility.h"
 #include "shadow.h"
+#include "utility.h"
 
 const static int s_DefaultWidth = 1280;
 const static int s_DefaultHeight = 800;
@@ -39,7 +40,7 @@ Scene::Scene(const std::string& filename)
         assert(false);
     }
 
-    spdlog::info("Scene File: {}", filename);
+    spdlog::info("Scene File: \'{}\'", filename);
 
     // Data
 
@@ -52,11 +53,30 @@ Scene::Scene(const std::string& filename)
 
         // Trash
         std::string strTrash;
-        if (line.compare(0, 1, "#") == 0)  // comments
+        if (line.compare(0, 1, "#") == 0)  // Comments
         {
             continue;
         }
-        else if (line.compare(0, 7, "screen ") == 0)  // screen
+        else if (line.compare(0, 5, "mode ") == 0)  // Render Mode
+        {
+            std::string mode;
+            iss >> strTrash >> mode;
+            if (mode == "forward")
+            {
+                ForkerGL::SetRenderMode(ForkerGL::Forward);
+            }
+            else if (mode == "deferred")
+            {
+                ForkerGL::SetRenderMode(ForkerGL::Deferred);
+            }
+            else  // Forward mode as default
+            {
+                ForkerGL::SetRenderMode(ForkerGL::Forward);
+            }
+            spdlog::info("  [Mode] {}",
+                         mode == "deferred" ? "Deferred Rendering" : "Forward Rendering");
+        }
+        else if (line.compare(0, 7, "screen ") == 0)  // Screen
         {
             iss >> strTrash >> m_Width >> m_Height;
             spdlog::info("  [Screen] {} x {}", m_Width, m_Height);
@@ -66,16 +86,14 @@ Scene::Scene(const std::string& filename)
             std::string status;
             iss >> strTrash >> status >> m_SSAAKernelSize;
             m_SSAA = (status == "on");
-            spdlog::info("  [SSAA] {} (x{})", status, m_SSAAKernelSize);
         }
         else if (line.compare(0, 7, "shadow ") == 0)  // Shadow
         {
             std::string status;
             iss >> strTrash >> status;
             Shadow::SetShadowStatus(status == "on");
-            spdlog::info("  [Shadow] {} (PCSS)", status);
         }
-        else if (line.compare(0, 6, "light ") == 0)  // light
+        else if (line.compare(0, 6, "light ") == 0)  // Light
         {
             std::string lightType;
             iss >> strTrash >> lightType;
@@ -117,7 +135,7 @@ Scene::Scene(const std::string& filename)
                 continue;
             }
         }
-        else if (line.compare(0, 7, "camera ") == 0)  // camera
+        else if (line.compare(0, 7, "camera ") == 0)  // Camera
         {
             std::string cameraType;
             iss >> strTrash >> cameraType;
@@ -169,4 +187,6 @@ Scene::Scene(const std::string& filename)
             m_ModelMatrices.push_back(MakeModelMatrix(position, rotateY, uniformScale));
         }
     }
+    spdlog::info("  [Config] SSAA(x{})[{}] shadow[{}]", m_SSAAKernelSize,
+                 m_SSAA ? "on" : "off", Shadow::GetShadowStatus() ? "on" : "off");
 }

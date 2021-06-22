@@ -1,5 +1,8 @@
 # Test Scene
 
+# Rendering Mode (forward / deferred)
+mode forward
+
 # Screen Size
 screen 1280 800
 

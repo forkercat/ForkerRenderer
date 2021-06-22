@@ -7,23 +7,24 @@
 #include <thread>
 
 #include "color.h"
-#include "tgaimage.h"
 #include "geometryshader.h"
+#include "tgaimage.h"
 
 // Texture Wrapping & Filtering
 Texture::WrapMode   ForkerGL::TextureWrapping = Texture::WrapMode::NoWrap;
 Texture::FilterMode ForkerGL::TextureFiltering = Texture::FilterMode::Nearest;
 
 // Buffers
-Buffer ForkerGL::FrameBuffer;  // Lighting Pass
+Buffer ForkerGL::FrameBuffer;  // Lighting Pass & Forward Pass
 Buffer ForkerGL::DepthBuffer;
 Buffer ForkerGL::ShadowBuffer;  // Shadow Pass
 Buffer ForkerGL::ShadowDepthBuffer;
 Buffer ForkerGL::DepthGBuffer;  // Geometry Pass
 Buffer ForkerGL::NormalGBuffer;
 Buffer ForkerGL::WorldPosGBuffer;
-
-
+Buffer ForkerGL::AlbedoGBuffer;
+Buffer ForkerGL::ParamGBuffer;
+Buffer ForkerGL::ShadingTypeGBuffer;
 
 // Images
 TGAImage ForkerGL::AntiAliasedImage;
@@ -32,8 +33,9 @@ TGAImage ForkerGL::AntiAliasedImage;
 Matrix4x4f viewportMatrix = Matrix4x4f::Identity();
 Matrix4x4f lightSpaceMatrix = Matrix4x4f::Identity();
 
-// RenderMode
-enum ForkerGL::RenderMode renderMode = ForkerGL::LightingPass;
+// Rendering
+enum ForkerGL::RenderMode renderMode = ForkerGL::Forward;
+enum ForkerGL::PassType   passType = ForkerGL::ForwardPass;
 
 // Texture Wrap Mode & Filter Mode
 void ForkerGL::TextureWrapMode(Texture::WrapMode wrapMode)
@@ -72,6 +74,9 @@ void ForkerGL::InitGeometryBuffers(int width, int height)
     DepthGBuffer = Buffer(width, height, Buffer::MaxFloat32);
     NormalGBuffer = Buffer(width, height, Buffer::Zero);
     WorldPosGBuffer = Buffer(width, height, Buffer::Zero);
+    AlbedoGBuffer = Buffer(width, height, Buffer::Zero);
+    ParamGBuffer = Buffer(width, height, Buffer::Zero);
+    ShadingTypeGBuffer = Buffer(width, height, Buffer::Zero);
 }
 
 // Status Configuration
@@ -105,9 +110,19 @@ Matrix4x4f ForkerGL::GetLightSpaceMatrix()
     return lightSpaceMatrix;
 }
 
-void ForkerGL::RenderMode(enum RenderMode mode)
+void ForkerGL::SetRenderMode(enum RenderMode mode)
 {
     renderMode = mode;
+}
+
+ForkerGL::RenderMode ForkerGL::GetRenderMode()
+{
+    return renderMode;
+}
+
+void ForkerGL::SetPassType(enum PassType type)
+{
+    passType = type;
 }
 
 // BoundBox Definition
@@ -148,17 +163,21 @@ void ForkerGL::DrawTriangleSubTask(int xMin, int xMax, int yMin, int yMax,
             // Depth Test
             Float currentDepth = Dot(bary, depths);
 
-            if (renderMode == GeometryPass)
-            {
-                if (currentDepth >= DepthBuffer.GetValue(px, py)) continue;
-                DepthBuffer.SetValue(px, py, currentDepth);
-            }
-            else if (renderMode == LightingPass)
+            if (passType == ForwardPass)
             {
                 if (currentDepth >= DepthBuffer.GetValue(px, py)) continue;
                 DepthBuffer.SetValue(px, py, currentDepth);  // Update
             }
-            else if (renderMode == ShadowPass)
+            else if (passType == GeometryPass)
+            {
+                if (currentDepth >= DepthBuffer.GetValue(px, py)) continue;
+                DepthBuffer.SetValue(px, py, currentDepth);
+            }
+            else if (passType == LightingPass)
+            {
+                // TODO
+            }
+            else if (passType == ShadowPass)
             {
                 if (currentDepth >= ShadowDepthBuffer.GetValue(px, py)) continue;
                 ShadowDepthBuffer.SetValue(px, py, currentDepth);
@@ -169,7 +188,11 @@ void ForkerGL::DrawTriangleSubTask(int xMin, int xMax, int yMin, int yMax,
             bool   discard = shader.ProcessFragment(bary, frag);
             if (discard) continue;
 
-            if (renderMode == GeometryPass)
+            if (passType == ForwardPass)
+            {
+                FrameBuffer.Set(px, py, frag);
+            }
+            else if (passType == GeometryPass)
             {
                 // Do Nothing
                 GeometryShader& geometryShader = dynamic_cast<GeometryShader&>(shader);
@@ -177,11 +200,11 @@ void ForkerGL::DrawTriangleSubTask(int xMin, int xMax, int yMin, int yMax,
                 WorldPosGBuffer.Set(px, py, geometryShader.outPositionWS);
                 DepthGBuffer.SetValue(px, py, currentDepth);
             }
-            else if (renderMode == LightingPass)
+            else if (passType == LightingPass)
             {
-                FrameBuffer.Set(px, py, frag);
+                // TODO
             }
-            else if (renderMode == ShadowPass)
+            else if (passType == ShadowPass)
             {
                 ShadowBuffer.SetValue(px, py, frag.z);
             }
@@ -205,12 +228,8 @@ void ForkerGL::DrawTriangle(const Point4f ndcVerts[3], Shader& shader)
     }
 
     // Bounding Box
-    int w = (renderMode == LightingPass || renderMode == GeometryPass)
-                ? DepthBuffer.GetWidth()
-                : ShadowBuffer.GetWidth();
-    int h = (renderMode == LightingPass || renderMode == GeometryPass)
-                ? DepthBuffer.GetHeight()
-                : ShadowBuffer.GetHeight();
+    int w = (passType != ShadowPass) ? DepthBuffer.GetWidth() : ShadowBuffer.GetWidth();
+    int h = (passType != ShadowPass) ? DepthBuffer.GetHeight() : ShadowBuffer.GetHeight();
 
     BoundBox<int> bbox = BoundBox<int>::GenerateBoundBox(points, w, h);
 

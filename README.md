@@ -49,6 +49,8 @@ cmake .. && make
 # Test Scene
 # Screen
 screen 1280 800
+ssaa off 2
+shadow on
 # Light (type: point/dir, position, color)
 light point 2 5 5 1 1 1
 # Camera (type: persp/ortho, position, lookAt)
