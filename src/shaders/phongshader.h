@@ -205,6 +205,9 @@ struct BlinnPhongShader : public Shader
         // Combine
         Color3 color = (ambient + diffuse + specular + emissiveLinear) * lightColor;
 
+        // HDR Tonemapping
+        color = color / (color + Color3(1.f));
+
         // Gamma Correction
         color = Pow(color, InvGamma);
 
