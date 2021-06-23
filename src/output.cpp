@@ -16,14 +16,14 @@ void OutputFrameBuffer()
 
 void OutputZBuffer()
 {
-    ForkerGL::DepthBuffer.GenerateGrayImage().WriteTgaFile("output/zbuffer.tga");
+    ForkerGL::DepthBuffer.GenerateImage().WriteTgaFile("output/zbuffer.tga");
 }
 
 void OutputShadowBuffer()
 {
     if (ForkerGL::ShadowBuffer.GetWidth() != 0)
     {
-        ForkerGL::ShadowBuffer.GenerateGrayImage().WriteTgaFile("output/shadowmap.tga");
+        ForkerGL::ShadowBuffer.GenerateImage().WriteTgaFile("output/shadowmap.tga");
     }
 }
 

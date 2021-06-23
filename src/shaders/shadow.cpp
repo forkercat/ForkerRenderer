@@ -20,7 +20,7 @@ bool GetShadowStatus()
     return s_IsShadowOn;
 }
 
-Float SampleShadowMap(const Buffer& shadowMap, const Vector2f& uv)
+Float SampleShadowMap(const Buffer1f& shadowMap, const Vector2f& uv)
 {
     // Fix region out of map
     if (uv.x < 0.f || uv.x > 1.f || uv.y < 0.f || uv.y > 1.f) return Infinity;
@@ -35,7 +35,7 @@ Float SampleShadowMap(const Buffer& shadowMap, const Vector2f& uv)
 }
 
 // Hard Shadow
-Float HardShadow(const Buffer& shadowMap, const Vector3f& shadowCoord, Float bias)
+Float HardShadow(const Buffer1f& shadowMap, const Vector3f& shadowCoord, Float bias)
 {
     Float visibility;
     Float sampledDepth = SampleShadowMap(shadowMap, shadowCoord.xy);
@@ -44,7 +44,7 @@ Float HardShadow(const Buffer& shadowMap, const Vector3f& shadowCoord, Float bia
     return visibility;
 }
 
-Float PCF(const Buffer& shadowMap, const Vector3f& shadowCoord, Float bias,
+Float PCF(const Buffer1f& shadowMap, const Vector3f& shadowCoord, Float bias,
           Float filterSize)
 {
     Float visibility = 0.f;
@@ -62,7 +62,7 @@ Float PCF(const Buffer& shadowMap, const Vector3f& shadowCoord, Float bias,
     return visibility;
 }
 
-Float FindAverageBlockDepth(const Buffer& shadowMap, const Vector3f& shadowCoord,
+Float FindAverageBlockDepth(const Buffer1f& shadowMap, const Vector3f& shadowCoord,
                             Float bias)
 {
     Float blockerDepth = 0.f;
@@ -89,7 +89,7 @@ Float FindAverageBlockDepth(const Buffer& shadowMap, const Vector3f& shadowCoord
         return blockerDepth / numBlockers;
 }
 
-Float PCSS(const Buffer& shadowMap, const Vector3f& shadowCoord, Float bias)
+Float PCSS(const Buffer1f& shadowMap, const Vector3f& shadowCoord, Float bias)
 {
     // 1. Average blocker depth
     Float dReceiver = shadowCoord.z;
@@ -106,7 +106,7 @@ Float PCSS(const Buffer& shadowMap, const Vector3f& shadowCoord, Float bias)
 }
 
 // Calculate Shadow Component
-Float CalculateShadowVisibility(const Buffer&   shadowMap,
+Float CalculateShadowVisibility(const Buffer1f&   shadowMap,
                                 const Vector3f& positionLightSpaceNDC,
                                 const Vector3f& normal, const Vector3f& lightDir)
 {

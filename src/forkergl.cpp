@@ -8,25 +8,25 @@
 
 #include "color.h"
 #include "gshader.h"
-#include "tgaimage.h"
 #include "scene.h"
+#include "tgaimage.h"
 
 // Texture Wrapping & Filtering
 Texture::WrapMode   ForkerGL::TextureWrapping = Texture::WrapMode::NoWrap;
 Texture::FilterMode ForkerGL::TextureFiltering = Texture::FilterMode::Nearest;
 
 // Buffers
-Buffer ForkerGL::FrameBuffer;  // Lighting Pass & Forward Pass
-Buffer ForkerGL::DepthBuffer;
-Buffer ForkerGL::ShadowBuffer;  // Shadow Pass
-Buffer ForkerGL::ShadowDepthBuffer;
-Buffer ForkerGL::NormalGBuffer;  // Geometry Pass
-Buffer ForkerGL::WorldPosGBuffer;
-Buffer ForkerGL::LightSpaceNDCPosGBuffer;
-Buffer ForkerGL::AlbedoGBuffer;
-Buffer ForkerGL::EmissiveGBuffer;
-Buffer ForkerGL::ParamGBuffer;
-Buffer ForkerGL::ShadingTypeGBuffer;
+Buffer3f ForkerGL::FrameBuffer;  // Lighting Pass & Forward Pass
+Buffer1f ForkerGL::DepthBuffer;
+Buffer1f ForkerGL::ShadowBuffer;  // Shadow Pass
+Buffer1f ForkerGL::ShadowDepthBuffer;
+Buffer3f ForkerGL::NormalGBuffer;  // Geometry Pass
+Buffer3f ForkerGL::WorldPosGBuffer;
+Buffer3f ForkerGL::LightSpaceNDCPosGBuffer;
+Buffer3f ForkerGL::AlbedoGBuffer;
+Buffer3f ForkerGL::EmissiveGBuffer;
+Buffer3f ForkerGL::ParamGBuffer;
+Buffer1f ForkerGL::ShadingTypeGBuffer;
 
 // Images
 TGAImage ForkerGL::AntiAliasedImage;
@@ -53,34 +53,34 @@ void ForkerGL::TextureFilterMode(Texture::FilterMode filterMode)
 // Buffer Initialization
 void ForkerGL::InitFrameBuffer(int width, int height)
 {
-    FrameBuffer = Buffer(width, height, Buffer::Zero);
+    FrameBuffer = Buffer3f(width, height, Buffer::Zero);
 }
 
 void ForkerGL::InitDepthBuffer(int width, int height)
 {
-    DepthBuffer = Buffer(width, height, Buffer::MaxFloat32);
+    DepthBuffer = Buffer1f(width, height, Buffer::MaxPositive);
 }
 
 void ForkerGL::InitShadowBuffer(int width, int height)
 {
-    ShadowBuffer = Buffer(width, height, Buffer::Zero);
+    ShadowBuffer = Buffer1f(width, height, Buffer::Zero);
 }
 
 void ForkerGL::InitShadowDepthBuffer(int width, int height)
 {
-    ShadowDepthBuffer = Buffer(width, height, Buffer::MaxFloat32);
+    ShadowDepthBuffer = Buffer1f(width, height, Buffer::MaxPositive);
 }
 
 void ForkerGL::InitGeometryBuffers(int width, int height)
 {
-    NormalGBuffer = Buffer(width, height, Buffer::Zero);
-    WorldPosGBuffer = Buffer(width, height, Buffer::Zero);
+    NormalGBuffer = Buffer3f(width, height, Buffer::Zero);
+    WorldPosGBuffer = Buffer3f(width, height, Buffer::Zero);
     if (Shadow::GetShadowStatus())
-        LightSpaceNDCPosGBuffer = Buffer(width, height, Buffer::Zero);
-    AlbedoGBuffer = Buffer(width, height, Buffer::Zero);
-    EmissiveGBuffer = Buffer(width, height, Buffer::Zero);
-    ParamGBuffer = Buffer(width, height, Buffer::Zero);
-    ShadingTypeGBuffer = Buffer(width, height, Buffer::Zero);
+        LightSpaceNDCPosGBuffer = Buffer3f(width, height, Buffer::Zero);
+    AlbedoGBuffer = Buffer3f(width, height, Buffer::Zero);
+    EmissiveGBuffer = Buffer3f(width, height, Buffer::Zero);
+    ParamGBuffer = Buffer3f(width, height, Buffer::Zero);
+    ShadingTypeGBuffer = Buffer1f(width, height, Buffer::Zero);
 }
 
 // Status Configuration
@@ -194,19 +194,19 @@ void ForkerGL::DrawTriangleSubTask(int xMin, int xMax, int yMin, int yMax,
 
             if (passType == ForwardPass)
             {
-                FrameBuffer.Set(px, py, frag);
+                FrameBuffer.SetValue(px, py, frag);
             }
             else if (passType == GeometryPass)
             {
                 // Do Nothing
                 GShader& geometryShader = dynamic_cast<GShader&>(shader);
-                NormalGBuffer.Set(px, py, geometryShader.outNormalWS);
-                WorldPosGBuffer.Set(px, py, geometryShader.outPositionWS);
+                NormalGBuffer.SetValue(px, py, geometryShader.outNormalWS);
+                WorldPosGBuffer.SetValue(px, py, geometryShader.outPositionWS);
                 if (Shadow::GetShadowStatus())
-                    LightSpaceNDCPosGBuffer.Set(px, py, geometryShader.outLightSpaceNDC);
-                AlbedoGBuffer.Set(px, py, geometryShader.outAlbedo);
-                EmissiveGBuffer.Set(px, py, geometryShader.outEmissive);
-                ParamGBuffer.Set(px, py, geometryShader.outParam);
+                    LightSpaceNDCPosGBuffer.SetValue(px, py, geometryShader.outLightSpaceNDC);
+                AlbedoGBuffer.SetValue(px, py, geometryShader.outAlbedo);
+                EmissiveGBuffer.SetValue(px, py, geometryShader.outEmissive);
+                ParamGBuffer.SetValue(px, py, geometryShader.outParam);
                 ShadingTypeGBuffer.SetValue(px, py, geometryShader.outShadingType);
             }
             else if (passType == LightingPass)
@@ -313,6 +313,23 @@ void ForkerGL::DrawTriangle(const Point4f ndcVerts[3], Shader& shader)
 
 void ForkerGL::DrawScreenSpacePixels(const Scene& scene)
 {
-    // TODO
+    // Data Preparation
+    Point3f eyePos = scene.GetCamera().GetPosition();
+    Point3f lightPos = scene.GetPointLight().position;
+    Color3  lightRadiance = scene.GetPointLight().color;
+    int     screenWidth = ForkerGL::FrameBuffer.GetWidth();
+    int     screenHeight = ForkerGL::FrameBuffer.GetHeight();
 
+    // For Loop Each Pixel
+    for (int y = 0; y < screenHeight; ++y)
+    {
+        for (int x = 0; x < screenWidth; ++x)
+        {
+            ForkerGL::WorldPosGBuffer.GetValue(x, y);
+        }
+    }
+
+    // For loop each pixel
+    // Phong or PBR
+    // Calculate colors
 }

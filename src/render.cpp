@@ -197,6 +197,8 @@ void DoLightingPass(const Scene& scene)
 {
     spdlog::info("Lighting Pass (Deferred):");
 
+    ForkerGL::InitFrameBuffer(GetWidth(scene), GetHeight(scene));
+    ForkerGL::SetPassType(ForkerGL::LightingPass);
     ForkerGL::DrawScreenSpacePixels(scene);
 
     TimeElapsed(stepStopwatch, "Lighting Pass");

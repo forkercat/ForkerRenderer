@@ -160,7 +160,7 @@ African Head [Vidar Rapp]
 About **5,000** lines of code:
 
 - Rendering: `render.h/cpp` (rendering functions), `forkergl.h/cpp` (rasterization)
-- Buffer: `buffer.h/cpp` (framebuffer & z-buffer)
+- Buffer: `buffer.h/cpp` (`Buffer1f`, `Buffer3f`)
 - Shader: `shader.h`, `phongshader.h`, `pbrshader.h`, `depthshader.h`
 - Shadow: `shadow.h/cpp`
 - Scene: `scene.h/cpp`, `scenes/test.scene`

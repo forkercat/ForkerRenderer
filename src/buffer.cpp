@@ -4,35 +4,20 @@
 
 #include "buffer.h"
 
-Buffer::Buffer(int w, int h, InitType type) : m_Width(w), m_Height(h)
+// Buffer1f
+Buffer1f::Buffer1f(int w, int h, InitType type) : Buffer(w, h)
 {
     if (type == Zero)
-        m_Data = std::vector<Data>(w * h, Data());
-    else if (type == MaxFloat32)
-        m_Data = std::vector<Data>(w * h, Data(std::numeric_limits<float>::max()));
-    else if (type == MinFloat32)
-        m_Data = std::vector<Data>(w * h, Data(std::numeric_limits<float>::min()));
-    else if (type == MaxUInt8)
-        m_Data = std::vector<Data>(w * h, Data(std::numeric_limits<uint8_t>::max()));
-    else if (type == MinUInt8)
-        m_Data = std::vector<Data>(w * h, Data(std::numeric_limits<uint8_t>::min()));
+        m_Data = std::vector<Data>(w * h, Data(0.f));
+    else if (type == One)
+        m_Data = std::vector<Data>(w * h, Data(1.f));
+    else if (type == MaxPositive)
+        m_Data = std::vector<Data>(w * h, Data(MaxFloat));
+    else if (type == MinNegative)
+        m_Data = std::vector<Data>(w * h, Data(MinFloat));
 }
 
-TGAImage Buffer::GenerateImage() const
-{
-    TGAImage image(m_Width, m_Height, TGAImage::RGB);
-    for (int x = 0; x < m_Width; ++x)
-    {
-        for (int y = 0; y < m_Height; ++y)
-        {
-            const Vector3i& color = Get(x, y);
-            image.Set(x, y, TGAColor(color.r, color.g, color.b));
-        }
-    }
-    return image;
-}
-
-TGAImage Buffer::GenerateGrayImage(bool inverseColor) const
+TGAImage Buffer1f::GenerateImage(bool inverseColor) const
 {
     TGAImage image(m_Width, m_Height, TGAImage::GRAYSCALE);
     for (int x = 0; x < m_Width; ++x)
@@ -46,10 +31,41 @@ TGAImage Buffer::GenerateGrayImage(bool inverseColor) const
     return image;
 }
 
-void Buffer::PaintColor(const Color3& color)
+// Buffer3f
+Buffer3f::Buffer3f(int w, int h, InitType type) : Buffer(w, h)
 {
+    if (type == Zero)
+        m_Data = std::vector<Data>(w * h, Data(0.f));
+    else if (type == One)
+        m_Data = std::vector<Data>(w * h, Data(1.f));
+    else if (type == MaxPositive)
+        m_Data = std::vector<Data>(w * h, Data(MaxFloat));
+    else if (type == MinNegative)
+        m_Data = std::vector<Data>(w * h, Data(MinFloat));
+}
 
-    for (int i = 0; i < m_Width; ++i)
-        for (int j = 0; j < m_Height; ++j)
-            Set(i, j, color);
+TGAImage Buffer3f::GenerateImage() const
+{
+    TGAImage image(m_Width, m_Height, TGAImage::RGB);
+    for (int x = 0; x < m_Width; ++x)
+    {
+        for (int y = 0; y < m_Height; ++y)
+        {
+            const Vector3f& color = GetValue(x, y);
+            image.Set(x, y,
+                      TGAColor(color.r * 254.99f, color.g * 254.99f, color.b * 254.99f));
+        }
+    }
+    return image;
+}
+
+void Buffer3f::PaintColor(const Color3& color)
+{
+    for (int x = 0; x < m_Width; ++x)
+    {
+        for (int y = 0; y < m_Height; ++y)
+        {
+            SetValue(x, y, color);
+        }
+    }
 }

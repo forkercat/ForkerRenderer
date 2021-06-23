@@ -40,17 +40,17 @@ struct ForkerGL
     static void TextureFilterMode(Texture::FilterMode filterMode);
 
     // Buffers
-    static Buffer FrameBuffer;
-    static Buffer DepthBuffer;
-    static Buffer ShadowBuffer;
-    static Buffer ShadowDepthBuffer;
-    static Buffer NormalGBuffer;  // G-Buffers
-    static Buffer WorldPosGBuffer;
-    static Buffer LightSpaceNDCPosGBuffer;
-    static Buffer AlbedoGBuffer;
-    static Buffer EmissiveGBuffer;
-    static Buffer ParamGBuffer;
-    static Buffer ShadingTypeGBuffer;
+    static Buffer3f FrameBuffer;
+    static Buffer1f DepthBuffer;
+    static Buffer1f ShadowBuffer;
+    static Buffer1f ShadowDepthBuffer;
+    static Buffer3f NormalGBuffer;  // G-Buffers
+    static Buffer3f WorldPosGBuffer;
+    static Buffer3f LightSpaceNDCPosGBuffer;
+    static Buffer3f AlbedoGBuffer;
+    static Buffer3f EmissiveGBuffer;
+    static Buffer3f ParamGBuffer;
+    static Buffer1f ShadingTypeGBuffer;
 
     // Images
     static TGAImage AntiAliasedImage;
