@@ -66,7 +66,7 @@ void DoShadowPass(const Scene& scene)
         spdlog::info("  [Status] Enabled");
         // Buffer Configuration
         ForkerGL::InitShadowBuffer(GetWidth(scene), GetHeight(scene));
-        ForkerGL::InitShadowDepthBuffer(GetWidth(scene), GetHeight(scene));
+        ForkerGL::InitDepthBuffer(GetWidth(scene), GetHeight(scene));
         ForkerGL::SetPassType(ForkerGL::ShadowPass);
 
         // Matrix

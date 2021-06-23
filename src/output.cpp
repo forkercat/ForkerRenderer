@@ -61,4 +61,20 @@ void OutputAlbedoGBuffer()
     }
 }
 
+void OutputParamGBuffer()
+{
+    if (ForkerGL::ParamGBuffer.GetWidth() != 0)
+    {
+        ForkerGL::ParamGBuffer.GenerateImage().WriteTgaFile("output/gbuffer_param.tga");
+    }
+}
+
+void OutputShadingTypeGBuffer()
+{
+    if (ForkerGL::ShadingTypeGBuffer.GetWidth() != 0)
+    {
+        ForkerGL::ShadingTypeGBuffer.GenerateImage().WriteTgaFile("output/gbuffer_shading_type.tga");
+    }
+}
+
 }  // namespace Output

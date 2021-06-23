@@ -173,10 +173,6 @@ struct PBRShader : public Shader
             pbrMaterial->HasAmbientOcclusionMap() ? aoMap->SampleFloat(texCoord) : 1.f;
         Vector3f param(ao, metalness, roughness);
 
-        // Gamma Correction (sRGB -> Linear Space)
-        albedo = Pow(albedo, Gamma);
-        emissive = Pow(emissive, Gamma);
-
         gl_Color = CalculateLight(lightDir, viewDir, halfwayDir, normal, visibility,
                                   albedo, emissive, param, uPointLight.color);
 
@@ -190,8 +186,8 @@ struct PBRShader : public Shader
                                  const Color3& lightRadiance)
     {
         // Gamma Correction (sRGB -> Linear Space)
-        Color3 albedoLinear = Pow(albedoLinear, Gamma);
-        Color3 emissiveLinear = Pow(emissiveLinear, Gamma);
+        Color3 albedoLinear = Pow(albedo, Gamma);
+        Color3 emissiveLinear = Pow(emissive, Gamma);
 
         Float ao = param.x;
         Float metalness = param.y;

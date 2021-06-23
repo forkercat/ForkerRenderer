@@ -8,6 +8,8 @@
 
 #include "color.h"
 #include "gshader.h"
+#include "pbrshader.h"
+#include "phongshader.h"
 #include "scene.h"
 #include "tgaimage.h"
 
@@ -19,7 +21,6 @@ Texture::FilterMode ForkerGL::TextureFiltering = Texture::FilterMode::Nearest;
 Buffer3f ForkerGL::FrameBuffer;  // Lighting Pass & Forward Pass
 Buffer1f ForkerGL::DepthBuffer;
 Buffer1f ForkerGL::ShadowBuffer;  // Shadow Pass
-Buffer1f ForkerGL::ShadowDepthBuffer;
 Buffer3f ForkerGL::NormalGBuffer;  // Geometry Pass
 Buffer3f ForkerGL::WorldPosGBuffer;
 Buffer3f ForkerGL::LightSpaceNDCPosGBuffer;
@@ -64,11 +65,6 @@ void ForkerGL::InitDepthBuffer(int width, int height)
 void ForkerGL::InitShadowBuffer(int width, int height)
 {
     ShadowBuffer = Buffer1f(width, height, Buffer::Zero);
-}
-
-void ForkerGL::InitShadowDepthBuffer(int width, int height)
-{
-    ShadowDepthBuffer = Buffer1f(width, height, Buffer::MaxPositive);
 }
 
 void ForkerGL::InitGeometryBuffers(int width, int height)
@@ -170,7 +166,7 @@ void ForkerGL::DrawTriangleSubTask(int xMin, int xMax, int yMin, int yMax,
             if (passType == ForwardPass)
             {
                 if (currentDepth >= DepthBuffer.GetValue(px, py)) continue;
-                DepthBuffer.SetValue(px, py, currentDepth);  // Update
+                DepthBuffer.SetValue(px, py, currentDepth);
             }
             else if (passType == GeometryPass)
             {
@@ -183,8 +179,8 @@ void ForkerGL::DrawTriangleSubTask(int xMin, int xMax, int yMin, int yMax,
             }
             else if (passType == ShadowPass)
             {
-                if (currentDepth >= ShadowDepthBuffer.GetValue(px, py)) continue;
-                ShadowDepthBuffer.SetValue(px, py, currentDepth);
+                if (currentDepth >= DepthBuffer.GetValue(px, py)) continue;
+                DepthBuffer.SetValue(px, py, currentDepth);
             }
 
             // Fragment Shader
@@ -325,11 +321,38 @@ void ForkerGL::DrawScreenSpacePixels(const Scene& scene)
     {
         for (int x = 0; x < screenWidth; ++x)
         {
-            ForkerGL::WorldPosGBuffer.GetValue(x, y);
+            // Data Preparation
+            Point3f  positionWS = ForkerGL::WorldPosGBuffer.GetValue(x, y);
+            Vector3f normalWS = ForkerGL::NormalGBuffer.GetValue(x, y);
+            Point3f  lightSpaceNDC = ForkerGL::LightSpaceNDCPosGBuffer.GetValue(x, y);
+            Color3   albedo = ForkerGL::AlbedoGBuffer.GetValue(x, y);
+            Color3   emissive = ForkerGL::EmissiveGBuffer.GetValue(x, y);
+            Vector3f param = ForkerGL::ParamGBuffer.GetValue(x, y);
+            Float    shadingType = ForkerGL::ShadingTypeGBuffer.GetValue(x, y);
+
+            // Directions
+            Vector3f lightDir = Normalize(lightPos - positionWS);
+            Vector3f viewDir = Normalize(eyePos - positionWS);
+
+            // Shadow Mapping
+            Float visibility = 0.f;
+            if (Shadow::GetShadowStatus())
+            {
+                visibility = Shadow::CalculateShadowVisibility(ForkerGL::ShadowBuffer, lightSpaceNDC, normalWS, lightDir);
+            }
+
+            Color3 color;
+            if (shadingType < 0.5f)  // Non-PBR (Blinn-Phong Shading)
+            {
+                color = BlinnPhongShader::CalculateLight(lightDir, viewDir, normalWS, visibility, albedo, emissive, param, lightRadiance);
+            }
+            else  // PBR
+            {
+                Vector3f halfwayDir = Normalize(lightDir + viewDir);
+                color = PBRShader::CalculateLight(lightDir, viewDir, halfwayDir, normalWS, visibility, albedo, emissive, param, lightRadiance);
+            }
+
+            ForkerGL::FrameBuffer.SetValue(x, y, color);
         }
     }
-
-    // For loop each pixel
-    // Phong or PBR
-    // Calculate colors
 }

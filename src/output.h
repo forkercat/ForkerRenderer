@@ -14,4 +14,6 @@ void OutputSSAAImage();
 void OutputNormalGBuffer();
 void OutputWorldPosGBuffer();
 void OutputAlbedoGBuffer();
+void OutputParamGBuffer();
+void OutputShadingTypeGBuffer();
 }  // namespace Output

@@ -43,7 +43,6 @@ struct ForkerGL
     static Buffer3f FrameBuffer;
     static Buffer1f DepthBuffer;
     static Buffer1f ShadowBuffer;
-    static Buffer1f ShadowDepthBuffer;
     static Buffer3f NormalGBuffer;  // G-Buffers
     static Buffer3f WorldPosGBuffer;
     static Buffer3f LightSpaceNDCPosGBuffer;
@@ -58,7 +57,6 @@ struct ForkerGL
     static void InitFrameBuffer(int width, int height);
     static void InitDepthBuffer(int width, int height);
     static void InitShadowBuffer(int width, int height);
-    static void InitShadowDepthBuffer(int width, int height);
     static void InitGeometryBuffers(int width, int height);
 
     // Update Status

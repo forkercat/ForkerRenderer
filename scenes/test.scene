@@ -1,7 +1,7 @@
 # Test Scene
 
 # Rendering Mode (forward / deferred)
-#mode forward
+# mode forward
 mode deferred
 
 # Screen Size
@@ -14,12 +14,13 @@ ssaa off 2
 shadow on
 
 # Light (type: point/dir, position, color)
-light point 2 5 5 1 1 1
+light point 2 5 5 1.5 1.5 1.5
 
 # Camera (type: persp/ortho, position, lookAt)
 camera persp -1 1 1 0 0 -1
 
 # Models (filepath, position, rotate_y, uniform scale)
+######################################################
 
 # Plane
 model obj/plane/plane.obj false false 0 -1 -1 0 3
@@ -40,7 +41,7 @@ model obj/mary/mary.obj true true 0.05 0 -1 -10 1
 # model obj/cart/cart.obj true true 0 0 -1 180 1
 
 # Horizon
-# model obj/horizon/horizon.obj true true 0.015 -3.05 -1 -35 -5.0
+# model obj/horizon/horizon.obj true true 0 0 -1 0 1
 
 # Chalkboard
 # model obj/chalkboard/chalkboard.obj true true 0 0 -1 180 1

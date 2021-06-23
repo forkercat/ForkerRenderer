@@ -49,6 +49,8 @@ int main(int argc, const char* argv[])
     Output::OutputNormalGBuffer();  // if not empty
     Output::OutputWorldPosGBuffer();
     Output::OutputAlbedoGBuffer();
+    Output::OutputParamGBuffer();
+    Output::OutputShadingTypeGBuffer();
 
     return 0;
 }
