@@ -14,7 +14,7 @@ ssaa off 2
 shadow on
 
 # Light (type: point/dir, position, color)
-light point 2 5 5 1.5 1.5 1.5
+light point 2 5 5 5 5 5
 
 # Camera (type: persp/ortho, position, lookAt)
 camera persp -1 1 1 0 0 -1
@@ -26,7 +26,7 @@ camera persp -1 1 1 0 0 -1
 model obj/plane/plane.obj false false 0 -1 -1 0 3
 
 # Mary
-model obj/mary/mary.obj true true 0.05 0 -1 -10 1
+# model obj/mary/mary.obj true true 0.05 0 -1 -10 1
 
 # Diablo
 # model obj/diablo_pose/diablo_pose.obj true true 0 0 0 -10 1
@@ -37,14 +37,14 @@ model obj/mary/mary.obj true true 0.05 0 -1 -10 1
 # Cat Box
 # model obj/catbox/catbox.obj true false 0 0 0 0 0.3
 
-# Sci-Fi Cart
-# model obj/cart/cart.obj true true 0 0 -1 180 1
-
-# Horizon
+# Horizon (PBR)
 # model obj/horizon/horizon.obj true true 0 0 -1 0 1
 
-# Chalkboard
+# Chalkboard (PBR)
 # model obj/chalkboard/chalkboard.obj true true 0 0 -1 180 1
+
+# Sci-Fi Cart (PBR)
+# model obj/cart/cart.obj true true 0 0 -1 180 1
 
 # Great Sword
 # model obj/great_sword/great_sword.obj true true 0 0.3 -1 240 1
@@ -54,3 +54,7 @@ model obj/mary/mary.obj true true 0.05 0 -1 -10 1
 
 # African Head
 # model obj/african_head/head.obj true true 0 0 0 -1 0.5
+
+####### Test Mary and Horizon
+model obj/mary/mary.obj true true 0.9 0 -1 -90 1
+model obj/horizon/horizon.obj true true -0.7 0 -1 90 1

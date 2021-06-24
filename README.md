@@ -5,7 +5,7 @@ for logging though :)
 
 ![](https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Head_3.jpg)
 
-![](https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Head_2.jpg)
+![](https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Head_4.jpg)
 
 ## Building & Usage 🔨
 
@@ -29,26 +29,50 @@ cmake .. && make
 
 - Physically-Based Rendering (PBR)
   - Improvement
-- G-Buffer & Deferred Shading
 - Global Illumination
   - Screen Space Ambient Occlusion (SSAO)
   - Screen Space Reflection (SSR) aka. Realtime Ray Tracing
 
 ## Features ⭐
 
-![](https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Mapping.jpg)
+![](https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Deferred_2.jpg)
+
+- [x] Rasterization
+  - [x] Bresenham's Line Algorithm (used and removed)
+  - [x] Bounding Box Method (currently used)
+- [x] Rendering Methods
+  - [x] Forward Rendering
+  - [x] Deferred Rendering
+    - G-Buffers: depth, world position, normal, albedo, etc
+    - Geometry Pass
+    - Lighting Pass
+
+![](https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_PBR.jpg)
+
+- [x] Shading
+  - [x] Depth Shading
+  - [x] Geometry Shading (for deferred rendering)
+  - [x] Blinn-Phong Shading
+  - [x] PBR Material and Shading
+    - Cook-Torrance reflectance equation
+    - D: Trowbridge-Reitz GGX
+    - F: Fresnel-Schlick approximation
+    - G: Smith's method with Schlick-GGX
+
+![](https://bloggg-1254259681.cos.na-siliconvalley.myqcloud.com/bkh9v.png)
 
 - [x] Parsing `*.obj` / `*.mtl`
     - `g` defines mesh name; `usemtl` defines m_Material name (comes in order)
-    - [x] Support `Ka`, `Kd`, `Ks`, `map_Kd`, `map_Ks`, `map_Ke`, `map_Bump`, `map_Ao`, `map_Pr`, `map_Pm`
+    - [x] Support `Ka`, `Kd`, `Ks`, `Ke`, map_Kd`, `map_Ks`, `map_Ke`, `map_Bump`, `map_Ao`, `map_Pr`, `map_Pm`
     - [x] Position vertex normalization
     - [x] Auto triangulation
 - [x] Parsing scene files `*.scene`
 
 ```shell
 # Test Scene
-# Screen
 screen 1280 800
+# forward/deferred rendering
+mode deferred
 ssaa off 2
 shadow on
 # Light (type: point/dir, position, color)
@@ -65,23 +89,6 @@ model obj/mary/mary.obj true true 0.05 0 -1 -10 1
     - Vector: `Vector2f`, `Vector3f`, `Vector4f`, `Vector4i`, ...
     - Matrix: `Matrix3f`, `Matrix4f`, `Matrix3x4f`, ...
     - [x] Support glm-style vector swizzling, e.g. `v.xyz`, `v.xy`
-- [x] Rasterization
-    - [x] Bresenham's Line Algorithm (used and removed)
-    - [x] Bounding Box Method (currently used)
-
-![](https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_PBR.jpg)
-
-- [x] Shading
-    - [x] Depth Shading
-    - [x] Blinn-Phong Shading
-    - [x] PBR Material and Shading
-        - Cook-Torrance reflectance equation
-        - D: Trowbridge-Reitz GGX
-        - F: Fresnel-Schlick approximation
-        - G: Smith's method with Schlick-GGX
-
-![](https://bloggg-1254259681.cos.na-siliconvalley.myqcloud.com/bkh9v.png)
-
 - [x] Light: Point / Directional
   - AreaLight is defined by `AREA_LIGHT_SIZE` in shadow mapping)
 - [x] Texture Mapping: 
@@ -119,7 +126,6 @@ model obj/mary/mary.obj true true 0.05 0 -1 -10 1
 - [x] Anti-Aliasing (AA)
   - [x] SSAA: Super Sampling Anti-Aliasing (set `ssaa on` in `test.scene`)
   - [ ] MSAA
-- [ ] G-Buffer & Deferred Shading
 - [ ] Global Illuminations
   - [ ] Screen Space Ambient Occlusion (SSAO)
   - [ ] Screen Space Reflection (SSR) aka. Realtime Ray Tracing
@@ -133,6 +139,10 @@ Apex Horizon (also [Dr. Mary Somers](https://www.ea.com/games/apex-legends/about
 Mary [TAs from [GAMES202: Real-time High Quality Rendering](https://sites.cs.ucsb.edu/~lingqi/teaching/games202.html)]
 
 <img src="https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Gallery_5.jpg" width="600">
+
+Horizon Meets Mary
+
+<img src="https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Horizon_Meets_Mary.jpg" width="600">
 
 Sci-Fi Welding Vehicle [Berk Gedik]
 
@@ -161,7 +171,7 @@ About **5,000** lines of code:
 
 - Rendering: `render.h/cpp` (rendering functions), `forkergl.h/cpp` (rasterization)
 - Buffer: `buffer.h/cpp` (`Buffer1f`, `Buffer3f`)
-- Shader: `shader.h`, `phongshader.h`, `pbrshader.h`, `depthshader.h`
+- Shader: `shader.h`, `phongshader.h`, `pbrshader.h`, `depthshader.h`, `gshader.h`
 - Shadow: `shadow.h/cpp`
 - Scene: `scene.h/cpp`, `scenes/test.scene`
 - Model: `model.h/cpp`, `mesh.h/cpp`, `material.h`, `pbrmaterial.h`, `texture.h`
