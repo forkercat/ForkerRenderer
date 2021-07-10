@@ -231,14 +231,9 @@ void DoSSAO(const Scene& scene)
             Float occlusion = 0.f;
             for (int s = 0; s < numSample; ++s)
             {
-                Vector3f sampledDirection;
-                do
-                {
-                    sampledDirection = RandomVectorInHemisphere(normalWS);
-                } while (sampledDirection.NearZero());
-
-                Point3f sampledPositionWS = positionWS + sampledDirection * radius;
-                Point4f sampledPositionCS = ForkerGL::GetViewProjectionMatrix() *
+                Vector3f sampledDirection = RandomVectorInHemisphere(normalWS);
+                Point3f  sampledPositionWS = positionWS + sampledDirection * radius;
+                Point4f  sampledPositionCS = ForkerGL::GetViewProjectionMatrix() *
                                             Vector4f(sampledPositionWS, 1.f);
                 Point4f sampledPositionNDC = sampledPositionCS / sampledPositionCS.w;
                 Point3f sampledPositionSS =
@@ -267,6 +262,8 @@ void DoSSAO(const Scene& scene)
             ForkerGL::AmbientOcclusionGBuffer.SetValue(x, y, occlusion);
         }
     }
+
+    ForkerGL::AmbientOcclusionGBuffer.TwoPassGaussianBlurDenoised();
 }
 
 void DoSSAA(const Scene& scene)

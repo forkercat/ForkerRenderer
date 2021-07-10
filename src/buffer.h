@@ -42,6 +42,10 @@ public:
 
     TGAImage GenerateImage(bool inverseColor = false) const;
 
+    // Post-Processing
+    void SimpleBlurDenoised();
+    void TwoPassGaussianBlurDenoised();
+
 private:
     struct Data
     {
@@ -74,6 +78,10 @@ public:
 
     // Paint Background Before Rendering
     void PaintColor(const Color3& color);
+
+    // Post-Processing
+    void SimpleBlurDenoised();
+    void TwoPassGaussianBlurDenoised();
 
 private:
     struct Data

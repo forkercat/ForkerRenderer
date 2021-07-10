@@ -31,6 +31,68 @@ TGAImage Buffer1f::GenerateImage(bool inverseColor) const
     return image;
 }
 
+// Post-Processing
+void Buffer1f::SimpleBlurDenoised()
+{
+    const Float scale = 1 / 9.f;
+
+    for (int h = 0; h < m_Height; ++h)
+    {
+        for (int w = 0; w < m_Width; ++w)
+        {
+            Float result = 0.f;
+
+            for (int xOffset = -1; xOffset <= 1; ++xOffset)
+            {
+                for (int yOffset = -1; yOffset <= 1; ++yOffset)
+                {
+                    int newW = Clamp(w + xOffset, 0, m_Width - 1);
+                    int newH = Clamp(h + yOffset, 0, m_Height - 1);
+                    result += GetValue(newW, newH) * scale;
+                }
+            }
+            SetValue(w, h, result);
+        }
+    }
+}
+
+void Buffer1f::TwoPassGaussianBlurDenoised()
+{
+    const Float weights[5] = { 0.227027, 0.1945946, 0.1216216, 0.054054, 0.016216 };
+
+    // Horizontal Pass
+    for (int h = 0; h < m_Height; ++h)
+    {
+        for (int w = 0; w < m_Width; ++w)
+        {
+            Float result = GetValue(w, h) * weights[0];
+
+            for (int i = 1; i < 5; ++i)
+            {
+                int newW = Clamp(w + i, 0, m_Width - 1);
+                result += GetValue(newW, h) * weights[i];
+            }
+            SetValue(w, h, result);
+        }
+    }
+
+    // Vertical Pass
+    for (int h = 0; h < m_Height; ++h)
+    {
+        for (int w = 0; w < m_Width; ++w)
+        {
+            Float result = GetValue(w, h) * weights[0];
+
+            for (int i = 1; i < 5; ++i)
+            {
+                int newH = Clamp(h + i, 0, m_Height - 1);
+                result += GetValue(w, newH) * weights[i];
+            }
+            SetValue(w, h, result);
+        }
+    }
+}
+
 // Buffer3f
 Buffer3f::Buffer3f(int w, int h, InitType type) : Buffer(w, h)
 {
@@ -66,6 +128,68 @@ void Buffer3f::PaintColor(const Color3& color)
         for (int y = 0; y < m_Height; ++y)
         {
             SetValue(x, y, color);
+        }
+    }
+}
+
+// Post-Processing
+void Buffer3f::SimpleBlurDenoised()
+{
+    const Float scale = 1 / 9.f;
+
+    for (int h = 0; h < m_Height; ++h)
+    {
+        for (int w = 0; w < m_Width; ++w)
+        {
+            Vector3f result(0.f);
+
+            for (int xOffset = -1; xOffset <= 1; ++xOffset)
+            {
+                for (int yOffset = -1; yOffset <= 1; ++yOffset)
+                {
+                    int newW = Clamp(w + xOffset, 0, m_Width - 1);
+                    int newH = Clamp(h + yOffset, 0, m_Height - 1);
+                    result += GetValue(newW, newH) * scale;
+                }
+            }
+            SetValue(w, h, result);
+        }
+    }
+}
+
+void Buffer3f::TwoPassGaussianBlurDenoised()
+{
+    const Float weights[5] = { 0.227027, 0.1945946, 0.1216216, 0.054054, 0.016216 };
+
+    // Horizontal Pass
+    for (int h = 0; h < m_Height; ++h)
+    {
+        for (int w = 0; w < m_Width; ++w)
+        {
+            Vector3f result = GetValue(w, h) * weights[0];
+
+            for (int i = 1; i < 5; ++i)
+            {
+                int newW = Clamp(w + i, 0, m_Width - 1);
+                result += GetValue(newW, h) * weights[i];
+            }
+            SetValue(w, h, result);
+        }
+    }
+
+    // Vertical Pass
+    for (int h = 0; h < m_Height; ++h)
+    {
+        for (int w = 0; w < m_Width; ++w)
+        {
+            Vector3f result = GetValue(w, h) * weights[0];
+
+            for (int i = 1; i < 5; ++i)
+            {
+                int newH = Clamp(h + i, 0, m_Height - 1);
+                result += GetValue(w, newH) * weights[i];
+            }
+            SetValue(w, h, result);
         }
     }
 }
