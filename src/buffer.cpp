@@ -69,8 +69,10 @@ void Buffer1f::TwoPassGaussianBlurDenoised()
 
             for (int i = 1; i < 5; ++i)
             {
-                int newW = Clamp(w + i, 0, m_Width - 1);
-                result += GetValue(newW, h) * weights[i];
+                int w1 = Clamp(w + i, 0, m_Width - 1);
+                int w2 = Clamp(w - i, 0, m_Width - 1);
+                result += GetValue(w1, h) * weights[i];
+                result += GetValue(w2, h) * weights[i];
             }
             SetValue(w, h, result);
         }
@@ -85,8 +87,10 @@ void Buffer1f::TwoPassGaussianBlurDenoised()
 
             for (int i = 1; i < 5; ++i)
             {
-                int newH = Clamp(h + i, 0, m_Height - 1);
-                result += GetValue(w, newH) * weights[i];
+                int h1 = Clamp(h + i, 0, m_Height - 1);
+                int h2 = Clamp(h - i, 0, m_Height - 1);
+                result += GetValue(w, h1) * weights[i];
+                result += GetValue(w, h2) * weights[i];
             }
             SetValue(w, h, result);
         }
@@ -170,8 +174,10 @@ void Buffer3f::TwoPassGaussianBlurDenoised()
 
             for (int i = 1; i < 5; ++i)
             {
-                int newW = Clamp(w + i, 0, m_Width - 1);
-                result += GetValue(newW, h) * weights[i];
+                int w1 = Clamp(w + i, 0, m_Width - 1);
+                int w2 = Clamp(w - i, 0, m_Width - 1);
+                result += GetValue(w1, h) * weights[i];
+                result += GetValue(w2, h) * weights[i];
             }
             SetValue(w, h, result);
         }
@@ -186,8 +192,10 @@ void Buffer3f::TwoPassGaussianBlurDenoised()
 
             for (int i = 1; i < 5; ++i)
             {
-                int newH = Clamp(h + i, 0, m_Height - 1);
-                result += GetValue(w, newH) * weights[i];
+                int h1 = Clamp(h + i, 0, m_Height - 1);
+                int h2 = Clamp(h - i, 0, m_Height - 1);
+                result += GetValue(w, h1) * weights[i];
+                result += GetValue(w, h2) * weights[i];
             }
             SetValue(w, h, result);
         }
