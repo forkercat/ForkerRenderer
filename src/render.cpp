@@ -103,7 +103,16 @@ void DoForwardPass(const Scene& scene)
     ForkerGL::ClearColor(Color3(0.12f, 0.12f, 0.12f));
     ForkerGL::SetPassType(ForkerGL::ForwardPass);
 
-    Float ratio = scene.GetRatio();
+    Float             ratio = scene.GetRatio();
+    const Matrix4x4f& viewMatrix = scene.GetCamera().GetViewMatrix();
+    const Matrix4x4f& projectionMatrix =
+        (scene.GetProjectionType() == Camera::Orthographic)
+            ? scene.GetCamera().GetOrthographicMatrix(-1.f * ratio, 1.f * ratio, -1.f,
+                                                      1.f, s_CameraNearPlane,
+                                                      s_CameraFarPlane)
+            : scene.GetCamera().GetPerspectiveMatrix(45.f, ratio, s_CameraNearPlane,
+                                                     s_CameraFarPlane);
+    ForkerGL::SetViewProjectionMatrix(projectionMatrix * viewMatrix);
 
     for (int i = 0; i < scene.GetModelCount(); ++i)
     {
@@ -115,16 +124,9 @@ void DoForwardPass(const Scene& scene)
             spdlog::info("Forward Pass (Blinn-Phong):");
             BlinnPhongShader bpShader;
             bpShader.uModelMatrix = scene.GetModelMatrix(i);
-            bpShader.uViewMatrix = scene.GetCamera().GetViewMatrix();
+            bpShader.uViewMatrix = viewMatrix;
+            bpShader.uProjectionMatrix = projectionMatrix;
             bpShader.uNormalMatrix = MakeNormalMatrix(bpShader.uModelMatrix);
-            bpShader.uProjectionMatrix =
-                (scene.GetProjectionType() == Camera::Orthographic)
-                ? scene.GetCamera().GetOrthographicMatrix(
-                    -1.f * ratio, 1.f * ratio, -1.f, 1.f, s_CameraNearPlane,
-                    s_CameraFarPlane)
-                : scene.GetCamera().GetPerspectiveMatrix(
-                    45.f, ratio, s_CameraNearPlane, s_CameraFarPlane);
-
             // Shader Configuration
             bpShader.uPointLight = scene.GetPointLight();
             bpShader.uEyePos = scene.GetCamera().GetPosition();
@@ -139,16 +141,9 @@ void DoForwardPass(const Scene& scene)
             spdlog::info("Forward Pass (PBR):");
             PBRShader pbrShader;
             pbrShader.uModelMatrix = scene.GetModelMatrix(i);
-            pbrShader.uViewMatrix = scene.GetCamera().GetViewMatrix();
+            pbrShader.uViewMatrix = viewMatrix;
+            pbrShader.uProjectionMatrix = projectionMatrix;
             pbrShader.uNormalMatrix = MakeNormalMatrix(pbrShader.uModelMatrix);
-            pbrShader.uProjectionMatrix =
-                (scene.GetProjectionType() == Camera::Orthographic)
-                ? scene.GetCamera().GetOrthographicMatrix(
-                    -1.f * ratio, 1.f * ratio, -1.f, 1.f, s_CameraNearPlane,
-                    s_CameraFarPlane)
-                : scene.GetCamera().GetPerspectiveMatrix(
-                    45.f, ratio, s_CameraNearPlane, s_CameraFarPlane);
-
             // Shader Configuration
             pbrShader.uPointLight = scene.GetPointLight();
             pbrShader.uEyePos = scene.GetCamera().GetPosition();
@@ -167,7 +162,17 @@ void DoGeometryPass(const Scene& scene)
     ForkerGL::InitDepthBuffer(GetWidth(scene), GetHeight(scene));
     ForkerGL::SetPassType(ForkerGL::GeometryPass);
 
-    Float ratio = scene.GetRatio();
+    Float             ratio = scene.GetRatio();
+    const Matrix4x4f& viewMatrix = scene.GetCamera().GetViewMatrix();
+    const Matrix4x4f& projectionMatrix =
+        (scene.GetProjectionType() == Camera::Orthographic)
+            ? scene.GetCamera().GetOrthographicMatrix(-1.f * ratio, 1.f * ratio, -1.f,
+                                                      1.f, s_CameraNearPlane,
+                                                      s_CameraFarPlane)
+            : scene.GetCamera().GetPerspectiveMatrix(45.f, ratio, s_CameraNearPlane,
+                                                     s_CameraFarPlane);
+    ForkerGL::SetViewProjectionMatrix(projectionMatrix *
+                                      viewMatrix);  // used in lighting pass
 
     for (int i = 0; i < scene.GetModelCount(); ++i)
     {
@@ -177,15 +182,9 @@ void DoGeometryPass(const Scene& scene)
         spdlog::info("Geometry Pass (Deferred):");
         GShader geometryShader;
         geometryShader.uModelMatrix = scene.GetModelMatrix(i);
-        geometryShader.uViewMatrix = scene.GetCamera().GetViewMatrix();
+        geometryShader.uViewMatrix = viewMatrix;
+        geometryShader.uProjectionMatrix = projectionMatrix;
         geometryShader.uNormalMatrix = MakeNormalMatrix(geometryShader.uModelMatrix);
-        geometryShader.uProjectionMatrix =
-            (scene.GetProjectionType() == Camera::Orthographic)
-                ? scene.GetCamera().GetOrthographicMatrix(-1.f * ratio, 1.f * ratio, -1.f,
-                                                          1.f, s_CameraNearPlane,
-                                                          s_CameraFarPlane)
-                : scene.GetCamera().GetPerspectiveMatrix(45.f, ratio, s_CameraNearPlane,
-                                                         s_CameraFarPlane);
         geometryShader.uLightSpaceMatrix = ForkerGL::GetLightSpaceMatrix();
         // Render
         model.Render(geometryShader);
@@ -199,6 +198,7 @@ void DoLightingPass(const Scene& scene)
 
     ForkerGL::InitFrameBuffer(GetWidth(scene), GetHeight(scene));
     ForkerGL::SetPassType(ForkerGL::LightingPass);
+    ForkerGL::ClearColor(Color3(0.12f, 0.12f, 0.12f));  // this does not work
     ForkerGL::DrawScreenSpacePixels(scene);
 
     TimeElapsed(stepStopwatch, "Lighting Pass");

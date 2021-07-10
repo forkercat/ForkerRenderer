@@ -33,6 +33,7 @@ Buffer1f ForkerGL::ShadingTypeGBuffer;
 TGAImage ForkerGL::AntiAliasedImage;
 
 // Matrix
+Matrix4x4f viewProjectionMatrix = Matrix4x4f::Identity();
 Matrix4x4f viewportMatrix = Matrix4x4f::Identity();
 Matrix4x4f lightSpaceMatrix = Matrix4x4f::Identity();
 
@@ -98,6 +99,16 @@ void ForkerGL::Viewport(int x, int y, int w, int h)
     // for z
     viewportMatrix[2][2] = 1 / 2.f;
     viewportMatrix[2][3] = 1 / 2.f;
+}
+
+void ForkerGL::SetViewProjectionMatrix(const Matrix4x4f& matrix)
+{
+    viewProjectionMatrix = matrix;
+}
+
+Matrix4x4f ForkerGL::GetViewProjectionMatrix()
+{
+    return viewProjectionMatrix;
 }
 
 void ForkerGL::SetLightSpaceMatrix(const Matrix4x4f& matrix)
@@ -333,6 +344,15 @@ void ForkerGL::DrawScreenSpacePixels(const Scene& scene)
             // Directions
             Vector3f lightDir = Normalize(lightPos - positionWS);
             Vector3f viewDir = Normalize(eyePos - positionWS);
+
+
+            // SSAO
+            // normal -> semi-sphere
+            // sampled world position
+            // w/ mvp matrix --> depth
+            // compare
+
+
 
             // Shadow Mapping
             Float visibility = 0.f;

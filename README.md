@@ -1,4 +1,4 @@
-# ForkerRenderer: CPU-Based Software Rasterizer, A Tiny OpenGL 🐼
+# ForkerRenderer: CPU-Based Forward/Deferred Rasterizer, A Tiny OpenGL 🐼
 
 Implement a CPU-based software rasterizer that mimics OpenGL behavior without using any third-party libraries, but use [spdlog](https://github.com/gabime/spdlog)
 for logging though :)

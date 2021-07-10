@@ -13,7 +13,7 @@ ssaa off 2
 # Shadow (PCSS)
 shadow on
 
-# Light (type: point/dir, position, color)
+# Light (type: point/dir, position, color)m
 light point 2 5 5 5 5 5
 
 # Camera (type: persp/ortho, position, lookAt)

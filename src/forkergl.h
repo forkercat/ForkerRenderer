@@ -62,6 +62,8 @@ struct ForkerGL
     // Update Status
     static void       ClearColor(const Color3& color);
     static void       Viewport(int x, int y, int w, int h);
+    static void       SetViewProjectionMatrix(const Matrix4x4f& matrix);
+    static Matrix4x4f GetViewProjectionMatrix();
     static void       SetLightSpaceMatrix(const Matrix4x4f& matrix);
     static Matrix4x4f GetLightSpaceMatrix();
     static void       SetRenderMode(enum RenderMode mode);
