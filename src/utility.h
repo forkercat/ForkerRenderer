@@ -43,6 +43,14 @@ inline T Clamp01(T val)
     return Clamp(val, (T)0, (T)1);
 }
 
+inline Float Smoothstep(Float edge0, Float edge1, Float x)
+{
+    // Scale, bias, and saturate x to 0..1 range
+    x = Clamp01((x - edge0) / (edge1 - edge0));
+    // Evaluate polynomial
+    return x * x * (3 - 2 * x);
+}
+
 inline Float Radians(Float deg)
 {
     return deg * Pi / 180.f;

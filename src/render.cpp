@@ -32,7 +32,7 @@ inline int GetHeight(const Scene& scene)
 
 void Preconfigure(const Scene& scene)
 {
-    ForkerGL::Viewport(0, 0, GetWidth(scene), GetHeight(scene));
+    ForkerGL::SetViewportMatrix(0, 0, GetWidth(scene), GetHeight(scene));
     ForkerGL::TextureWrapMode(Texture::NoWrap);     // or Repeat, ClampedToEdge, etc
     ForkerGL::TextureFilterMode(Texture::Nearest);  // or Linear
 }
@@ -199,9 +199,74 @@ void DoLightingPass(const Scene& scene)
     ForkerGL::InitFrameBuffer(GetWidth(scene), GetHeight(scene));
     ForkerGL::SetPassType(ForkerGL::LightingPass);
     ForkerGL::ClearColor(Color3(0.12f, 0.12f, 0.12f));  // this does not work
+
+    // SSAO Effect
+    DoSSAO(scene);
+
     ForkerGL::DrawScreenSpacePixels(scene);
 
     TimeElapsed(stepStopwatch, "Lighting Pass");
+}
+
+void DoSSAO(const Scene& scene)
+{
+    // SSAO Parameters
+    const int   numSample = 64;
+    const Float kernelScale = 1.f / numSample;
+
+    const Float radius = 0.1f;
+    const Float rangeCheckRadius = 0.01f;  // based on radius
+
+    int screenWidth = ForkerGL::FrameBuffer.GetWidth();
+    int screenHeight = ForkerGL::FrameBuffer.GetHeight();
+
+    for (int y = 0; y < screenHeight; ++y)
+    {
+        for (int x = 0; x < screenWidth; ++x)
+        {
+            Point3f  positionWS = ForkerGL::WorldPosGBuffer.GetValue(x, y);
+            Vector3f normalWS = ForkerGL::NormalGBuffer.GetValue(x, y);
+            Float    fragDepth = ForkerGL::DepthBuffer.GetValue(x, y);
+
+            Float occlusion = 0.f;
+            for (int s = 0; s < numSample; ++s)
+            {
+                Vector3f sampledDirection;
+                do
+                {
+                    sampledDirection = RandomVectorInHemisphere(normalWS);
+                } while (sampledDirection.NearZero());
+
+                Point3f sampledPositionWS = positionWS + sampledDirection * radius;
+                Point4f sampledPositionCS = ForkerGL::GetViewProjectionMatrix() *
+                                            Vector4f(sampledPositionWS, 1.f);
+                Point4f sampledPositionNDC = sampledPositionCS / sampledPositionCS.w;
+                Point3f sampledPositionSS =
+                    (ForkerGL::GetViewportMatrix() * sampledPositionNDC).xyz;
+
+                Point2i sampledScreenPosition =
+                    Point2i(sampledPositionSS.x, sampledPositionSS.y);
+                Float sampledDepth = sampledPositionSS.z;
+                Float cachedDepth = ForkerGL::DepthBuffer.GetValue(
+                    sampledScreenPosition.x, sampledScreenPosition.y);
+
+                const Float bias = 0.001f;
+
+                Float rangeCheck =
+                    std::abs(fragDepth - cachedDepth) < rangeCheckRadius ? 1.f : 0.f;
+
+                // Another way
+                // Float rangeCheck = Smoothstep(
+                //     0.f, 1.f, rangeCheckRadius / std::abs(cachedDepth - fragDepth));
+
+                if (sampledDepth >= cachedDepth + bias)
+                {
+                    occlusion += kernelScale * rangeCheck;
+                }
+            }
+            ForkerGL::AmbientOcclusionGBuffer.SetValue(x, y, occlusion);
+        }
+    }
 }
 
 void DoSSAA(const Scene& scene)

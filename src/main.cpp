@@ -51,6 +51,7 @@ int main(int argc, const char* argv[])
     Output::OutputAlbedoGBuffer();
     Output::OutputParamGBuffer();
     Output::OutputShadingTypeGBuffer();
+    Output::OutputAmbientOcclusionGBuffer(true);
 
     return 0;
 }

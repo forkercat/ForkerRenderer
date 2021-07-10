@@ -28,6 +28,7 @@ Buffer3f ForkerGL::AlbedoGBuffer;
 Buffer3f ForkerGL::EmissiveGBuffer;
 Buffer3f ForkerGL::ParamGBuffer;
 Buffer1f ForkerGL::ShadingTypeGBuffer;
+Buffer1f ForkerGL::AmbientOcclusionGBuffer;  // SSAO
 
 // Images
 TGAImage ForkerGL::AntiAliasedImage;
@@ -78,6 +79,7 @@ void ForkerGL::InitGeometryBuffers(int width, int height)
     EmissiveGBuffer = Buffer3f(width, height, Buffer::Zero);
     ParamGBuffer = Buffer3f(width, height, Buffer::Zero);
     ShadingTypeGBuffer = Buffer1f(width, height, Buffer::Zero);
+    AmbientOcclusionGBuffer = Buffer1f(width, height, Buffer::Zero);
 }
 
 // Status Configuration
@@ -86,7 +88,7 @@ void ForkerGL::ClearColor(const Color3& color)
     FrameBuffer.PaintColor(color);
 }
 
-void ForkerGL::Viewport(int x, int y, int w, int h)
+void ForkerGL::SetViewportMatrix(int x, int y, int w, int h)
 {
     viewportMatrix = Matrix4x4f::Identity();
 
@@ -99,6 +101,11 @@ void ForkerGL::Viewport(int x, int y, int w, int h)
     // for z
     viewportMatrix[2][2] = 1 / 2.f;
     viewportMatrix[2][3] = 1 / 2.f;
+}
+
+Matrix4x4f ForkerGL::GetViewportMatrix()
+{
+    return viewportMatrix;
 }
 
 void ForkerGL::SetViewProjectionMatrix(const Matrix4x4f& matrix)
@@ -345,20 +352,56 @@ void ForkerGL::DrawScreenSpacePixels(const Scene& scene)
             Vector3f lightDir = Normalize(lightPos - positionWS);
             Vector3f viewDir = Normalize(eyePos - positionWS);
 
-
-            // SSAO
-            // normal -> semi-sphere
-            // sampled world position
-            // w/ mvp matrix --> depth
-            // compare
-
-
+            // // SSAO
+            // const int   numSample = 64;
+            // const Float radius = 0.1f;
+            // const Float rangeCheckRadius = 0.01f;  // based on radius
+            //
+            // Float occlusion = 0.f;
+            // Float scale = 1.f / numSample;
+            // for (int s = 0; s < numSample; ++s)
+            // {
+            //     Vector3f sampledDirection;
+            //     do
+            //     {
+            //         sampledDirection = RandomVectorInHemisphere(normalWS);
+            //     } while (sampledDirection.NearZero());
+            //
+            //     Point3f sampledPositionWS = positionWS + sampledDirection * radius;
+            //     Point4f sampledPositionCS =
+            //         viewProjectionMatrix * Vector4f(sampledPositionWS, 1.f);
+            //     Point4f sampledPositionNDC = sampledPositionCS / sampledPositionCS.w;
+            //     Point3f sampledPositionSS = (viewportMatrix * sampledPositionNDC).xyz;
+            //
+            //     Point2i sampledScreenPosition =
+            //         Point2i(sampledPositionSS.x, sampledPositionSS.y);
+            //     Float sampledDepth = sampledPositionSS.z;
+            //     Float cachedDepth = ForkerGL::DepthBuffer.GetValue(
+            //         sampledScreenPosition.x, sampledScreenPosition.y);
+            //
+            //     const Float bias = 0.001f;
+            //
+            //     Float rangeCheck =
+            //         std::abs(fragDepth - cachedDepth) < rangeCheckRadius ? 1.f : 0.f;
+            //
+            //     // Another way
+            //     // Float rangeCheck = Smoothstep(
+            //     //     0.f, 1.f, rangeCheckRadius / std::abs(cachedDepth - fragDepth));
+            //
+            //     if (sampledDepth >= cachedDepth + bias)
+            //     {
+            //         occlusion += scale * rangeCheck;
+            //     }
+            // }
+            // ForkerGL::FrameBuffer.SetValue(x, y, Color3(1.f - occlusion));
+            // continue;
 
             // Shadow Mapping
             Float visibility = 0.f;
             if (Shadow::GetShadowStatus())
             {
-                visibility = Shadow::CalculateShadowVisibility(ForkerGL::ShadowBuffer, lightSpaceNDC, normalWS, lightDir);
+                visibility = Shadow::CalculateShadowVisibility(
+                    ForkerGL::ShadowBuffer, lightSpaceNDC, normalWS, lightDir);
             }
 
             Color3 color;

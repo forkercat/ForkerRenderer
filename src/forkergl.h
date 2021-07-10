@@ -50,6 +50,7 @@ struct ForkerGL
     static Buffer3f EmissiveGBuffer;
     static Buffer3f ParamGBuffer;
     static Buffer1f ShadingTypeGBuffer;
+    static Buffer1f AmbientOcclusionGBuffer;  // SSAO
 
     // Images
     static TGAImage AntiAliasedImage;
@@ -61,14 +62,15 @@ struct ForkerGL
 
     // Update Status
     static void       ClearColor(const Color3& color);
-    static void       Viewport(int x, int y, int w, int h);
+    static void       SetViewportMatrix(int x, int y, int w, int h);
+    static Matrix4x4f GetViewportMatrix();
     static void       SetViewProjectionMatrix(const Matrix4x4f& matrix);
     static Matrix4x4f GetViewProjectionMatrix();
     static void       SetLightSpaceMatrix(const Matrix4x4f& matrix);
     static Matrix4x4f GetLightSpaceMatrix();
     static void       SetRenderMode(enum RenderMode mode);
-    static RenderMode       GetRenderMode();
-    static void             SetPassType(enum PassType type);
+    static RenderMode GetRenderMode();
+    static void       SetPassType(enum PassType type);
 
     // Rasterization
     static void DrawTriangle(const Point4f ndcVerts[3], Shader& shader);

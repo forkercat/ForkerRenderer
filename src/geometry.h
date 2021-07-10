@@ -86,6 +86,11 @@ class Vector<2, T>
 {
 public:
     bool HasNaNs() const { return isNaN(x) || isNaN(y); }
+    bool NearZero() const
+    {
+        const Float s = 1e-8;
+        return std::fabs(x) < s && std::fabs(y) < s;
+    }
 
     // Constructors
     Vector() : x(T()), y(T()) { }
@@ -221,6 +226,11 @@ class Vector<3, T>
 {
 public:
     bool HasNaNs() const { return isNaN(x) || isNaN(y) || isNaN(z); }
+    bool NearZero() const
+    {
+        const Float s = 1e-8;
+        return std::fabs(x) < s && std::fabs(y) < s && std::fabs(z) < s;
+    }
 
     // Constructors
     Vector() : x(T()), y(T()), z(T()) { }
@@ -379,6 +389,11 @@ class Vector<4, T>
 {
 public:
     bool HasNaNs() const { return isNaN(x) || isNaN(y) || isNaN(z) || isNaN(w); }
+    bool NearZero() const
+    {
+        const Float s = 1e-8;
+        return std::fabs(x) < s && std::fabs(y) < s && std::fabs(z) < s && std::fabs(w) < s;
+    }
 
     // Constructors
     Vector() : x(T()), y(T()), z(T()), w(T()) { }
@@ -964,6 +979,20 @@ inline Vector3f RandomVectorInUnitDisk()
     }
 }
 
+inline Vector3f RandomVectorInHemisphere(const Vector3f& normal)
+{
+    Vector3f vectorInUnitSphere = RandomVectorInUnitSphere();
+
+    if (Dot(vectorInUnitSphere, normal) > 0.f)
+    {
+        return vectorInUnitSphere;
+    }
+    else
+    {
+        return -vectorInUnitSphere;
+    }
+}
+
 /////////////////////////////////////////////////////////////////////////////////
 
 bool TestInsideTriangle(const Point2f& A, const Point2f& B, const Point2f& C,
@@ -972,7 +1001,7 @@ bool TestInsideTriangle(const Point2f& A, const Point2f& B, const Point2f& C,
 Float TriangleArea(Point2f a, Point2f b, Point2f c);
 
 Point3f Barycentric(const Point2i& A, const Point2i& B, const Point2i& C,
-                     const Point2i& P);
+                    const Point2i& P);
 Point3f Barycentric(const Point2f& A, const Point2f& B, const Point2f& C,
                      const Point2f& P);
 

@@ -30,6 +30,9 @@ void DoForwardPass(const Scene& scene);
 void DoGeometryPass(const Scene& scene);
 void DoLightingPass(const Scene& scene);
 
+// SSAO
+void DoSSAO(const Scene& scene);
+
 // Anti-Aliasing
 void DoSSAA(const Scene& scene);
 }  // namespace Render
