@@ -62,7 +62,7 @@ cmake .. && make
 
 - [x] Parsing `*.obj` / `*.mtl`
     - `g` defines mesh name; `usemtl` defines m_Material name (comes in order)
-    - [x] Support `Ka`, `Kd`, `Ks`, `Ke`, map_Kd`, `map_Ks`, `map_Ke`, `map_Bump`, `map_Ao`, `map_Pr`, `map_Pm`
+    - [x] Support `Ka`, `Kd`, `Ks`, `Ke`, `map_Kd`, `map_Ks`, `map_Ke`, `map_Bump`, `map_Ao`, `map_Pr`, `map_Pm`
     - [x] Position vertex normalization
     - [x] Auto triangulation
 - [x] Parsing scene files `*.scene`
@@ -130,7 +130,7 @@ model obj/mary/mary.obj true true 0.05 0 -1 -10 1
 
 - [x] Global Illuminations
   - [x] Screen Space Ambient Occlusion (SSAO) `ssao on`
-    - Range Check
+    - Range Check (courtesy of [John Chapman](http://john-chapman-graphics.blogspot.com/)
     - Noise Reduction: simple 9x9 blur, two-pass gaussian blur
   - [ ] Screen Space Reflection (SSR)
     - Aka. Screen Space Ray Tracing
