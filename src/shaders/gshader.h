@@ -188,13 +188,13 @@ struct GShader : public Shader
                 material->HasEmissiveMap() ? emissiveMap->Sample(texCoord) : material->ke;
             Color3 diffuseColor =
                 material->HasDiffuseMap() ? diffuseMap->Sample(texCoord) : material->kd;
-            Float ambient = material->ka.r;
+            Float ao = 1.f;
             Float specular = material->ks.r;
             Float shininess = material->HasSpecularMap() ? specularMap->SampleFloat(texCoord) + 5 : 1.f;
 
             outAlbedo = diffuseColor;
             outEmissive = emissive;
-            outParam = Vector3f(ambient, specular, shininess);
+            outParam = Vector3f(ao, specular, shininess);
             outShadingType = 0.f;  // Non-PBR
         }
 

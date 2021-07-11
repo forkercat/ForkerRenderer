@@ -237,7 +237,7 @@ struct PBRShader : public Shader
         Color3 color = Lo;
 
         // Ambient
-        Color3 ambient = Color3(0.03) * albedoLinear * ao;
+        Color3 ambient = Color3(0.3) * albedoLinear * ao;
         color += ambient;
 
         // Emissive

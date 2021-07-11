@@ -201,7 +201,10 @@ void DoLightingPass(const Scene& scene)
     ForkerGL::ClearColor(Color3(0.12f, 0.12f, 0.12f));  // this does not work
 
     // SSAO Effect
-    DoSSAO(scene);
+    if (scene.IsSSAOOn())
+    {
+        DoSSAO(scene);
+    }
 
     ForkerGL::DrawScreenSpacePixels(scene);
 
@@ -210,11 +213,14 @@ void DoLightingPass(const Scene& scene)
 
 void DoSSAO(const Scene& scene)
 {
+    spdlog::info("* Applying SSAO in deferred shading...");
+
     // SSAO Parameters
-    const int   numSample = 64;
+    const int   numSample = 32;
     const Float kernelScale = 1.f / numSample;
 
-    const Float radius = 0.1f;
+    const Float radius = 0.075f;
+    const bool rangeCheckEnabled = true;
     const Float rangeCheckRadius = 0.01f;  // based on radius
 
     int screenWidth = ForkerGL::FrameBuffer.GetWidth();
@@ -232,8 +238,12 @@ void DoSSAO(const Scene& scene)
             for (int s = 0; s < numSample; ++s)
             {
                 Vector3f sampledDirection = RandomVectorInHemisphere(normalWS);
-                Point3f  sampledPositionWS = positionWS + sampledDirection * radius;
-                Point4f  sampledPositionCS = ForkerGL::GetViewProjectionMatrix() *
+                Float    scale = sampledDirection.Length();
+                scale = Lerp(0.1f, 1.0f, scale * scale);
+                sampledDirection *= scale;
+
+                Point3f sampledPositionWS = positionWS + sampledDirection * radius;
+                Point4f sampledPositionCS = ForkerGL::GetViewProjectionMatrix() *
                                             Vector4f(sampledPositionWS, 1.f);
                 Point4f sampledPositionNDC = sampledPositionCS / sampledPositionCS.w;
                 Point3f sampledPositionSS =
@@ -245,20 +255,32 @@ void DoSSAO(const Scene& scene)
                 Float cachedDepth = ForkerGL::DepthBuffer.GetValue(
                     sampledScreenPosition.x, sampledScreenPosition.y);
 
-                const Float bias = 0.001f;
-
-                Float rangeCheck =
-                    std::abs(fragDepth - cachedDepth) < rangeCheckRadius ? 1.f : 0.f;
-
-                // Another way
-                // Float rangeCheck = Smoothstep(
-                //     0.f, 1.f, rangeCheckRadius / std::abs(cachedDepth - fragDepth));
+                const Float bias = 0.0005f;
 
                 if (sampledDepth >= cachedDepth + bias)
                 {
-                    occlusion += kernelScale * rangeCheck;
+                    if (rangeCheckEnabled)
+                    {
+                        Float rangeCheck =
+                            std::abs(fragDepth - cachedDepth) < rangeCheckRadius ? 1.f
+                                                                                 : 0.f;
+                        // Another way
+                        // Float rangeCheck = Smoothstep(
+                        //     0.f, 1.f, rangeCheckRadius / std::abs(cachedDepth -
+                        //     fragDepth));
+                        occlusion += kernelScale * rangeCheck;
+                    }
+                    else
+                    {
+                        occlusion += kernelScale;
+                    }
                 }
             }
+
+            occlusion = 1.f - occlusion;
+
+            occlusion = Pow(occlusion, 3);
+
             ForkerGL::AmbientOcclusionGBuffer.SetValue(x, y, occlusion);
         }
     }

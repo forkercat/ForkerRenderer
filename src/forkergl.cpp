@@ -79,7 +79,7 @@ void ForkerGL::InitGeometryBuffers(int width, int height)
     EmissiveGBuffer = Buffer3f(width, height, Buffer::Zero);
     ParamGBuffer = Buffer3f(width, height, Buffer::Zero);
     ShadingTypeGBuffer = Buffer1f(width, height, Buffer::Zero);
-    AmbientOcclusionGBuffer = Buffer1f(width, height, Buffer::Zero);
+    AmbientOcclusionGBuffer = Buffer1f(width, height, Buffer::One);
 }
 
 // Status Configuration
@@ -348,53 +348,14 @@ void ForkerGL::DrawScreenSpacePixels(const Scene& scene)
             Vector3f param = ForkerGL::ParamGBuffer.GetValue(x, y);
             Float    shadingType = ForkerGL::ShadingTypeGBuffer.GetValue(x, y);
 
+            Float    ambientOcclusion = ForkerGL::AmbientOcclusionGBuffer.GetValue(x, y);
+            param.x *= ambientOcclusion;
+            // param.x = ambientOcclusion;
+
+
             // Directions
             Vector3f lightDir = Normalize(lightPos - positionWS);
             Vector3f viewDir = Normalize(eyePos - positionWS);
-
-            // // SSAO
-            // const int   numSample = 64;
-            // const Float radius = 0.1f;
-            // const Float rangeCheckRadius = 0.01f;  // based on radius
-            //
-            // Float occlusion = 0.f;
-            // Float scale = 1.f / numSample;
-            // for (int s = 0; s < numSample; ++s)
-            // {
-            //     Vector3f sampledDirection;
-            //     do
-            //     {
-            //         sampledDirection = RandomVectorInHemisphere(normalWS);
-            //     } while (sampledDirection.NearZero());
-            //
-            //     Point3f sampledPositionWS = positionWS + sampledDirection * radius;
-            //     Point4f sampledPositionCS =
-            //         viewProjectionMatrix * Vector4f(sampledPositionWS, 1.f);
-            //     Point4f sampledPositionNDC = sampledPositionCS / sampledPositionCS.w;
-            //     Point3f sampledPositionSS = (viewportMatrix * sampledPositionNDC).xyz;
-            //
-            //     Point2i sampledScreenPosition =
-            //         Point2i(sampledPositionSS.x, sampledPositionSS.y);
-            //     Float sampledDepth = sampledPositionSS.z;
-            //     Float cachedDepth = ForkerGL::DepthBuffer.GetValue(
-            //         sampledScreenPosition.x, sampledScreenPosition.y);
-            //
-            //     const Float bias = 0.001f;
-            //
-            //     Float rangeCheck =
-            //         std::abs(fragDepth - cachedDepth) < rangeCheckRadius ? 1.f : 0.f;
-            //
-            //     // Another way
-            //     // Float rangeCheck = Smoothstep(
-            //     //     0.f, 1.f, rangeCheckRadius / std::abs(cachedDepth - fragDepth));
-            //
-            //     if (sampledDepth >= cachedDepth + bias)
-            //     {
-            //         occlusion += scale * rangeCheck;
-            //     }
-            // }
-            // ForkerGL::FrameBuffer.SetValue(x, y, Color3(1.f - occlusion));
-            // continue;
 
             // Shadow Mapping
             Float visibility = 0.f;

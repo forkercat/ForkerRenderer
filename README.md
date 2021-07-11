@@ -5,7 +5,7 @@ for logging though :)
 
 ![](https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Head_3.jpg)
 
-![](https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Head_4.jpg)
+![](https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Head_4_1.jpg)
 
 ## Building & Usage 🔨
 
@@ -30,7 +30,6 @@ cmake .. && make
 - Physically-Based Rendering (PBR)
   - Improvement
 - Global Illumination
-  - Screen Space Ambient Occlusion (SSAO)
   - Screen Space Reflection (SSR) aka. Realtime Ray Tracing
 
 ## Features ⭐
@@ -126,9 +125,15 @@ model obj/mary/mary.obj true true 0.05 0 -1 -10 1
 - [x] Anti-Aliasing (AA)
   - [x] SSAA: Super Sampling Anti-Aliasing (set `ssaa on` in `test.scene`)
   - [ ] MSAA
-- [ ] Global Illuminations
-  - [ ] Screen Space Ambient Occlusion (SSAO)
-  - [ ] Screen Space Reflection (SSR) aka. Realtime Ray Tracing
+
+![](https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_SSAO.jpg)
+
+- [x] Global Illuminations
+  - [x] Screen Space Ambient Occlusion (SSAO)
+    - Range Check
+    - Noise Reduction: simple 9x9 blur, two-pass gaussian blur
+  - [ ] Screen Space Reflection (SSR)
+    - Aka. Screen Space Ray Tracing
 
 ## Gallery 🖼️
 
@@ -142,7 +147,7 @@ Mary [TAs from [GAMES202: Real-time High Quality Rendering](https://sites.cs.ucs
 
 Horizon Meets Mary
 
-<img src="https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Horizon_Meets_Mary.jpg" width="600">
+<img src="https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Horizon_Meets_Mary_2.jpg" width="600">
 
 Sci-Fi Welding Vehicle [Berk Gedik]
 
@@ -167,7 +172,7 @@ African Head [Vidar Rapp]
 
 ## Structure 📁
 
-About **5,000** lines of code:
+About **5,500** lines of code:
 
 - Rendering: `render.h/cpp` (rendering functions), `forkergl.h/cpp` (rasterization)
 - Buffer: `buffer.h/cpp` (`Buffer1f`, `Buffer3f`)

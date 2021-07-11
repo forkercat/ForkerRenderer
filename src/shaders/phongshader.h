@@ -177,7 +177,7 @@ struct BlinnPhongShader : public Shader
         Color3 diffuseColorLinear = Pow(diffuseColor, Gamma);
         Color3 emissiveLinear = Pow(emissive, Gamma);
 
-        Float ka = param.x;
+        Float ao = param.x;
         Float ks = param.y;
         Float shininess = param.z;
 
@@ -188,8 +188,8 @@ struct BlinnPhongShader : public Shader
         Float spec = std::pow(Max(0.f, Dot(halfwayDir, normal)), shininess);
 
         // Color of Shading Component
-        Color3 ambient = Color3(ka) * diffuseColorLinear;
-        Color3 diffuse = diffuseColorLinear * diff;
+        Color3 ambient = Color3(0.3f) * diffuseColorLinear * ao;
+        Color3 diffuse = diffuseColorLinear * diff * ao;
         Color3 specular = Color3(ks) * spec;
 
         // Shadow Mapping
@@ -203,7 +203,7 @@ struct BlinnPhongShader : public Shader
         }
 
         // Combine
-        Color3 color = (ambient + diffuse + specular + emissiveLinear) * lightColor;
+        Color3 color = ambient + (diffuse + specular + emissiveLinear) * lightColor;
 
         // HDR Tonemapping
         color = color / (color + Color3(1.f));

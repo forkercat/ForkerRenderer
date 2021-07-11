@@ -10,11 +10,14 @@ screen 1280 800
 # Anti-Aliasing
 ssaa off 2
 
+# SSAO
+ssao off
+
 # Shadow (PCSS)
 shadow on
 
 # Light (type: point/dir, position, color)m
-light point 2 5 5 5 5 5
+light point 2 5 5 2 2 2
 
 # Camera (type: persp/ortho, position, lookAt)
 camera persp -1 1 1 0 0 -1

@@ -28,6 +28,9 @@ public:
     bool IsSSAAOn() const { return m_SSAA; }
     int  GetSSAAKernelSize() const { return m_SSAAKernelSize; }
 
+    // SSAO
+    bool IsSSAOOn() const { return m_SSAO; }
+
     // Light
     const PointLight& GetPointLight() const
     {
@@ -63,6 +66,7 @@ private:
     int                                 m_Height;
     bool                                m_SSAA;
     int                                 m_SSAAKernelSize;
+    bool                                m_SSAO;
     std::unique_ptr<PointLight>         m_PointLight;
     std::unique_ptr<DirLight>           m_DirLight;
     std::unique_ptr<Camera>             m_Camera;

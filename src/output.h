@@ -16,5 +16,5 @@ void OutputWorldPosGBuffer();
 void OutputAlbedoGBuffer();
 void OutputParamGBuffer();
 void OutputShadingTypeGBuffer();
-void OutputAmbientOcclusionGBuffer(bool inverseColor = false);
+void OutputAmbientOcclusionGBuffer();
 }  // namespace Output

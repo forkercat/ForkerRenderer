@@ -23,6 +23,7 @@ Scene::Scene(const std::string& filename)
     : m_Width(s_DefaultWidth),
       m_Height(s_DefaultHeight),
       m_SSAA(false),
+      m_SSAO(false),
       m_SSAAKernelSize(2),
       m_PointLight(nullptr),
       m_DirLight(nullptr),
@@ -86,6 +87,12 @@ Scene::Scene(const std::string& filename)
             std::string status;
             iss >> strTrash >> status >> m_SSAAKernelSize;
             m_SSAA = (status == "on");
+        }
+        else if (line.compare(0, 5, "ssao ") == 0)  // SSAO
+        {
+            std::string status;
+            iss >> strTrash >> status;
+            m_SSAO = (status == "on");
         }
         else if (line.compare(0, 7, "shadow ") == 0)  // Shadow
         {
@@ -187,6 +194,6 @@ Scene::Scene(const std::string& filename)
             m_ModelMatrices.push_back(MakeModelMatrix(position, rotateY, uniformScale));
         }
     }
-    spdlog::info("  [Config] SSAA(x{})[{}] shadow[{}]", m_SSAAKernelSize,
-                 m_SSAA ? "on" : "off", Shadow::GetShadowStatus() ? "on" : "off");
+    spdlog::info("  [Config] SSAA(x{})[{}] shadow[{}] SSAO[{}]", m_SSAAKernelSize,
+                 m_SSAA ? "on" : "off", Shadow::GetShadowStatus() ? "on" : "off" , m_SSAO ? "on" : "off");
 }

@@ -77,11 +77,11 @@ void OutputShadingTypeGBuffer()
     }
 }
 
-void OutputAmbientOcclusionGBuffer(bool inverseColor)
+void OutputAmbientOcclusionGBuffer()
 {
     if (ForkerGL::AmbientOcclusionGBuffer.GetWidth() != 0)
     {
-        ForkerGL::AmbientOcclusionGBuffer.GenerateImage(inverseColor).WriteTgaFile("output/gbuffer_ambient_occlusion.tga");
+        ForkerGL::AmbientOcclusionGBuffer.GenerateImage().WriteTgaFile("output/gbuffer_ambient_occlusion.tga");
     }
 }
 
