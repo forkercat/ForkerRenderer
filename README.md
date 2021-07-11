@@ -129,7 +129,7 @@ model obj/mary/mary.obj true true 0.05 0 -1 -10 1
 ![](https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_SSAO.jpg)
 
 - [x] Global Illuminations
-  - [x] Screen Space Ambient Occlusion (SSAO)
+  - [x] Screen Space Ambient Occlusion (SSAO) `ssao on`
     - Range Check
     - Noise Reduction: simple 9x9 blur, two-pass gaussian blur
   - [ ] Screen Space Reflection (SSR)
@@ -198,7 +198,7 @@ $ ./ForkerRenderer scenes/test.scene
 [info]   [Model] 'obj/diablo_pose/diablo_pose.obj'
 [info]      v# 2519, f# 5022, vt# 3263, vn# 2519, tg# 2519, mesh# 1, mtl# 1 | normalized[o] generateTangent[o], flipTexCoordY[o]
 [info]      [Diablo_Pose] f# 5022 | PBR[x] map_Kd[o] map_Ks[o] map_Ke[x] map_Bump[o] | Ka(0.10, 0.10, 0.10), Kd(0.81, 0.81, 0.81), Ks(0.20, 0.20, 0.20)
-[info]   [Config] SSAA(x2)[off] shadow[on]
+[info]   [Config] SSAA(x2)[off] shadow[on] SSAO[off]
 [info] ------------------------------------------------------------
 [info] Time Used: 0.714729 Seconds (Scene Loaded)
 
