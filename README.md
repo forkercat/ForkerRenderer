@@ -46,7 +46,7 @@ cmake .. && make
     - Geometry Pass
     - Lighting Pass
 
-![](https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_PBR.jpg)
+![](https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_PBR_2.jpg)
 
 - [x] Shading
   - [x] Depth Shading
@@ -126,7 +126,7 @@ model obj/mary/mary.obj true true 0.05 0 -1 -10 1
   - [x] SSAA: Super Sampling Anti-Aliasing (set `ssaa on` in `test.scene`)
   - [ ] MSAA
 
-![](https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_SSAO.jpg)
+![](https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_SSAO_2.jpg)
 
 - [x] Global Illuminations
   - [x] Screen Space Ambient Occlusion (SSAO) `ssao on`
