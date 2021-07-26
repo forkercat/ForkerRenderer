@@ -10,9 +10,6 @@ for logging though :)
 ## Building & Usage 🔨
 
 ```sh
-# Logging
-brew install spdlog  # for macOS
-
 # Clone
 git clone https://github.com/junhaowww/ForkerRenderer.git
 cd ForkerRenderer 
@@ -130,8 +127,8 @@ model obj/mary/mary.obj true true 0.05 0 -1 -10 1
 
 - [x] Global Illuminations
   - [x] Screen Space Ambient Occlusion (SSAO) `ssao on`
-    - Range Check (courtesy of [John Chapman](http://john-chapman-graphics.blogspot.com/)
-    - Noise Reduction: simple 9x9 blur, two-pass gaussian blur
+    - Range Check (courtesy of [John Chapman](http://john-chapman-graphics.blogspot.com/))
+    - Noise Reduction: simple 9x9 blur, two-pass Gaussian blur
   - [ ] Screen Space Reflection (SSR)
     - Aka. Screen Space Ray Tracing
 
