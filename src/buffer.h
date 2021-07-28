@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <vector>
-
 #include "color.h"
 #include "geometry.h"
 #include "tgaimage.h"

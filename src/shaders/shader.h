@@ -4,9 +4,6 @@
 
 #pragma once
 
-#include <utility>
-#include <memory>
-
 #include "buffer.h"
 #include "color.h"
 #include "geometry.h"

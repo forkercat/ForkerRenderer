@@ -6,9 +6,6 @@
 
 #include <spdlog/spdlog.h>
 
-#include <fstream>
-#include <sstream>
-
 #include "color.h"
 #include "forkergl.h"
 #include "light.h"

@@ -6,9 +6,6 @@
 
 #include <spdlog/stopwatch.h>
 
-#include <cstdlib>
-#include <random>
-
 #include "constant.h"
 
 // Utility Inline Functions

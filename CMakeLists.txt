@@ -21,6 +21,7 @@ add_executable(ForkerRenderer
     src/main.cpp)
 
 target_include_directories(ForkerRenderer PRIVATE src src/shaders src/materials vendor/spdlog/include)
+target_precompile_headers(ForkerRenderer PRIVATE src/forkerpch.h)
 
 # If you import from `brew install spdlog`
 # find_package(spdlog REQUIRED)

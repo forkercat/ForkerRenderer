@@ -7,10 +7,6 @@
 
 #include <spdlog/fmt/ostr.h>
 
-#include <cassert>
-#include <cmath>
-#include <ostream>
-
 #include "check.h"
 #include "constant.h"
 #include "stringprint.h"

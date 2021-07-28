@@ -6,10 +6,6 @@
 
 #include <camera.h>
 
-#include <memory>
-#include <string>
-#include <vector>
-
 class PointLight;
 class DirLight;
 class Model;

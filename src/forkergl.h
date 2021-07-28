@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <vector>
-
 #include "buffer.h"
 #include "geometry.h"
 #include "shader.h"

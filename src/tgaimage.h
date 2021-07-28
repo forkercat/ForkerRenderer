@@ -5,10 +5,6 @@
 
 #pragma once
 
-#include <fstream>
-#include <ostream>
-#include <vector>
-
 #include "check.h"
 #include "geometry.h"
 

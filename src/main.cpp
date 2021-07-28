@@ -1,8 +1,6 @@
 #include <spdlog/spdlog.h>
 #include <spdlog/stopwatch.h>
 
-#include <iostream>
-
 #include "output.h"
 #include "render.h"
 #include "utility.h"

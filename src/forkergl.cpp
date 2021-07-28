@@ -4,8 +4,6 @@
 
 #include "forkergl.h"
 
-#include <thread>
-
 #include "color.h"
 #include "gshader.h"
 #include "pbrshader.h"

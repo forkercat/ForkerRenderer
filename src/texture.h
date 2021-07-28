@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <cmath>
-
 #include "color.h"
 #include "geometry.h"
 #include "tgaimage.h"

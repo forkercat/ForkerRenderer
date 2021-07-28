@@ -6,10 +6,6 @@
 
 #include <spdlog/fmt/ostr.h>
 
-#include <iostream>
-#include <string>
-#include <utility>
-
 #include "geometry.h"
 #include "stringprint.h"
 #include "texture.h"

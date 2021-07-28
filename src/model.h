@@ -4,11 +4,6 @@
 
 #pragma once
 
-#include <map>
-#include <memory>
-#include <string>
-#include <vector>
-
 #include "geometry.h"
 #include "material.h"
 #include "mesh.h"

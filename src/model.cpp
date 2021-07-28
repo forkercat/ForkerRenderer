@@ -7,10 +7,6 @@
 #include <spdlog/spdlog.h>
 #include <spdlog/stopwatch.h>
 
-#include <fstream>
-#include <sstream>
-#include <string>
-
 #include "forkergl.h"
 #include "shader.h"
 #include "utility.h"

@@ -5,12 +5,7 @@
 
 #include "tgaimage.h"
 
-#include <math.h>
 #include <spdlog/spdlog.h>
-#include <string.h>
-#include <time.h>
-
-#include <fstream>
 
 /////////////////////////////////////////////////////////////////////////////////
 
