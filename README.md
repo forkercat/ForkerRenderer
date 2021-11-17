@@ -3,15 +3,15 @@
 Implement a CPU-based software rasterizer that mimics OpenGL behavior without using any third-party libraries, but use [spdlog](https://github.com/gabime/spdlog)
 for logging though :)
 
-![](https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Head_3.jpg)
+![](https://raw.githubusercontent.com/forkercat/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Head_3.jpg)
 
-![](https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Head_4_1.jpg)
+![](https://raw.githubusercontent.com/forkercat/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Head_4_1.jpg)
 
 ## Building & Usage 🔨
 
 ```sh
 # Clone
-git clone https://github.com/junhaowww/ForkerRenderer.git
+git clone https://github.com/forkercat/ForkerRenderer.git
 cd ForkerRenderer 
 
 # Compile
@@ -31,7 +31,7 @@ cmake .. && make
 
 ## Features ⭐
 
-![](https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Deferred_2.jpg)
+![](https://raw.githubusercontent.com/forkercat/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Deferred_2.jpg)
 
 - [x] Rasterization
   - [x] Bresenham's Line Algorithm (used and removed)
@@ -43,7 +43,7 @@ cmake .. && make
     - Geometry Pass
     - Lighting Pass
 
-![](https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_PBR_2.jpg)
+![](https://raw.githubusercontent.com/forkercat/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_PBR_2.jpg)
 
 - [x] Shading
   - [x] Depth Shading
@@ -93,14 +93,14 @@ model obj/mary/mary.obj true true 0.05 0 -1 -10 1
 - [x] Texture Wrapping: NoWrap / ClampToEdge / Repeat / MirroredRepeat `Texture::WrapMode`
 - [x] Texture Filtering: Nearest / Linear (Bilinear) `Texture::FilterMode`
 
-![](https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Wrap.jpeg)
+![](https://raw.githubusercontent.com/forkercat/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Wrap.jpeg)
 
 - [x] Normal Transformation: TBN Matrix
   - Generate and average m_Tangents for each vertex when loading the model
 - [x] Camera: Orthographic / Perspective Projection
 - [x] Perspective Correct Interpolation (PCI) `#define PERSPECTIVE_CORRECT_INTERPOLATION`
 
-![](https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Shadow.jpg)
+![](https://raw.githubusercontent.com/forkercat/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Shadow.jpg)
 
 - [x] Shadow Effect
   - [x] Hard Shadow: Shadow Mapping (set `shadow on` in `test.scene` and comment out below macros)
@@ -123,7 +123,7 @@ model obj/mary/mary.obj true true 0.05 0 -1 -10 1
   - [x] SSAA: Super Sampling Anti-Aliasing (set `ssaa on` in `test.scene`)
   - [ ] MSAA
 
-![](https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_SSAO_2.jpg)
+![](https://raw.githubusercontent.com/forkercat/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_SSAO_2.jpg)
 
 - [x] Global Illuminations
   - [x] Screen Space Ambient Occlusion (SSAO) `ssao on`
@@ -136,35 +136,35 @@ model obj/mary/mary.obj true true 0.05 0 -1 -10 1
 
 Apex Horizon (also [Dr. Mary Somers](https://www.ea.com/games/apex-legends/about/characters/horizon)) [Squral]
 
-<img src="https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Horizon.jpg" width="600">
+<img src="https://raw.githubusercontent.com/forkercat/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Horizon.jpg" width="600">
 
 Mary [TAs from [GAMES202: Real-time High Quality Rendering](https://sites.cs.ucsb.edu/~lingqi/teaching/games202.html)]
 
-<img src="https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Gallery_5.jpg" width="600">
+<img src="https://raw.githubusercontent.com/forkercat/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Gallery_5.jpg" width="600">
 
 Horizon Meets Mary
 
-<img src="https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Horizon_Meets_Mary_2.jpg" width="600">
+<img src="https://raw.githubusercontent.com/forkercat/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Horizon_Meets_Mary_2.jpg" width="600">
 
 Sci-Fi Welding Vehicle [Berk Gedik]
 
-<img src="https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Gallery_2.jpg" width="600">
+<img src="https://raw.githubusercontent.com/forkercat/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Gallery_2.jpg" width="600">
 
 Cafe Menu Chalkboard [Naiyararahman]
 
-<img src="https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Chalkboard.jpg" width="600">
+<img src="https://raw.githubusercontent.com/forkercat/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Chalkboard.jpg" width="600">
 
 Gossblade Greatsword (Monster Hunter Rise) [taj_tajima]
 
-<img src="https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_GreatSword.jpg" width="600">
+<img src="https://raw.githubusercontent.com/forkercat/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_GreatSword.jpg" width="600">
 
 Backpack [Berk Gedik]
 
-<img src="https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Gallery_3.jpg" width="400">
+<img src="https://raw.githubusercontent.com/forkercat/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Gallery_3.jpg" width="400">
 
 African Head [Vidar Rapp]
 
-<img src="https://raw.githubusercontent.com/junhaowww/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Gallery_4.jpg" width="400">
+<img src="https://raw.githubusercontent.com/forkercat/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Gallery_4.jpg" width="400">
 
 
 ## Structure 📁
