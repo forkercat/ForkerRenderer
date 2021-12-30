@@ -1,5 +1,8 @@
 # ForkerRenderer: CPU-Based Forward/Deferred Rasterizer, A Tiny OpenGL 🐼
 
+[![CMake](https://github.com/forkercat/ForkerRenderer/actions/workflows/cmake.yml/badge.svg)](https://github.com/forkercat/ForkerRenderer/actions/workflows/cmake.yml)
+[![license](https://img.shields.io/badge/license-MIT-brightgreen.svg)](LICENSE)
+
 Implement a CPU-based software rasterizer that mimics OpenGL behavior without using any third-party libraries, but use [spdlog](https://github.com/gabime/spdlog)
 for logging though :)
 
@@ -7,7 +10,7 @@ for logging though :)
 
 ![](https://raw.githubusercontent.com/forkercat/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Head_4_1.jpg)
 
-## Building & Usage 🔨
+## 🔨 Building & Usage
 
 ```sh
 # Clone
@@ -22,14 +25,14 @@ cmake .. && make
 ./ForkerRenderer ../scenes/test.scene
 ```
 
-## Future Development 🥺
+## 🥺 Future Development
 
 - Physically-Based Rendering (PBR)
   - Improvement
 - Global Illumination
   - Screen Space Reflection (SSR) aka. Realtime Ray Tracing
 
-## Features ⭐
+## ⭐ Features
 
 ![](https://raw.githubusercontent.com/forkercat/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Deferred_2.jpg)
 
@@ -132,7 +135,7 @@ model obj/mary/mary.obj true true 0.05 0 -1 -10 1
   - [ ] Screen Space Reflection (SSR)
     - Aka. Screen Space Ray Tracing
 
-## Gallery 🖼️
+## 🖼️ Gallery
 
 Apex Horizon (also [Dr. Mary Somers](https://www.ea.com/games/apex-legends/about/characters/horizon)) [Squral]
 
@@ -167,7 +170,7 @@ African Head [Vidar Rapp]
 <img src="https://raw.githubusercontent.com/forkercat/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Gallery_4.jpg" width="400">
 
 
-## Structure 📁
+## 📁 Structure
 
 About **5,500** lines of code:
 
@@ -183,7 +186,7 @@ About **5,500** lines of code:
 - Geometry: `geometry.h/cpp`
 - Utility: `tgaimage.h/cpp`, `output.h/cpp`, `check.h`, `utility.h`, `constant.h`, `stringprint.h` (PBRT-v3)
 
-## Console Output 📜
+## 📜 Console Output
 
 ```console
 $ ./ForkerRenderer scenes/test.scene
@@ -220,7 +223,7 @@ $ ./ForkerRenderer scenes/test.scene
 [info] Output TGA File: 'output/zbuffer.tga'
 ```
 
-## Reference 📚
+## 📚 Reference
 
 Started by following the basic workflow in _ssloy/TinyRenderer_, improved code style (e.g. `geometry.h`) when referring
 to other great resources such as _mmp/pbrt-v3 & v4_, and resolved tons of issues with the help of the Internet. Thank those authors and creators who wrote the articles and built the models!
