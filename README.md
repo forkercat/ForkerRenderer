@@ -1,9 +1,9 @@
-# ForkerRenderer: CPU-Based Forward/Deferred Rasterizer, A Tiny OpenGL 🐼
+# Forker Renderer: CPU-Based Forward / Deferred Rasterizer, A Tiny OpenGL 🐼
 
 [![CMake](https://github.com/forkercat/ForkerRenderer/actions/workflows/cmake.yml/badge.svg)](https://github.com/forkercat/ForkerRenderer/actions/workflows/cmake.yml)
 [![license](https://img.shields.io/badge/license-MIT-brightgreen.svg)](LICENSE)
 
-Implement a CPU-based software rasterizer that mimics OpenGL behavior without using any third-party libraries, but use [spdlog](https://github.com/gabime/spdlog)
+Implement a CPU-based software rasterizer that simulates how OpenGL works without using any third-party libraries, but use [spdlog](https://github.com/gabime/spdlog)
 for logging though :)
 
 ![](https://raw.githubusercontent.com/forkercat/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Head_3.jpg)
