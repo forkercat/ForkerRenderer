@@ -3,7 +3,7 @@
 [![CMake](https://github.com/forkercat/ForkerRenderer/actions/workflows/cmake.yml/badge.svg)](https://github.com/forkercat/ForkerRenderer/actions/workflows/cmake.yml)
 [![license](https://img.shields.io/badge/license-MIT-brightgreen.svg)](LICENSE)
 
-Implement a CPU-based software rasterizer that simulates how OpenGL works without using any third-party libraries, but use [spdlog](https://github.com/gabime/spdlog)
+Implemented a CPU-based software rasterizer that simulates how OpenGL works without using any third-party libraries but using [_gabime/spdlog_](https://github.com/gabime/spdlog)
 for logging though :)
 
 ![](https://raw.githubusercontent.com/forkercat/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Head_3.jpg)
@@ -29,7 +29,7 @@ cmake .. && make
 
 - Physically-Based Rendering (PBR)
   - Improvement
-- Global Illumination
+- Global Illuminations
   - Screen Space Reflection (SSR) aka. Realtime Ray Tracing
 
 ## ⭐ Features
@@ -123,8 +123,8 @@ model obj/mary/mary.obj true true 0.05 0 -1 -10 1
 #endif
 ```
 - [x] Anti-Aliasing (AA)
-  - [x] SSAA: Super Sampling Anti-Aliasing (set `ssaa on` in `test.scene`)
-  - [ ] MSAA
+  - [x] SSAA: Super-Sampling Anti-Aliasing (set `ssaa on` in `test.scene`)
+  - [ ] MSAA: Multi-Sample Anti-Aliasing
 
 ![](https://raw.githubusercontent.com/forkercat/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_SSAO_2.jpg)
 
@@ -168,7 +168,6 @@ Backpack [Berk Gedik]
 African Head [Vidar Rapp]
 
 <img src="https://raw.githubusercontent.com/forkercat/StorageBaseWithoutCatNotice/main/ForkerRendererPic/ForkerRenderer_Gallery_4.jpg" width="400">
-
 
 ## 📁 Structure
 
@@ -223,10 +222,10 @@ $ ./ForkerRenderer scenes/test.scene
 [info] Output TGA File: 'output/zbuffer.tga'
 ```
 
-## 📚 Reference
+## 📚 References
 
-Started by following the basic workflow in _ssloy/TinyRenderer_, improved code style (e.g. `geometry.h`) when referring
-to other great resources such as _mmp/pbrt-v3 & v4_, and resolved tons of issues with the help of the Internet. Thank those authors and creators who wrote the articles and built the models!
+Started by following the basic workflow in [_ssloy/TinyRenderer_](https://github.com/ssloy/tinyrenderer), improved code style (e.g. `geometry.h`) when referring
+to other great resources such as [_mmp/pbrt-v3 & v4_](https://github.com/mmp/), and resolved tons of issues with the help of the Internet. Thank those authors and creators who wrote the articles and built the models!
 
 Rendering:
 
